@@ -2,7 +2,7 @@
    ADMIN LOGIN SCREEN
    ============================================ */
 .admin-body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--admin-grad-start) 0%, var(--admin-grad-end) 100%);
     min-height: 100vh;
 }
 
@@ -15,7 +15,7 @@
 }
 
 .login-container {
-    background: var(--white);
+    background: var(--surface);
     border-radius: var(--radius-xl);
     padding: var(--spacing-xl);
     box-shadow: var(--shadow-xl);
@@ -40,6 +40,13 @@
     margin-bottom: var(--spacing-lg);
 }
 
+.login-illustration {
+    width: min(360px, 100%);
+    margin: var(--spacing-md) auto 0;
+    display: block;
+    opacity: 0.98;
+}
+
 .login-header i {
     font-size: 4rem;
     color: var(--primary);
@@ -48,7 +55,7 @@
 
 .login-header h1 {
     font-size: 2rem;
-    color: var(--dark);
+    color: var(--text);
     margin-bottom: var(--spacing-xs);
 }
 
@@ -226,7 +233,7 @@
 }
 
 .admin-header {
-    background: var(--white);
+    background: var(--surface);
     padding: var(--spacing-lg);
     box-shadow: var(--shadow-sm);
     display: flex;
@@ -239,7 +246,7 @@
 
 .admin-header h1 {
     font-size: 1.75rem;
-    color: var(--dark);
+    color: var(--text);
 }
 
 .btn-view-site {
@@ -274,7 +281,7 @@
 }
 
 .stat-card {
-    background: var(--white);
+    background: var(--surface);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
     box-shadow: var(--shadow-sm);
@@ -319,7 +326,7 @@
 .stat-details h3 {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--dark);
+    color: var(--text);
     margin-bottom: 4px;
 }
 
@@ -332,7 +339,7 @@
    DATA TABLE
    ============================================ */
 .table-card {
-    background: var(--white);
+    background: var(--surface);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
@@ -348,7 +355,7 @@
 
 .table-header h3 {
     font-size: 1.25rem;
-    color: var(--dark);
+    color: var(--text);
 }
 
 .btn-add {
@@ -487,7 +494,7 @@
 }
 
 .modal-content {
-    background: var(--white);
+    background: var(--surface);
     border-radius: var(--radius-xl);
     width: 90%;
     max-width: 600px;
@@ -518,7 +525,7 @@
 
 .modal-header h3 {
     font-size: 1.5rem;
-    color: var(--dark);
+    color: var(--text);
 }
 
 .modal-close {

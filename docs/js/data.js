@@ -18,6 +18,148 @@ const DataManager = {
         if (!localStorage.getItem(this.KEYS.CATEGORIES)) {
             this.seedData();
         }
+
+        // Keep older localStorage data compatible with new UI features.
+        this.migrateData();
+    },
+
+    // Migrate persisted data to newer formats
+    migrateData() {
+        this.migrateProductImagesToInternetUrls();
+        this.migrateCategoryImagesToInternetUrls();
+        this.migrateBannerImagesToArray();
+    },
+
+    buildInternetProductImageUrl(product) {
+        const seedSource = (product?.slug || product?.sku || product?.name || String(product?.id || '')).trim();
+        const seed = seedSource ? encodeURIComponent(seedSource) : String(Date.now());
+
+        // Deterministic internet image (stable per seed). Uses an external placeholder-photo service.
+        return `https://picsum.photos/seed/${seed}/900/900`;
+    },
+
+    buildInternetCategoryImageUrl(category) {
+        const seedSource = (category?.slug || category?.name || String(category?.id || '')).trim();
+        const seed = seedSource ? encodeURIComponent(`category-${seedSource}`) : String(Date.now());
+
+        // Wide-ish placeholder photo, stable per category.
+        return `https://picsum.photos/seed/${seed}/900/675`;
+    },
+
+    migrateProductImagesToInternetUrls() {
+        const products = this.getAll(this.KEYS.PRODUCTS);
+        if (!Array.isArray(products) || products.length === 0) return;
+
+        let changed = false;
+
+        const updated = products.map((product) => {
+            const existingImages = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
+            const firstImage = existingImages[0] || '';
+            const firstIsInternet = typeof firstImage === 'string' && /^https?:\/\//i.test(firstImage);
+
+            if (firstIsInternet) return product;
+
+            const internetUrl = this.buildInternetProductImageUrl(product);
+            changed = true;
+            return {
+                ...product,
+                images: [internetUrl, ...existingImages]
+            };
+        });
+
+        if (changed) {
+            this.save(this.KEYS.PRODUCTS, updated);
+        }
+    },
+
+    migrateCategoryImagesToInternetUrls() {
+        const categories = this.getAll(this.KEYS.CATEGORIES);
+        if (!Array.isArray(categories) || categories.length === 0) return;
+
+        let changed = false;
+
+        const updated = categories.map((category) => {
+            const current = category?.image || '';
+            const isInternet = typeof current === 'string' && /^https?:\/\//i.test(current);
+            if (isInternet) return category;
+
+            const internetUrl = this.buildInternetCategoryImageUrl(category);
+            changed = true;
+            return {
+                ...category,
+                image: internetUrl
+            };
+        });
+
+        if (changed) {
+            this.save(this.KEYS.CATEGORIES, updated);
+        }
+    },
+
+    migrateBannerImagesToArray() {
+        const banners = this.getAll(this.KEYS.BANNERS);
+        if (!Array.isArray(banners) || banners.length === 0) return;
+
+        let changed = false;
+
+        const updated = banners.map((banner) => {
+            const existingImages = Array.isArray(banner?.images) ? banner.images.filter(Boolean) : [];
+            const legacyImage = banner?.imageUrl ? [banner.imageUrl] : [];
+
+            // If already has an images array and a valid imageUrl, keep.
+            const baseImages = existingImages.length > 0 ? existingImages : legacyImage;
+
+            // Build fallback images for the banner slider.
+            const seedSource = (banner?.id ? String(banner.id) : '') || (banner?.title || '').trim() || (banner?.placement || '');
+            const seed = encodeURIComponent(seedSource);
+            const ensureThreeImages = (images) => {
+                const unique = new Set(images);
+                const out = [...unique];
+                // Only force 3 images for HomeHero banners (banner slider)
+                if ((banner?.placement || '') !== 'HomeHero') return out;
+
+                for (let i = out.length; i < 3; i++) {
+                    out.push(`https://picsum.photos/seed/banner-${seed}-${i + 1}/1200/400`);
+                }
+                return out;
+            };
+
+            const images = ensureThreeImages(baseImages);
+            if (images.length === 0) {
+                // No legacy image exists, generate for HomeHero.
+                if ((banner?.placement || '') === 'HomeHero') {
+                    const generated = ensureThreeImages([]);
+                    changed = true;
+                    return {
+                        ...banner,
+                        images: generated,
+                        imageUrl: generated[0]
+                    };
+                }
+
+                return banner;
+            }
+
+            const nextImageUrl = banner?.imageUrl || images[0];
+            const needsChange =
+                !Array.isArray(banner?.images) ||
+                banner.images.length !== images.length ||
+                images.some((img, idx) => banner.images?.[idx] !== img) ||
+                banner?.imageUrl !== nextImageUrl;
+
+            if (!needsChange) return banner;
+
+            changed = true;
+            return {
+                ...banner,
+                images,
+                imageUrl: nextImageUrl
+            };
+        });
+
+        if (changed) {
+            this.save(this.KEYS.BANNERS, updated);
+        }
     },
 
     // Seed Initial Data
@@ -34,7 +176,7 @@ const DataManager = {
                 id: 1,
                 name: 'خضروات طازجة',
                 slug: 'vegetables',
-                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23a8e6c1" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="48" fill="%232ecc71"%3E🥗%3C/text%3E%3C/svg%3E',
+                image: 'https://picsum.photos/seed/category-vegetables/900/675',
                 isActive: true,
                 displayOrder: 1
             },
@@ -42,7 +184,7 @@ const DataManager = {
                 id: 2,
                 name: 'فواكه',
                 slug: 'fruits',
-                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ffeaa7" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="48" fill="%23fdcb6e"%3E🍎%3C/text%3E%3C/svg%3E',
+                image: 'https://picsum.photos/seed/category-fruits/900/675',
                 isActive: true,
                 displayOrder: 2
             },
@@ -50,7 +192,7 @@ const DataManager = {
                 id: 3,
                 name: 'منتجات الألبان',
                 slug: 'dairy',
-                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23dfe6e9" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="48" fill="%23636e72"%3E🥛%3C/text%3E%3C/svg%3E',
+                image: 'https://picsum.photos/seed/category-dairy/900/675',
                 isActive: true,
                 displayOrder: 3
             },
@@ -58,7 +200,7 @@ const DataManager = {
                 id: 4,
                 name: 'مشروبات',
                 slug: 'beverages',
-                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23a29bfe" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="48" fill="%236c5ce7"%3E🥤%3C/text%3E%3C/svg%3E',
+                image: 'https://picsum.photos/seed/category-beverages/900/675',
                 isActive: true,
                 displayOrder: 4
             },
@@ -66,7 +208,7 @@ const DataManager = {
                 id: 5,
                 name: 'معلبات',
                 slug: 'canned',
-                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23fab1a0" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="48" fill="%23e17055"%3E🥫%3C/text%3E%3C/svg%3E',
+                image: 'https://picsum.photos/seed/category-canned/900/675',
                 isActive: true,
                 displayOrder: 5
             }
@@ -97,6 +239,7 @@ const DataManager = {
                 isActive: true,
                 isFeatured: true,
                 images: [
+                    'https://picsum.photos/seed/fresh-tomatoes/900/900',
                     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23ff6b6b" width="400" height="400"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="64" fill="white"%3E🍅%3C/text%3E%3C/svg%3E'
                 ],
                 createdAt: new Date().toISOString()
@@ -115,6 +258,7 @@ const DataManager = {
                 isActive: true,
                 isFeatured: false,
                 images: [
+                    'https://picsum.photos/seed/organic-cucumber/900/900',
                     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%232ecc71" width="400" height="400"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="64" fill="white"%3E🥒%3C/text%3E%3C/svg%3E'
                 ],
                 createdAt: new Date().toISOString()
@@ -133,6 +277,7 @@ const DataManager = {
                 isActive: true,
                 isFeatured: true,
                 images: [
+                    'https://picsum.photos/seed/red-apple/900/900',
                     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23e74c3c" width="400" height="400"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="64" fill="white"%3E🍎%3C/text%3E%3C/svg%3E'
                 ],
                 createdAt: new Date().toISOString()
@@ -151,6 +296,7 @@ const DataManager = {
                 isActive: true,
                 isFeatured: true,
                 images: [
+                    'https://picsum.photos/seed/banana/900/900',
                     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23f1c40f" width="400" height="400"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="64" fill="white"%3E🍌%3C/text%3E%3C/svg%3E'
                 ],
                 createdAt: new Date().toISOString()
@@ -169,6 +315,7 @@ const DataManager = {
                 isActive: true,
                 isFeatured: false,
                 images: [
+                    'https://picsum.photos/seed/whole-milk/900/900',
                     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23ecf0f1" width="400" height="400"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="64" fill="%233498db"%3E🥛%3C/text%3E%3C/svg%3E'
                 ],
                 createdAt: new Date().toISOString()
@@ -187,6 +334,7 @@ const DataManager = {
                 isActive: true,
                 isFeatured: false,
                 images: [
+                    'https://picsum.photos/seed/cheddar-cheese/900/900',
                     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23f39c12" width="400" height="400"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="64" fill="white"%3E🧀%3C/text%3E%3C/svg%3E'
                 ],
                 createdAt: new Date().toISOString()
@@ -205,6 +353,7 @@ const DataManager = {
                 isActive: true,
                 isFeatured: true,
                 images: [
+                    'https://picsum.photos/seed/orange-juice/900/900',
                     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23e67e22" width="400" height="400"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="64" fill="white"%3E🍊%3C/text%3E%3C/svg%3E'
                 ],
                 createdAt: new Date().toISOString()
@@ -223,6 +372,7 @@ const DataManager = {
                 isActive: true,
                 isFeatured: false,
                 images: [
+                    'https://picsum.photos/seed/mineral-water/900/900',
                     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%233498db" width="400" height="400"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="64" fill="white"%3E💧%3C/text%3E%3C/svg%3E'
                 ],
                 createdAt: new Date().toISOString()
@@ -235,7 +385,12 @@ const DataManager = {
             {
                 id: 1,
                 title: 'عروض الأسبوع',
-                imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="400"%3E%3Cdefs%3E%3ClinearGradient id="grad1" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" style="stop-color:%232ecc71;stop-opacity:1" /%3E%3Cstop offset="100%25" style="stop-color:%2327ae60;stop-opacity:1" /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill="url(%23grad1)" width="1200" height="400"/%3E%3Ctext x="50%25" y="40%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="72" font-weight="bold" fill="white"%3Eعروض الأسبوع%3C/text%3E%3Ctext x="50%25" y="60%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="36" fill="white"%3Eخصومات تصل إلى 30%25%3C/text%3E%3C/svg%3E',
+                images: [
+                    'https://picsum.photos/seed/banner-weekly-1/1200/400',
+                    'https://picsum.photos/seed/banner-weekly-2/1200/400',
+                    'https://picsum.photos/seed/banner-weekly-3/1200/400'
+                ],
+                imageUrl: 'https://picsum.photos/seed/banner-weekly-1/1200/400',
                 linkUrl: '#products',
                 placement: 'HomeHero',
                 startDate: new Date().toISOString(),
@@ -246,7 +401,12 @@ const DataManager = {
             {
                 id: 2,
                 title: 'منتجات طازجة يومياً',
-                imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="400"%3E%3Cdefs%3E%3ClinearGradient id="grad2" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" style="stop-color:%23ff6b35;stop-opacity:1" /%3E%3Cstop offset="100%25" style="stop-color:%23e65525;stop-opacity:1" /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill="url(%23grad2)" width="1200" height="400"/%3E%3Ctext x="50%25" y="40%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="72" font-weight="bold" fill="white"%3Eطازج يومياً%3C/text%3E%3Ctext x="50%25" y="60%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="36" fill="white"%3Eأفضل المنتجات الطازجة%3C/text%3E%3C/svg%3E',
+                images: [
+                    'https://picsum.photos/seed/banner-fresh-1/1200/400',
+                    'https://picsum.photos/seed/banner-fresh-2/1200/400',
+                    'https://picsum.photos/seed/banner-fresh-3/1200/400'
+                ],
+                imageUrl: 'https://picsum.photos/seed/banner-fresh-1/1200/400',
                 linkUrl: '#categories',
                 placement: 'HomeHero',
                 startDate: new Date().toISOString(),

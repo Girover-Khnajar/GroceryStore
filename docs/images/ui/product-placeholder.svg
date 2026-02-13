@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="900" height="900" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="820" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6"/>
+      <stop offset="0.55" stop-color="#EC4899"/>
+      <stop offset="1" stop-color="#22C55E"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="900" height="900" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#0B1220" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <rect x="60" y="60" width="780" height="780" rx="56" fill="url(#bg)" filter="url(#shadow)"/>
+  <rect x="84" y="84" width="732" height="732" rx="48" fill="white" fill-opacity="0.12" stroke="white" stroke-opacity="0.28" stroke-width="2"/>
+
+  <g opacity="0.95">
+    <path d="M316 354H620L584 528C576.7 563.3 545.6 588 509.6 588H382.4C346.4 588 315.3 563.3 308 528L268 336H220" stroke="white" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M416 656C416 676.9 399.1 694 378 694C356.9 694 340 676.9 340 656C340 635.1 356.9 618 378 618C399.1 618 416 635.1 416 656Z" fill="white"/>
+    <path d="M584 656C584 676.9 567.1 694 546 694C524.9 694 508 676.9 508 656C508 635.1 524.9 618 546 618C567.1 618 584 635.1 584 656Z" fill="white"/>
+  </g>
+
+  <text x="50%" y="52%" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="white" fill-opacity="0.92">Grocery</text>
+  <text x="50%" y="58%" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="26" fill="white" fill-opacity="0.85">Image not available</text>
+</svg>

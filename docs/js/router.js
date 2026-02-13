@@ -24,11 +24,23 @@ const Router = {
         
         this.currentRoute = route;
         this.updateNavigation();
+
+        // Stop home banner slider when leaving home
+        if (route !== 'home' && window.App?.stopBannerSlider) {
+            window.App.stopBannerSlider();
+        }
         
         if (this.routes[route]) {
             this.routes[route](...params);
         } else {
             this.routes['home']();
+        }
+
+        // Refresh AOS after dynamic renders
+        if (window.UI?.refreshAOS) {
+            window.UI.refreshAOS();
+        } else if (window.AOS?.refreshHard) {
+            window.AOS.refreshHard();
         }
 
         // Scroll to top

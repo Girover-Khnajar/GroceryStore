@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم | Admin Dashboard</title>
+    <meta name="theme-color" content="#f8f9fa">
+
+    <script>
+        (() => {
+            try {
+                const saved = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = (saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light');
+                document.documentElement.dataset.theme = theme;
+                document.documentElement.style.colorScheme = theme;
+            } catch {
+                // ignore
+            }
+        })();
+    </script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +27,9 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- AOS (Animate On Scroll) -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
     
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
@@ -26,6 +44,7 @@
                 <i class="fas fa-shopping-basket"></i>
                 <h1>لوحة التحكم</h1>
                 <p>Admin Dashboard</p>
+                <img class="login-illustration" src="images/ui/admin-login.svg" alt="" loading="lazy">
             </div>
             
             <form id="loginForm" class="login-form">
@@ -108,6 +127,10 @@
             <div class="admin-header">
                 <h1 id="pageTitle">الإحصائيات</h1>
                 <div class="admin-actions">
+                        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" aria-pressed="false">
+                            <i class="fas fa-moon"></i>
+                            <i class="fas fa-sun"></i>
+                        </button>
                     <a href="index.html" class="btn-view-site" target="_blank">
                         <i class="fas fa-external-link-alt"></i>
                         عرض الموقع
@@ -143,6 +166,8 @@
     </div>
 
     <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/data.js"></script>
     <script src="js/admin.js"></script>
     

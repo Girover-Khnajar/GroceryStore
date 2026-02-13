@@ -125,6 +125,8 @@ const Admin = {
                 this.renderSettings(adminContent);
                 break;
         }
+
+        window.UI?.refreshAOS?.();
     },
 
     // Render Dashboard
@@ -136,7 +138,7 @@ const Admin = {
 
         container.innerHTML = `
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="0">
                     <div class="stat-icon products">
                         <i class="fas fa-box-open"></i>
                     </div>
@@ -145,7 +147,7 @@ const Admin = {
                         <p>المنتجات</p>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="80">
                     <div class="stat-icon categories">
                         <i class="fas fa-th-large"></i>
                     </div>
@@ -154,7 +156,7 @@ const Admin = {
                         <p>الأقسام</p>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="160">
                     <div class="stat-icon brands">
                         <i class="fas fa-tag"></i>
                     </div>
@@ -163,7 +165,7 @@ const Admin = {
                         <p>الماركات</p>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="240">
                     <div class="stat-icon banners">
                         <i class="fas fa-images"></i>
                     </div>
@@ -174,7 +176,7 @@ const Admin = {
                 </div>
             </div>
 
-            <div class="table-card" style="margin-top:2rem;">
+            <div class="table-card" data-aos="fade-up" style="margin-top:2rem;">
                 <div class="table-header">
                     <h3>آخر المنتجات المضافة</h3>
                 </div>
@@ -194,7 +196,7 @@ const Admin = {
                                 const cat = DataManager.getCategoryById(p.categoryId);
                                 return `
                                     <tr>
-                                        <td><img src="${p.images[0]}" class="table-image" alt="${p.name}"></td>
+                                        <td><img src="${p.images?.[0] || 'images/ui/product-placeholder.svg'}" class="table-image" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/product-placeholder.svg';"></td>
                                         <td>${p.name}</td>
                                         <td>${cat?.name || '-'}</td>
                                         <td>${p.price} ${p.currency}/${p.unit}</td>
@@ -239,7 +241,7 @@ const Admin = {
                                 const cat = DataManager.getCategoryById(p.categoryId);
                                 return `
                                     <tr>
-                                        <td><img src="${p.images[0]}" class="table-image" alt="${p.name}"></td>
+                                        <td><img src="${p.images?.[0] || 'images/ui/product-placeholder.svg'}" class="table-image" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/product-placeholder.svg';"></td>
                                         <td>${p.name}</td>
                                         <td>${cat?.name || '-'}</td>
                                         <td>${p.price} ${p.currency}/${p.unit}</td>
@@ -290,7 +292,7 @@ const Admin = {
                         <tbody>
                             ${categories.map(c => `
                                 <tr>
-                                    <td><img src="${c.image}" class="table-image" alt="${c.name}"></td>
+                                    <td><img src="${c.image || 'images/ui/category-placeholder.svg'}" class="table-image" alt="${c.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/category-placeholder.svg';"></td>
                                     <td>${c.name}</td>
                                     <td><span class="badge ${c.isActive ? 'badge-success' : 'badge-danger'}">${c.isActive ? 'نشط' : 'غير نشط'}</span></td>
                                     <td>
@@ -385,7 +387,7 @@ const Admin = {
                         <tbody>
                             ${banners.map(b => `
                                 <tr>
-                                    <td><img src="${b.imageUrl}" class="table-image" alt="${b.title}"></td>
+                                    <td><img src="${(b.images && b.images[0]) || b.imageUrl || 'images/ui/banner-placeholder.svg'}" class="table-image" alt="${b.title}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/banner-placeholder.svg';"></td>
                                     <td>${b.title}</td>
                                     <td>${b.placement}</td>
                                     <td><span class="badge ${b.isActive ? 'badge-success' : 'badge-danger'}">${b.isActive ? 'نشط' : 'غير نشط'}</span></td>
@@ -764,6 +766,10 @@ const Admin = {
         
         modalTitle.textContent = isEdit ? 'تعديل البانر' : 'إضافة بانر جديد';
 
+        const bannerImagesValue = Array.isArray(banner?.images) && banner.images.length > 0
+            ? banner.images.join('\n')
+            : (banner?.imageUrl || '');
+
         modalBody.innerHTML = `
             <form id="bannerForm" class="modal-form">
                 <div class="form-group">
@@ -771,8 +777,8 @@ const Admin = {
                     <input type="text" name="title" value="${banner?.title || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label>رابط الصورة (Base64 أو URL)</label>
-                    <input type="text" name="imageUrl" value="${banner?.imageUrl || ''}" required>
+                    <label>روابط الصور (URL) — كل رابط بسطر</label>
+                    <textarea name="images" rows="4" required placeholder="https://...\nhttps://...">${bannerImagesValue}</textarea>
                 </div>
                 <div class="form-group">
                     <label>رابط التوجيه (اختياري)</label>
@@ -811,9 +817,17 @@ const Admin = {
 
     saveBanner(form, isEdit, existingBanner) {
         const formData = new FormData(form);
+
+        const imagesRaw = (formData.get('images') || '').toString();
+        const images = imagesRaw
+            .split(/\r?\n/)
+            .map(s => s.trim())
+            .filter(Boolean);
+
         const banner = {
             title: formData.get('title'),
-            imageUrl: formData.get('imageUrl'),
+            images,
+            imageUrl: images[0] || 'images/ui/banner-placeholder.svg',
             linkUrl: formData.get('linkUrl'),
             placement: formData.get('placement'),
             isActive: formData.get('isActive') === 'on',

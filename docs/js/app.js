@@ -13,6 +13,8 @@ const App = {
         sortBy: 'newest'
     },
 
+    _bannerSliderTimerId: null,
+
     // Initialize App
     init() {
         this.setupRouter();
@@ -102,7 +104,7 @@ const App = {
             categories.forEach(cat => {
                 html += `
                     <div class="search-result-item" onclick="Router.navigate('category/${cat.slug}')">
-                        <img src="${cat.image}" alt="${cat.name}">
+                        <img src="${cat.image || 'images/ui/category-placeholder.svg'}" alt="${cat.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/category-placeholder.svg';">
                         <div class="search-result-info">
                             <h4>${cat.name}</h4>
                             <p>قسم</p>
@@ -118,7 +120,7 @@ const App = {
                 const category = DataManager.getCategoryById(product.categoryId);
                 html += `
                     <div class="search-result-item" onclick="Router.navigate('product/${product.slug}')">
-                        <img src="${product.images[0]}" alt="${product.name}">
+                            <img src="${product.images?.[0] || 'images/ui/product-placeholder.svg'}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/product-placeholder.svg';">
                         <div class="search-result-info">
                             <h4>${product.name}</h4>
                             <p>${category?.name || ''} • ${product.price} ${product.currency}/${product.unit}</p>
@@ -129,7 +131,7 @@ const App = {
         }
 
         if (categories.length === 0 && products.length === 0) {
-            html = '<div class="empty-state"><i class="fas fa-search"></i><h3>لا توجد نتائج</h3><p>حاول البحث بكلمات أخرى</p></div>';
+            html = '<div class="empty-state"><img class="empty-state-img" src="images/ui/empty-search.svg" alt="" loading="lazy"><h3>لا توجد نتائج</h3><p>حاول البحث بكلمات أخرى</p></div>';
         }
 
         searchResults.innerHTML = html;
@@ -142,12 +144,53 @@ const App = {
         const categories = DataManager.getCategories().slice(0, 5);
         const featuredProducts = DataManager.getFeaturedProducts();
 
+        const homeBanners = banners.filter(b => b.placement === 'HomeHero');
+
+        const homeBannerSlides = homeBanners.flatMap((b) => {
+            const images = Array.isArray(b?.images) && b.images.length > 0 ? b.images : [b.imageUrl].filter(Boolean);
+            const routePath = (b.linkUrl || '').startsWith('#') ? (b.linkUrl || '').slice(1) : (b.linkUrl || '');
+            return images.map((img) => ({
+                title: b.title,
+                imageUrl: img,
+                routePath
+            }));
+        });
+
         app.innerHTML = `
+            ${homeBannerSlides.length > 0 ? `
+                <!-- Banner Slider -->
+                <section class="section banner-section">
+                    <div class="container">
+                        <div class="banner-slider" id="bannerSlider" data-aos="fade-up">
+                            ${homeBannerSlides.map((b, i) => {
+                                const hasRoute = Boolean(b.routePath);
+                                return `
+                                    <div class="banner-slide ${i === 0 ? 'active' : ''}" data-link="${b.routePath}">
+                                        <img src="${b.imageUrl || 'images/ui/banner-placeholder.svg'}" alt="${b.title}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/banner-placeholder.svg';">
+                                        <div class="banner-overlay">
+                                            <div class="banner-content">
+                                                <h2>${b.title}</h2>
+                                                ${hasRoute ? `
+                                                    <button class="btn btn-outline" onclick="Router.navigate('${b.routePath}')">
+                                                        اكتشف الآن
+                                                        <i class=\"fas fa-arrow-left\"></i>
+                                                    </button>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </section>
+            ` : ''}
+
             <!-- Hero Section -->
             <section class="hero">
                 <div class="container">
                     <div class="hero-content">
-                        <div class="hero-text">
+                        <div class="hero-text" data-aos="fade-up">
                             <h1>مرحباً بك في متجر البقالة</h1>
                             <p>أفضل المنتجات الطازجة والعروض الحصرية بين يديك</p>
                             <div class="hero-actions">
@@ -161,8 +204,8 @@ const App = {
                                 </button>
                             </div>
                         </div>
-                        <div class="hero-image">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Crect fill='%23ffffff' width='600' height='600' rx='20'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='200' fill='%232ecc71'%3E🛒%3C/text%3E%3C/svg%3E" alt="Shopping">
+                        <div class="hero-image" data-aos="fade-up" data-aos-delay="120">
+                            <img src="images/ui/hero-groceries.svg" alt="Grocery Store" loading="lazy">
                         </div>
                     </div>
                 </div>
@@ -173,10 +216,10 @@ const App = {
                 <div class="container">
                     <h2 class="section-title">الأقسام المميزة</h2>
                     <div class="categories-grid">
-                        ${categories.map(cat => `
-                            <div class="category-card" onclick="Router.navigate('category/${cat.slug}')">
+                        ${categories.map((cat, i) => `
+                            <div class="category-card" data-aos="zoom-in" data-aos-delay="${i * 70}" onclick="Router.navigate('category/${cat.slug}')">
                                 <div class="category-image">
-                                    <img src="${cat.image}" alt="${cat.name}">
+                                    <img src="${cat.image || 'images/ui/category-placeholder.svg'}" alt="${cat.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/category-placeholder.svg';">
                                 </div>
                                 <div class="category-info">
                                     <h3>${cat.name}</h3>
@@ -195,7 +238,7 @@ const App = {
             </section>
 
             <!-- Featured Products -->
-            <section class="section" style="background:white;">
+            <section class="section" style="background: var(--white);">
                 <div class="container">
                     <h2 class="section-title">المنتجات المميزة</h2>
                     <div class="products-grid">
@@ -212,8 +255,37 @@ const App = {
         `;
 
         // Auto-rotate banners if exists
-        if (banners.length > 1) {
+        if (homeBannerSlides.length > 1) {
             this.startBannerSlider();
+        }
+    },
+
+    startBannerSlider() {
+        const slider = document.getElementById('bannerSlider');
+        if (!slider) return;
+
+        const slides = Array.from(slider.querySelectorAll('.banner-slide'));
+        if (slides.length <= 1) return;
+
+        if (this._bannerSliderTimerId) {
+            clearInterval(this._bannerSliderTimerId);
+            this._bannerSliderTimerId = null;
+        }
+
+        let index = slides.findIndex(s => s.classList.contains('active'));
+        if (index < 0) index = 0;
+
+        this._bannerSliderTimerId = setInterval(() => {
+            slides[index]?.classList.remove('active');
+            index = (index + 1) % slides.length;
+            slides[index]?.classList.add('active');
+        }, 5000);
+    },
+
+    stopBannerSlider() {
+        if (this._bannerSliderTimerId) {
+            clearInterval(this._bannerSliderTimerId);
+            this._bannerSliderTimerId = null;
         }
     },
 
@@ -227,12 +299,12 @@ const App = {
                 <div class="container">
                     <h1 class="section-title">جميع الأقسام</h1>
                     <div class="categories-grid">
-                        ${categories.map(cat => {
+                        ${categories.map((cat, i) => {
                             const productCount = DataManager.getProductsByCategory(cat.id).length;
                             return `
-                                <div class="category-card" onclick="Router.navigate('category/${cat.slug}')">
+                                <div class="category-card" data-aos="fade-up" data-aos-delay="${(i % 12) * 50}" onclick="Router.navigate('category/${cat.slug}')">
                                     <div class="category-image">
-                                        <img src="${cat.image}" alt="${cat.name}">
+                                        <img src="${cat.image || 'images/ui/category-placeholder.svg'}" alt="${cat.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/category-placeholder.svg';">
                                     </div>
                                     <div class="category-info">
                                         <h3>${cat.name}</h3>
@@ -254,7 +326,7 @@ const App = {
         const category = categories.find(c => c.slug === slug);
         
         if (!category) {
-            app.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>القسم غير موجود</h3></div>';
+            app.innerHTML = '<div class="empty-state"><img class="empty-state-img" src="images/ui/empty-box.svg" alt="" loading="lazy"><h3>القسم غير موجود</h3></div>';
             return;
         }
 
@@ -276,7 +348,7 @@ const App = {
                         </div>
                     ` : `
                         <div class="empty-state">
-                            <i class="fas fa-box-open"></i>
+                            <img class="empty-state-img" src="images/ui/empty-box.svg" alt="" loading="lazy">
                             <h3>لا توجد منتجات في هذا القسم</h3>
                             <p>سيتم إضافة منتجات قريباً</p>
                         </div>
@@ -337,6 +409,8 @@ const App = {
         
         const productsGrid = document.getElementById('productsGrid');
         productsGrid.innerHTML = this.renderProductCards(products);
+
+        window.UI?.refreshAOS?.();
         
         // Update active filter button
         document.querySelectorAll('.filter-btn').forEach((btn, index) => {
@@ -348,15 +422,15 @@ const App = {
 
     // Render Product Cards
     renderProductCards(products) {
-        return products.map(product => {
+        return products.map((product, index) => {
             const category = DataManager.getCategoryById(product.categoryId);
             const settings = DataManager.getSettings();
             
             return `
-                <div class="product-card">
+                <div class="product-card" data-aos="fade-up" data-aos-delay="${(index % 12) * 45}">
                     ${product.isFeatured ? '<span class="product-badge">مميز</span>' : ''}
                     <div class="product-image" onclick="Router.navigate('product/${product.slug}')">
-                        <img src="${product.images[0]}" alt="${product.name}">
+                            <img src="${product.images?.[0] || 'images/ui/product-placeholder.svg'}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/product-placeholder.svg';">
                     </div>
                     <div class="product-info">
                         <div class="product-category">${category?.name || ''}</div>
@@ -387,7 +461,7 @@ const App = {
         const product = products.find(p => p.slug === slug);
         
         if (!product) {
-            app.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>المنتج غير موجود</h3></div>';
+            app.innerHTML = '<div class="empty-state"><img class="empty-state-img" src="images/ui/empty-box.svg" alt="" loading="lazy"><h3>المنتج غير موجود</h3></div>';
             return;
         }
 
@@ -405,13 +479,13 @@ const App = {
                     <div class="product-detail">
                         <div class="product-gallery">
                             <div class="main-image" id="mainImage">
-                                <img src="${product.images[0]}" alt="${product.name}">
+                                    <img src="${product.images?.[0] || 'images/ui/product-placeholder.svg'}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/product-placeholder.svg';">
                             </div>
                             ${product.images.length > 1 ? `
                                 <div class="thumbnail-images">
                                     ${product.images.map((img, i) => `
                                         <div class="thumbnail ${i === 0 ? 'active' : ''}" onclick="App.changeImage('${img}', this)">
-                                            <img src="${img}" alt="${product.name}">
+                                                <img src="${img}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='images/ui/product-placeholder.svg';">
                                         </div>
                                     `).join('')}
                                 </div>
