@@ -157,3 +157,5 @@ desktop.ini
 *.bak
 *.backup
 *.old
+**/bin/
+**/obj/
