@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "GroceryStore.Application/1.0.0": {
+        "dependencies": {
+          "GroceryStore.Domain": "1.0.0"
+        },
+        "runtime": {
+          "GroceryStore.Application.dll": {}
+        }
+      },
+      "GroceryStore.Domain/1.0.0": {
+        "runtime": {
+          "GroceryStore.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "GroceryStore.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "GroceryStore.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
