@@ -1,0 +1,27 @@
+name: Backend Libraries CI
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        required: false
+        type: string
+        default: "10.0.x"
+jobs:
+  build-CQRS:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/libs/CQRS
+    timeout-minutes: 5  
+    steps:
+      - uses: actions/checkout@v4  
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+            dotnet-version: ${{inputs.dotnet-version}}  
+      - name: Restore dependencies
+        run: dotnet restore tests/CQRS.Tests.csproj --verbosity normal  
+      - name: Build project
+        run: dotnet build tests/CQRS.Tests.csproj --no-restore --configuration Release  
+      - name: Run tests (CQRS.Tests)
+        run: dotnet test ./tests/CQRS.Tests.csproj --no-build --configuration Release --logger trx --verbosity normal

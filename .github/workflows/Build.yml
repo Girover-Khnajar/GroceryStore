@@ -1,0 +1,34 @@
+name: Gund CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  
+  backend-libraries:
+    name: 🧩 Backend Libraries Build & Test
+    uses: ./.github/workflows/backend-libs-ci.yml
+    with:
+      dotnet-version: "10.0.x"
+
+  backend:
+    name: 🔧 Backend Build & Test
+    uses: ./.github/workflows/backend-ci.yml
+    with:
+      dotnet-version: "10.0.x"
+
+  frontend:
+    name: 🌐 Frontend Build & Test
+    uses: ./.github/workflows/frontend-ci.yml
+
+  deploy:
+    name: 🚀 Deploy (placeholder)
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy logic goes here
+        run: echo "✅ Deployment stage placeholder"
