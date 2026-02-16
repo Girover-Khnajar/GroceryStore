@@ -14,10 +14,10 @@ jobs:
     strategy:
       matrix:
         project: [
-          Gund.Api.Tests, 
-          Gund.Application.Tests, 
-          Gund.Infrastructure.Tests, 
-          Gund.Domain.Tests
+          GroceryStore.Api.Tests, 
+          GroceryStore.Application.Tests, 
+          GroceryStore.Infrastructure.Tests, 
+          GroceryStore.Domain.Tests
         ]
     defaults:
       run:
