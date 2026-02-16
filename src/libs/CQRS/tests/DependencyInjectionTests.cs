@@ -2,6 +2,7 @@ using System.Reflection;
 using CQRS.Abstractions.Messaging;
 using CQRS.CqrsResult;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CQRS.Tests;
 
@@ -163,6 +164,7 @@ public class DependencyInjectionTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
         services.AddCqrs(options =>
         {
             options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
@@ -184,6 +186,7 @@ public class DependencyInjectionTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
         services.AddCqrs(options =>
         {
             options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
@@ -206,6 +209,7 @@ public class DependencyInjectionTests
     {
         // Arrange
         var services = new ServiceCollection();
+        services.AddLogging();
         services.AddCqrs(options =>
         {
             options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
