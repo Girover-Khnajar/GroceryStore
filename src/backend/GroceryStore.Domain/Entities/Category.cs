@@ -1,4 +1,5 @@
-﻿using GroceryStore.Domain.Common;
+using GroceryStore.Domain.Common;
+using GroceryStore.Domain.Exceptions;
 using GroceryStore.Domain.Common.DomainEvents;
 using GroceryStore.Domain.Interfaces;
 using GroceryStore.Domain.ValueObjects;
@@ -39,27 +40,45 @@ public sealed class Category : AuditableEntity, IAggregateRoot
         string? iconName = null,
         SeoMeta? seo = null)
     {
+        ValidationException.ThrowIfNullOrWhiteSpace(name);
+
+        ValidationException.ThrowIfTooLong(name, maxLen: 120);
+        ValidationException.ThrowIfOutOfRange(sortOrder, 0, 10_000);
+        if (!string.IsNullOrWhiteSpace(description))
+            ValidationException.ThrowIfNullOrWhiteSpace(description);
+
+            ValidationException.ThrowIfTooLong(description, maxLen: 2000);
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+            ValidationException.ThrowIfNullOrWhiteSpace(imageUrl);
+
+            ValidationException.ThrowIfTooLong(imageUrl, maxLen: 500);
+        if (!string.IsNullOrWhiteSpace(iconName))
+            ValidationException.ThrowIfNullOrWhiteSpace(iconName);
+
+            ValidationException.ThrowIfTooLong(iconName, maxLen: 50);
+
         var category = new Category
         {
-            Name = Guard.NotEmpty(name,nameof(name),maxLen: 120),
+            Name = name.Trim(),
             Slug = Slug.Create(slug),
             SortOrder = sortOrder,
             ParentCategoryId = parentCategoryId,
-            Description = string.IsNullOrWhiteSpace(description) ? null : Guard.NotEmpty(description,nameof(description),maxLen: 2000),
-            ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : Guard.NotEmpty(imageUrl,nameof(imageUrl),maxLen: 500),
-            IconName = string.IsNullOrWhiteSpace(iconName) ? null : Guard.NotEmpty(iconName,nameof(iconName),maxLen: 50),
+            Description = description?.Trim(),
+            ImageUrl = imageUrl?.Trim(),
+            IconName = iconName?.Trim(),
             Seo = seo ?? SeoMeta.Create(null,null)
         };
-
-        Guard.InRange(sortOrder,nameof(sortOrder),0,10_000);
 
         return category;
     }
 
     public void Rename(string name)
     {
-        Name = Guard.NotEmpty(name,nameof(name),maxLen: 120);
-        Touch( );
+        ValidationException.ThrowIfNullOrWhiteSpace(name);
+
+        ValidationException.ThrowIfTooLong(name, maxLen: 120);
+        Name = name.Trim();
+        Touch();
     }
 
     public void ChangeSlug(string slug)
@@ -70,11 +89,13 @@ public sealed class Category : AuditableEntity, IAggregateRoot
 
     public void SetDescription(string? description)
     {
-        Description = string.IsNullOrWhiteSpace(description)
-            ? null
-            : Guard.NotEmpty(description,nameof(description),maxLen: 2000);
+        if (!string.IsNullOrWhiteSpace(description))
+            ValidationException.ThrowIfNullOrWhiteSpace(description);
 
-        Touch( );
+            ValidationException.ThrowIfTooLong(description, maxLen: 2000);
+
+        Description = description?.Trim();
+        Touch();
     }
 
     public void SetSeo(string? metaTitle,string? metaDescription)
@@ -85,20 +106,24 @@ public sealed class Category : AuditableEntity, IAggregateRoot
 
     public void SetImage(string? imageUrl)
     {
-        ImageUrl = string.IsNullOrWhiteSpace(imageUrl)
-            ? null
-            : Guard.NotEmpty(imageUrl,nameof(imageUrl),maxLen: 500);
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+            ValidationException.ThrowIfNullOrWhiteSpace(imageUrl);
 
-        Touch( );
+            ValidationException.ThrowIfTooLong(imageUrl, maxLen: 500);
+
+        ImageUrl = imageUrl?.Trim();
+        Touch();
     }
 
     public void SetIcon(string? iconName)
     {
-        IconName = string.IsNullOrWhiteSpace(iconName)
-            ? null
-            : Guard.NotEmpty(iconName,nameof(iconName),maxLen: 50);
+        if (!string.IsNullOrWhiteSpace(iconName))
+            ValidationException.ThrowIfNullOrWhiteSpace(iconName);
 
-        Touch( );
+            ValidationException.ThrowIfTooLong(iconName, maxLen: 50);
+
+        IconName = iconName?.Trim();
+        Touch();
     }
 
     public void SetParent(Guid? parentCategoryId)
@@ -109,7 +134,7 @@ public sealed class Category : AuditableEntity, IAggregateRoot
 
     public void Reorder(int sortOrder)
     {
-        Guard.InRange(sortOrder,nameof(sortOrder),0,10_000);
+        ValidationException.ThrowIfOutOfRange(sortOrder, 0, 10_000);
         SortOrder = sortOrder;
         Touch( );
     }

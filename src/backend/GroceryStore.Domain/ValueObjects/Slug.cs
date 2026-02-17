@@ -1,4 +1,3 @@
-﻿using GroceryStore.Domain.Common;
 using GroceryStore.Domain.Exceptions;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,7 +17,10 @@ public sealed record Slug
 
     public static Slug Create(string input)
     {
-        input = Guard.NotEmpty(input,nameof(input),maxLen: 120).ToLowerInvariant( );
+        ValidationException.ThrowIfNullOrWhiteSpace(input);
+
+        ValidationException.ThrowIfTooLong(input, maxLen: 120);
+        input = input.Trim().ToLowerInvariant();
 
         // Basic slugify:
         // - replace spaces/underscores with dash
