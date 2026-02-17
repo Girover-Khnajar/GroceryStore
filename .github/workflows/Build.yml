@@ -16,7 +16,7 @@ jobs:
 
   backend:
     name: 🔧 Backend Build & Test
-    needs: backend-libraries
+    needs: [backend-libraries]
     uses: ./.github/workflows/backend-ci.yml
     with:
       dotnet-version: "10.0.x"
