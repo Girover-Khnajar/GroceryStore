@@ -1,4 +1,4 @@
-name: Gund CI/CD
+name: GroceryStore CI/CD
 
 on:
   push:
