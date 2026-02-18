@@ -72,4 +72,10 @@ public sealed class ValidationException : DomainException
         if (obj is null)
             throw new ValidationException($"{paramName} is required.");
     }
+
+    public static void ThrowIfInvalid<T>(T value, Func<T, bool> predicate, string message)
+    {
+        if (!predicate(value))
+            throw new ValidationException(message);
+    }
 }

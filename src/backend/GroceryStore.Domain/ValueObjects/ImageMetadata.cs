@@ -46,20 +46,19 @@ public sealed record ImageMetadata
         ContentType = contentType.Trim();
 
         if (!AllowedContentTypes.Contains(ContentType))
-            throw new Exceptions.ValidationException(
+            throw new ValidationException(
                 $"ContentType '{contentType}' is not allowed. Allowed: {string.Join(", ", AllowedContentTypes)}.");
 
         if (fileSizeBytes <= 0)
-            throw new Exceptions.ValidationException("FileSizeBytes must be greater than zero.");
-
+            throw new ValidationException("FileSizeBytes must be greater than zero.");
         if (fileSizeBytes > MaxFileSizeBytes)
-            throw new Exceptions.ValidationException($"File size must not exceed {MaxFileSizeBytes / (1024 * 1024)} MB.");
+            throw new ValidationException($"File size must not exceed {MaxFileSizeBytes / (1024 * 1024)} MB.");
 
         if (widthPx.HasValue && widthPx.Value <= 0)
-            throw new Exceptions.ValidationException("WidthPx must be positive.");
+            throw new ValidationException("WidthPx must be positive.");
 
         if (heightPx.HasValue && heightPx.Value <= 0)
-            throw new Exceptions.ValidationException("HeightPx must be positive.");
+            throw new ValidationException("HeightPx must be positive.");
 
         FileSizeBytes = fileSizeBytes;
         WidthPx = widthPx;
