@@ -225,7 +225,7 @@ The following scripts are available in the project root for common development t
 Starts the backend API server.
 
 ```powershell
-.\run.ps1
+.\run
 ```
 
 The API will be available at `http://localhost:5050` with Scalar API docs at `/scalar/v1`.
@@ -238,10 +238,10 @@ Creates and applies EF Core migrations.
 
 ```powershell
 # Create a new migration and apply it
-.\db.ps1 -Name "MigrationName"
+.\db -Name "MigrationName"
 
 # Apply pending migrations only (no new migration)
-.\db.ps1
+.\db
 ```
 
 | Parameter | Alias | Description |
@@ -256,14 +256,14 @@ Builds the solution and runs test projects.
 
 ```powershell
 # Run all test projects
-.\test.ps1
+.\test
 
 # Run a specific test project by keyword
-.\test.ps1 domain
-.\test.ps1 application
-.\test.ps1 infrastructure
-.\test.ps1 api
-.\test.ps1 cqrs
+.\test domain               # or short name like dom
+.\test application      # or short name like app
+.\test infrastructure   # or short name like inf
+.\test api              
+.\test cqrs
 ```
 
 | Keyword | Test Project |
@@ -278,6 +278,9 @@ Builds the solution and runs test projects.
 
 **Juan Khanjar**
 - Email: jan4ma@gmail.com
+  
+**Majed Girover**
+- Email: girover.mhf@gmail.com
 
 ---
 
