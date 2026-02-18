@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GroceryStore.Domain\GroceryStore.Domain.csproj" />
+    <ProjectReference Include="..\..\libs\CQRS\src\CQRS.csproj" />
   </ItemGroup>
 
 </Project>
