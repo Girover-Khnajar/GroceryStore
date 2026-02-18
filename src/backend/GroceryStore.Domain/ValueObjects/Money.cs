@@ -1,4 +1,4 @@
-﻿using GroceryStore.Domain.Common;
+using GroceryStore.Domain.Exceptions;
 
 namespace GroceryStore.Domain.ValueObjects;
 
@@ -9,8 +9,11 @@ public sealed record Money
 
     private Money(decimal amount,string currency)
     {
-        Guard.NonNegative(amount,nameof(amount));
-        Currency = Guard.NotEmpty(currency,nameof(currency),maxLen: 3).ToUpperInvariant( );
+        ValidationException.ThrowIfNegative(amount);
+        ValidationException.ThrowIfNullOrWhiteSpace(currency);
+
+        ValidationException.ThrowIfTooLong(currency, maxLen: 3);
+        Currency = currency.Trim().ToUpperInvariant();
         Amount = decimal.Round(amount,2,MidpointRounding.AwayFromZero);
     }
 

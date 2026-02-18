@@ -1,4 +1,4 @@
-﻿using GroceryStore.Domain.Common;
+using GroceryStore.Domain.Exceptions;
 
 namespace GroceryStore.Domain.ValueObjects;
 
@@ -13,13 +13,17 @@ public sealed record SeoMeta
     private SeoMeta(string? metaTitle,string? metaDescription)
     {
         if (!string.IsNullOrWhiteSpace(metaTitle))
-            metaTitle = Guard.NotEmpty(metaTitle,nameof(metaTitle),maxLen: 60);
+            ValidationException.ThrowIfNullOrWhiteSpace(metaTitle);
+
+            ValidationException.ThrowIfTooLong(metaTitle, maxLen: 60);
 
         if (!string.IsNullOrWhiteSpace(metaDescription))
-            metaDescription = Guard.NotEmpty(metaDescription,nameof(metaDescription),maxLen: 160);
+            ValidationException.ThrowIfNullOrWhiteSpace(metaDescription);
 
-        MetaTitle = metaTitle;
-        MetaDescription = metaDescription;
+            ValidationException.ThrowIfTooLong(metaDescription, maxLen: 160);
+
+        MetaTitle = metaTitle?.Trim();
+        MetaDescription = metaDescription?.Trim();
     }
 
     public static SeoMeta Create(string? metaTitle,string? metaDescription)

@@ -1,5 +1,5 @@
-﻿using GroceryStore.Domain.Common;
 using GroceryStore.Domain.Common.DomainEvents;
+using GroceryStore.Domain.Entities.Catalog;
 using GroceryStore.Domain.Enums;
 using GroceryStore.Domain.Exceptions;
 using GroceryStore.Domain.Interfaces;
@@ -12,7 +12,7 @@ namespace GroceryStore.Domain.Entities;
 /// </summary>
 public sealed class Product : AuditableEntity, IAggregateRoot
 {
-    private readonly List<ProductImage> _images = new( );
+    private readonly List<ProductImageRef> _imageRefs = new( );
     private readonly List<string> _tags = new( );
     private readonly List<string> _allergens = new( );
 
@@ -39,8 +39,13 @@ public sealed class Product : AuditableEntity, IAggregateRoot
     public Slug Slug { get; private set; } = Slug.Create("default");
     public SeoMeta Seo { get; private set; } = SeoMeta.Create(null,null);
 
-    // Media
-    public IReadOnlyList<ProductImage> Images => _images;
+    // Media (cross-aggregate references to ImageAsset by ImageId)
+    public IReadOnlyCollection<ProductImageRef> ImageRefs => _imageRefs.AsReadOnly();
+
+    /// <summary>
+    /// Returns the primary image reference, or null if no images are attached.
+    /// </summary>
+    public ProductImageRef? PrimaryImageRef => _imageRefs.FirstOrDefault(r => r.IsPrimary);
 
     // Optional commerce-like fields (still useful for catalog)
     public string? Sku { get; private set; }
@@ -76,20 +81,31 @@ public sealed class Product : AuditableEntity, IAggregateRoot
         string? longDescription = null,
         SeoMeta? seo = null)
     {
-        Guard.NotNull(price,nameof(price));
-        Guard.InRange(sortOrder,nameof(sortOrder),0,10_000);
+        ValidationException.ThrowIfNull(price);
+        ValidationException.ThrowIfOutOfRange(sortOrder, 0, 10_000);
+        ValidationException.ThrowIfNullOrWhiteSpace(name);
+
+        ValidationException.ThrowIfTooLong(name, maxLen: 160);
+        if (!string.IsNullOrWhiteSpace(shortDescription))
+            ValidationException.ThrowIfNullOrWhiteSpace(shortDescription);
+
+            ValidationException.ThrowIfTooLong(shortDescription, maxLen: 300);
+        if (!string.IsNullOrWhiteSpace(longDescription))
+            ValidationException.ThrowIfNullOrWhiteSpace(longDescription);
+
+            ValidationException.ThrowIfTooLong(longDescription, maxLen: 5000);
 
         var product = new Product
         {
             CategoryId = categoryId,
-            Name = Guard.NotEmpty(name,nameof(name),maxLen: 160),
+            Name = name.Trim(),
             Slug = Slug.Create(slug),
             Price = price,
             Unit = unit,
             SortOrder = sortOrder,
             IsFeatured = isFeatured,
-            ShortDescription = string.IsNullOrWhiteSpace(shortDescription) ? null : Guard.NotEmpty(shortDescription,nameof(shortDescription),maxLen: 300),
-            LongDescription = string.IsNullOrWhiteSpace(longDescription) ? null : Guard.NotEmpty(longDescription,nameof(longDescription),maxLen: 5000),
+            ShortDescription = shortDescription?.Trim(),
+            LongDescription = longDescription?.Trim(),
             Seo = seo ?? SeoMeta.Create(null,null)
         };
 
@@ -110,8 +126,11 @@ public sealed class Product : AuditableEntity, IAggregateRoot
 
     public void Rename(string name)
     {
-        Name = Guard.NotEmpty(name,nameof(name),maxLen: 160);
-        Touch( );
+        ValidationException.ThrowIfNullOrWhiteSpace(name);
+
+        ValidationException.ThrowIfTooLong(name, maxLen: 160);
+        Name = name.Trim();
+        Touch();
     }
 
     public void ChangeSlug(string slug)
@@ -122,7 +141,7 @@ public sealed class Product : AuditableEntity, IAggregateRoot
 
     public void ChangePrice(Money price,ProductUnit unit)
     {
-        Guard.NotNull(price,nameof(price));
+        ValidationException.ThrowIfNull(price);
         Price = price;
         Unit = unit;
         Touch( );
@@ -130,15 +149,18 @@ public sealed class Product : AuditableEntity, IAggregateRoot
 
     public void SetDescriptions(string? shortDescription,string? longDescription)
     {
-        ShortDescription = string.IsNullOrWhiteSpace(shortDescription)
-            ? null
-            : Guard.NotEmpty(shortDescription,nameof(shortDescription),maxLen: 300);
+        if (!string.IsNullOrWhiteSpace(shortDescription))
+            ValidationException.ThrowIfNullOrWhiteSpace(shortDescription);
 
-        LongDescription = string.IsNullOrWhiteSpace(longDescription)
-            ? null
-            : Guard.NotEmpty(longDescription,nameof(longDescription),maxLen: 5000);
+            ValidationException.ThrowIfTooLong(shortDescription, maxLen: 300);
+        if (!string.IsNullOrWhiteSpace(longDescription))
+            ValidationException.ThrowIfNullOrWhiteSpace(longDescription);
 
-        Touch( );
+            ValidationException.ThrowIfTooLong(longDescription, maxLen: 5000);
+
+        ShortDescription = shortDescription?.Trim();
+        LongDescription = longDescription?.Trim();
+        Touch();
     }
 
     public void SetSeo(string? metaTitle,string? metaDescription)
@@ -149,7 +171,7 @@ public sealed class Product : AuditableEntity, IAggregateRoot
 
     public void Reorder(int sortOrder)
     {
-        Guard.InRange(sortOrder,nameof(sortOrder),0,10_000);
+        ValidationException.ThrowIfOutOfRange(sortOrder, 0, 10_000);
         SortOrder = sortOrder;
         Touch( );
     }
@@ -160,85 +182,104 @@ public sealed class Product : AuditableEntity, IAggregateRoot
     public void Activate() { IsActive = true; Touch( ); }
     public void Deactivate() { IsActive = false; Touch( ); }
 
-    // ---------------------------
-    // Media behavior (Images)
-    // ---------------------------
+    // ----------------------------------------------
+    // Media behavior (cross-aggregate ImageId refs)
+    // ----------------------------------------------
 
-    public void AddImage(string url,string? altText = null,bool isPrimary = false,int sortOrder = 0)
+    /// <summary>
+    /// Attach an existing ImageAsset (by ImageId) to this product.
+    /// The application layer must verify the ImageId exists before calling this.
+    /// </summary>
+    public void AttachImage(ImageId imageId, bool makePrimary = false, int sortOrder = 0, string? altText = null)
     {
-        var image = ProductImage.Create(url,altText,isPrimary,sortOrder);
+        ValidationException.ThrowIfNull(imageId);
 
-        if (isPrimary)
-            UnsetPrimaryImageInternal( );
+        if (_imageRefs.Any(r => r.ImageId == imageId))
+            throw new ValidationException($"Image '{imageId}' is already attached to this product.");
 
-        _images.Add(image);
-        NormalizeImageOrdersInternal( );
-        Touch( );
-    }
+        if (makePrimary)
+            UnsetPrimaryInternal();
 
-    public void RemoveImage(string url)
-    {
-        url = Guard.NotEmpty(url,nameof(url),maxLen: 500);
+        var imageRef = ProductImageRef.Create(imageId, makePrimary, sortOrder, altText);
+        _imageRefs.Add(imageRef);
 
-        var removed = _images.RemoveAll(x => x.Url == url);
-        if (removed == 0)
-            return;
-
-        // Ensure we still have a primary if images remain
-        EnsurePrimaryImageInternal( );
-
-        Touch( );
-    }
-
-    public void SetPrimaryImage(string url)
-    {
-        url = Guard.NotEmpty(url,nameof(url),maxLen: 500);
-
-        if (_images.Count == 0)
-            throw new ValidationException("No images exist to set as primary.");
-
-        var idx = _images.FindIndex(x => x.Url == url);
-        if (idx < 0)
-            throw new ValidationException("Image not found.");
-
-        var selected = _images[idx];
-
-        UnsetPrimaryImageInternal( );
-        _images[idx] = ProductImage.Create(selected.Url,selected.AltText,isPrimary: true,selected.SortOrder);
-
-        Touch( );
-    }
-
-    private void UnsetPrimaryImageInternal()
-    {
-        for (var i = 0; i < _images.Count; i++)
+        // If this is the first image, automatically make it primary
+        if (_imageRefs.Count == 1 && !makePrimary)
         {
-            var img = _images[i];
+            imageRef.MarkAsPrimary();
+        }
+
+        Touch();
+    }
+
+    /// <summary>
+    /// Set an already-attached image as the primary image.
+    /// </summary>
+    public void SetPrimaryImage(ImageId imageId)
+    {
+        ValidationException.ThrowIfNull(imageId);
+
+        if (_imageRefs.Count == 0)
+            throw new ValidationException("No images are attached to set as primary.");
+
+        var target = _imageRefs.FirstOrDefault(r => r.ImageId == imageId)
+            ?? throw new ValidationException($"Image '{imageId}' is not attached to this product.");
+
+        if (target.IsPrimary)
+            return; // Already primary, no-op
+
+        UnsetPrimaryInternal();
+        target.MarkAsPrimary();
+
+        Touch();
+    }
+
+    /// <summary>
+    /// Remove an image reference from this product.
+    /// If the removed image was primary, the first remaining image becomes primary.
+    /// </summary>
+    public void RemoveImage(ImageId imageId)
+    {
+        ValidationException.ThrowIfNull(imageId);
+
+        var target = _imageRefs.FirstOrDefault(r => r.ImageId == imageId);
+        if (target is null)
+            return; // Idempotent: not attached = nothing to do
+
+        var wasPrimary = target.IsPrimary;
+        _imageRefs.Remove(target);
+
+        if (wasPrimary)
+            EnsurePrimaryInternal();
+
+        Touch();
+    }
+
+    /// <summary>
+    /// Check whether a given image is attached to this product.
+    /// </summary>
+    public bool HasImage(ImageId imageId) => _imageRefs.Any(r => r.ImageId == imageId);
+
+    private void UnsetPrimaryInternal()
+    {
+        foreach (var img in _imageRefs)
+        {
             if (img.IsPrimary)
-                _images[i] = ProductImage.Create(img.Url,img.AltText,isPrimary: false,img.SortOrder);
+                img.UnmarkAsPrimary();
         }
     }
 
-    private void EnsurePrimaryImageInternal()
+    private void EnsurePrimaryInternal()
     {
-        if (_images.Count == 0)
-            return;
-        if (_images.Any(x => x.IsPrimary))
+        if (_imageRefs.Count == 0)
             return;
 
-        // make the first one primary
-        var first = _images.OrderBy(x => x.SortOrder).First( );
-        SetPrimaryImage(first.Url);
-    }
+        if (_imageRefs.Any(r => r.IsPrimary))
+            return;
 
-    private void NormalizeImageOrdersInternal()
-    {
-        // Keep stable ordering; optional normalization
-        // (You can remove this if you prefer manual SortOrder only.)
-        var ordered = _images.OrderBy(x => x.SortOrder).ThenBy(x => x.Url).ToList( );
-        _images.Clear( );
-        _images.AddRange(ordered);
-        EnsurePrimaryImageInternal( );
+        // Promote the first image (by sort order) to primary
+        var first = _imageRefs.OrderBy(r => r.SortOrder).First();
+        first.MarkAsPrimary();
     }
 
     // ---------------------------
@@ -247,14 +288,27 @@ public sealed class Product : AuditableEntity, IAggregateRoot
 
     public void SetIdentifiers(string? sku,string? barcode)
     {
-        Sku = string.IsNullOrWhiteSpace(sku) ? null : Guard.NotEmpty(sku,nameof(sku),maxLen: 60);
-        Barcode = string.IsNullOrWhiteSpace(barcode) ? null : Guard.NotEmpty(barcode,nameof(barcode),maxLen: 40);
-        Touch( );
+        if (!string.IsNullOrWhiteSpace(sku))
+            ValidationException.ThrowIfNullOrWhiteSpace(sku);
+
+            ValidationException.ThrowIfTooLong(sku, maxLen: 60);
+        if (!string.IsNullOrWhiteSpace(barcode))
+            ValidationException.ThrowIfNullOrWhiteSpace(barcode);
+
+            ValidationException.ThrowIfTooLong(barcode, maxLen: 40);
+
+        Sku = sku?.Trim();
+        Barcode = barcode?.Trim();
+        Touch();
     }
 
     public void SetBrandAndOrigin(string? brand,string? originCountryCode)
     {
-        Brand = string.IsNullOrWhiteSpace(brand) ? null : Guard.NotEmpty(brand,nameof(brand),maxLen: 80);
+        if (!string.IsNullOrWhiteSpace(brand))
+            ValidationException.ThrowIfNullOrWhiteSpace(brand);
+
+            ValidationException.ThrowIfTooLong(brand, maxLen: 80);
+        Brand = brand?.Trim();
 
         if (string.IsNullOrWhiteSpace(originCountryCode))
         {
@@ -262,7 +316,10 @@ public sealed class Product : AuditableEntity, IAggregateRoot
         }
         else
         {
-            var code = Guard.NotEmpty(originCountryCode,nameof(originCountryCode),maxLen: 2).ToUpperInvariant( );
+            ValidationException.ThrowIfNullOrWhiteSpace(originCountryCode);
+
+            ValidationException.ThrowIfTooLong(originCountryCode, maxLen: 2);
+            var code = originCountryCode.Trim().ToUpperInvariant();
             if (code.Length != 2)
                 throw new ValidationException("OriginCountryCode must be 2 letters.");
             OriginCountryCode = code;
@@ -281,7 +338,11 @@ public sealed class Product : AuditableEntity, IAggregateRoot
 
     public void SetIngredientsAndNutrition(string? ingredients,NutritionFacts? nutrition,StorageCondition storage)
     {
-        Ingredients = string.IsNullOrWhiteSpace(ingredients) ? null : Guard.NotEmpty(ingredients,nameof(ingredients),maxLen: 4000);
+        if (!string.IsNullOrWhiteSpace(ingredients))
+            ValidationException.ThrowIfNullOrWhiteSpace(ingredients);
+
+            ValidationException.ThrowIfTooLong(ingredients, maxLen: 4000);
+        Ingredients = ingredients?.Trim();
         Nutrition = nutrition;
         Storage = storage;
         Touch( );
@@ -297,7 +358,7 @@ public sealed class Product : AuditableEntity, IAggregateRoot
             return;
         }
 
-        Guard.NonNegative(netWeight.Value,nameof(netWeight));
+        ValidationException.ThrowIfNegative(netWeight.Value);
 
         // Only allow meaningful units for weight/volume
         if (netWeightUnit is not (ProductUnit.Kg or ProductUnit.Gram or ProductUnit.Liter or ProductUnit.Ml))
@@ -310,7 +371,10 @@ public sealed class Product : AuditableEntity, IAggregateRoot
 
     public void AddTag(string tag)
     {
-        tag = Guard.NotEmpty(tag,nameof(tag),maxLen: 40).ToLowerInvariant( );
+        ValidationException.ThrowIfNullOrWhiteSpace(tag);
+
+        ValidationException.ThrowIfTooLong(tag, maxLen: 40);
+        tag = tag.Trim().ToLowerInvariant();
 
         if (_tags.Contains(tag))
             return;
@@ -321,14 +385,20 @@ public sealed class Product : AuditableEntity, IAggregateRoot
 
     public void RemoveTag(string tag)
     {
-        tag = Guard.NotEmpty(tag,nameof(tag),maxLen: 40).ToLowerInvariant( );
+        ValidationException.ThrowIfNullOrWhiteSpace(tag);
+
+        ValidationException.ThrowIfTooLong(tag, maxLen: 40);
+        tag = tag.Trim().ToLowerInvariant();
         _tags.Remove(tag);
         Touch( );
     }
 
     public void AddAllergen(string allergen)
     {
-        allergen = Guard.NotEmpty(allergen,nameof(allergen),maxLen: 60).ToLowerInvariant( );
+        ValidationException.ThrowIfNullOrWhiteSpace(allergen);
+
+        ValidationException.ThrowIfTooLong(allergen, maxLen: 60);
+        allergen = allergen.Trim().ToLowerInvariant();
 
         if (_allergens.Contains(allergen))
             return;
@@ -339,7 +409,10 @@ public sealed class Product : AuditableEntity, IAggregateRoot
 
     public void RemoveAllergen(string allergen)
     {
-        allergen = Guard.NotEmpty(allergen,nameof(allergen),maxLen: 60).ToLowerInvariant( );
+        ValidationException.ThrowIfNullOrWhiteSpace(allergen);
+
+        ValidationException.ThrowIfTooLong(allergen, maxLen: 60);
+        allergen = allergen.Trim().ToLowerInvariant();
         _allergens.Remove(allergen);
         Touch( );
     }

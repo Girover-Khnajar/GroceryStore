@@ -1,4 +1,4 @@
-﻿using GroceryStore.Domain.Common;
+using GroceryStore.Domain.Exceptions;
 
 namespace GroceryStore.Domain.ValueObjects;
 
@@ -14,14 +14,19 @@ public sealed record ProductImage
 
     private ProductImage(string url,string? altText,bool isPrimary,int sortOrder)
     {
-        Url = Guard.NotEmpty(url,nameof(url),maxLen: 500);
+        ValidationException.ThrowIfNullOrWhiteSpace(url);
+
+        ValidationException.ThrowIfTooLong(url, maxLen: 500);
+        Url = url.Trim();
 
         if (!string.IsNullOrWhiteSpace(altText))
-            altText = Guard.NotEmpty(altText,nameof(altText),maxLen: 120);
+            ValidationException.ThrowIfNullOrWhiteSpace(altText);
 
-        Guard.InRange(sortOrder,nameof(sortOrder),0,10_000);
+            ValidationException.ThrowIfTooLong(altText, maxLen: 120);
 
-        AltText = altText;
+        ValidationException.ThrowIfOutOfRange(sortOrder, 0, 10_000);
+
+        AltText = altText?.Trim();
         IsPrimary = isPrimary;
         SortOrder = sortOrder;
     }

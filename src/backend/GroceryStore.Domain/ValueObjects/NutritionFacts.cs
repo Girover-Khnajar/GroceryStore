@@ -1,4 +1,4 @@
-﻿using GroceryStore.Domain.Common;
+using GroceryStore.Domain.Exceptions;
 
 namespace GroceryStore.Domain.ValueObjects;
 
@@ -15,11 +15,11 @@ public sealed record NutritionFacts
 
     private NutritionFacts(decimal? caloriesKcal,decimal? proteinG,decimal? carbsG,decimal? fatG,decimal? saltG)
     {
-        ValidateNonNegative(caloriesKcal,nameof(caloriesKcal));
-        ValidateNonNegative(proteinG,nameof(proteinG));
-        ValidateNonNegative(carbsG,nameof(carbsG));
-        ValidateNonNegative(fatG,nameof(fatG));
-        ValidateNonNegative(saltG,nameof(saltG));
+        ValidateNonNegative(caloriesKcal);
+        ValidateNonNegative(proteinG);
+        ValidateNonNegative(carbsG);
+        ValidateNonNegative(fatG);
+        ValidateNonNegative(saltG);
 
         CaloriesKcal = caloriesKcal;
         ProteinG = proteinG;
@@ -36,9 +36,9 @@ public sealed record NutritionFacts
         decimal? saltG)
         => new(caloriesKcal,proteinG,carbsG,fatG,saltG);
 
-    private static void ValidateNonNegative(decimal? value,string fieldName)
+    private static void ValidateNonNegative(decimal? value)
     {
         if (value.HasValue)
-            Guard.NonNegative(value.Value,fieldName);
+            ValidationException.ThrowIfNegative(value.Value);
     }
 }
