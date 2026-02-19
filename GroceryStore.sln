@@ -34,6 +34,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend", "frontend", "{FA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroceryStore.UI.Tests", "tests\frontend\GroceryStore.UI.Tests\GroceryStore.UI.Tests.csproj", "{3B31294D-8AF2-47A9-B1A3-F1D3A85B9093}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS", "src\libs\CQRS\src\CQRS.csproj", "{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -164,6 +166,18 @@ Global
 		{3B31294D-8AF2-47A9-B1A3-F1D3A85B9093}.Release|x64.Build.0 = Release|Any CPU
 		{3B31294D-8AF2-47A9-B1A3-F1D3A85B9093}.Release|x86.ActiveCfg = Release|Any CPU
 		{3B31294D-8AF2-47A9-B1A3-F1D3A85B9093}.Release|x86.Build.0 = Release|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Debug|x64.Build.0 = Debug|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Debug|x86.Build.0 = Debug|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Release|x64.ActiveCfg = Release|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Release|x64.Build.0 = Release|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Release|x86.ActiveCfg = Release|Any CPU
+		{B2ED352B-C1C0-1CBE-6D00-AE55B69E1034}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
