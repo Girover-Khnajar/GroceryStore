@@ -1,34 +1,44 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@using GroceryStore.Ui.Components.Shared
+@using GroceryStore.Ui.Services
+@inject IToastService ToastService
+@inject ILoadingService LoadingService
+<div @onclick="OnDocumentClick" style="min-height:100vh;">
 
-<!-- Search Overlay -->
-<div class="search-overlay" id="searchOverlay">
-    <div class="search-container">
-        <button class="search-close" id="searchClose">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="globalSearch" placeholder="ابحث عن المنتجات، الأقسام، الماركات...">
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-container">
+            <button class="search-close" id="searchClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="globalSearch" placeholder="ابحث عن المنتجات، الأقسام، الماركات...">
+            </div>
+            <div class="search-results" id="searchResults"></div>
         </div>
-        <div class="search-results" id="searchResults"></div>
     </div>
-</div>
 
-<!-- Main Content -->
-<main id="app">
-    <!-- Pages will be rendered here dynamically -->
-</main>
+    <!-- Main Content -->
+    <main id="app">
+        <!-- Pages will be rendered here dynamically -->
+    </main>
+
+    <!-- Loading Spinner -->
+    <LoadingSpinner></LoadingSpinner>
+
+</div>
 
 <!-- Toast Notification -->
-<div class="toast" id="toast">
-    <i class="fas fa-check-circle"></i>
-    <span id="toastMessage"></span>
-</div>
+<Toast></Toast>
 
-<!-- Loading Spinner -->
-<div class="loading-spinner" id="loadingSpinner">
-    <div class="spinner"></div>
-</div>
+@code {
+    private async Task OnDocumentClick()
+    {
+        await ToastService.SuccessAsync("تم النقر على الصفحة الرئيسية!");
+    }
+}
 
 <!-- Scripts -->
 

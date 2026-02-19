@@ -5,9 +5,10 @@ using GroceryStore.Ui.Components;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents( );
-//builder.Services.AddRazorComponents( )
-//    .AddInteractiveServerComponents( ); // Interactive SSR (Server)
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+builder.Services.AddScoped<IToastService, ToastService>();
+builder.Services.AddScoped<ILoadingService, LoadingService>();
 builder.Services.Configure<ApiOptions>(builder.Configuration.GetSection(ApiOptions.SectionName));
 builder.Services.AddHttpClient<IApiClient,ApiClient>( );
 var app = builder.Build( );
@@ -25,7 +26,6 @@ app.UseHttpsRedirection( );
 app.UseAntiforgery( );
 
 app.MapStaticAssets( );
-app.MapRazorComponents<App>( );
-//app.MapRazorComponents<App>( )
-//   .AddInteractiveServerRenderMode( );
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 app.Run( );

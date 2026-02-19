@@ -1,0 +1,25 @@
+﻿@using GroceryStore.Ui.Services
+@implements IDisposable
+@inject ILoadingService LoadingService
+
+<!-- Loading Spinner -->
+<div class="loading-spinner @(LoadingService.IsLoading ? "show" : "")" id="loadingSpinner">
+    <div class="spinner"></div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LoadingService.OnChange += OnStateChanged;
+    }
+
+    private void OnStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LoadingService.OnChange -= OnStateChanged;
+    }
+}

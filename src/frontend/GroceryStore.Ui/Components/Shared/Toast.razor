@@ -1,0 +1,50 @@
+﻿@using GroceryStore.Ui.Services
+@implements IDisposable
+@inject IToastService ToastService
+
+<!-- Toast Notification -->
+<div class="toast @(_isVisible ? "show" : "")" id="toast">
+    <i class="@GetIconClass()"></i>
+    <span id="toastMessage">
+        @Message
+    </span>
+</div>
+
+@code {
+    private string Message { get; set; } = string.Empty;
+    private string Type { get; set; } = string.Empty;
+
+    private bool _isVisible = false;
+    private const int ToastDuration = 4000;
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += OnShowToast;
+    }
+
+    private string GetIconClass() => Type switch
+    {
+        "success" => "fas fa-check-circle",
+        "error" => "fas fa-exclamation-circle",
+        "warning" => "fas fa-exclamation-triangle",
+        "info" => "fas fa-info-circle",
+        _ => "fas fa-info-circle"
+    };
+
+    private async Task OnShowToast(string message, string type)
+    {
+        Message = message;
+        Type = type;
+        _isVisible = true;
+        await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(ToastDuration);
+        _isVisible = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnShow -= OnShowToast;
+    }
+}
