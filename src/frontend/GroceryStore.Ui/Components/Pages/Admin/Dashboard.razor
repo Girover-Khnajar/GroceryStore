@@ -1,4 +1,69 @@
 ﻿@page "/admin"
 @layout AdminLayout
 
-<h1>Dashboard</h1>
+<!-- Admin Dashboard -->
+<div class="admin-dashboard" id="adminDashboard" style="display: none;">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-shopping-basket"></i>
+            <h2>لوحة التحكم</h2>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="#dashboard" class="menu-item active" data-page="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>الإحصائيات</span>
+            </a>
+            <a href="#manage-products" class="menu-item" data-page="products">
+                <i class="fas fa-box-open"></i>
+                <span>المنتجات</span>
+            </a>
+            <a href="#manage-categories" class="menu-item" data-page="categories">
+                <i class="fas fa-th-large"></i>
+                <span>الأقسام</span>
+            </a>
+            <a href="#manage-brands" class="menu-item" data-page="brands">
+                <i class="fas fa-tag"></i>
+                <span>الماركات</span>
+            </a>
+            <a href="#manage-banners" class="menu-item" data-page="banners">
+                <i class="fas fa-images"></i>
+                <span>البانرات</span>
+            </a>
+            <a href="#settings" class="menu-item" data-page="settings">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل الخروج</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-header">
+            <h1 id="pageTitle">الإحصائيات</h1>
+            <div class="admin-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" aria-pressed="false">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                <a href="index.html" class="btn-view-site" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    عرض الموقع
+                </a>
+            </div>
+        </div>
+
+        <div class="admin-content" id="adminContent">
+            <!-- Dynamic content will be loaded here -->
+        </div>
+    </main>
+</div>

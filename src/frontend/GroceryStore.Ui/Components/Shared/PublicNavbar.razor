@@ -1,8 +1,42 @@
-﻿<nav class="navbar">
+﻿ <!-- Navigation -->
+<nav class="navbar" id="navbar">
     <div class="container">
         <div class="nav-wrapper">
             <div class="logo">
-                <span>Grocery Shop</span>
+                <i class="fas fa-shopping-basket"></i>
+                <span>متجر البقالة</span>
+            </div>
+
+            <div class="nav-menu" id="navMenu">
+                <a href="#home" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="#categories" class="nav-link">
+                    <i class="fas fa-th-large"></i>
+                    <span>الأقسام</span>
+                </a>
+                <a href="#products" class="nav-link">
+                    <i class="fas fa-box-open"></i>
+                    <span>المنتجات</span>
+                </a>
+                <a href="#contact" class="nav-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>تواصل معنا</span>
+                </a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" aria-pressed="false">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="search-toggle" id="searchToggle">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </div>
     </div>
