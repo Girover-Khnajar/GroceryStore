@@ -10,9 +10,16 @@ namespace GroceryStore.Api.Tests;
 public class GroceryStoreApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private SqliteConnection _connection = null!;
+    private string? _webRootPath;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        // IMPORTANT: Upload endpoints write to IWebHostEnvironment.WebRootPath.
+        // If we don't override it, integration tests will pollute the real API project's wwwroot.
+        _webRootPath ??= Path.Combine(Path.GetTempPath(), "GroceryStore.Api.Tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_webRootPath);
+        builder.UseWebRoot(_webRootPath);
+
         builder.ConfigureServices(services =>
         {
             // Remove all DbContext-related registrations
@@ -52,5 +59,35 @@ public class GroceryStoreApiFactory : WebApplicationFactory<Program>, IAsyncLife
     async Task IAsyncLifetime.DisposeAsync()
     {
         await _connection.DisposeAsync();
+
+        if (!string.IsNullOrWhiteSpace(_webRootPath) && Directory.Exists(_webRootPath))
+            Directory.Delete(_webRootPath, recursive: true);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            try
+            {
+                _connection?.Dispose();
+            }
+            catch
+            {
+                // best-effort cleanup
+            }
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(_webRootPath) && Directory.Exists(_webRootPath))
+                    Directory.Delete(_webRootPath, recursive: true);
+            }
+            catch
+            {
+                // best-effort cleanup
+            }
+        }
+
+        base.Dispose(disposing);
     }
 }

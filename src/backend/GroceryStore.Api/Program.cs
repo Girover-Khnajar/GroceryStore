@@ -1,4 +1,5 @@
 using GroceryStore.Api.Endpoints;
+using GroceryStore.Api.Services.Images;
 using GroceryStore.Application;
 using GroceryStore.Infrastructure;
 using Scalar.AspNetCore;
@@ -14,6 +15,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddApplication();
 
+builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,6 +25,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
