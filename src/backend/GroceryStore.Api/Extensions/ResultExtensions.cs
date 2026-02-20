@@ -61,6 +61,13 @@ public static class ResultExtensions
             _ => StatusCodes.Status500InternalServerError
         };
 
+        if (firstError.Metadata is not null
+            && firstError.Metadata.TryGetValue("statusCode", out var statusCodeObj)
+            && statusCodeObj is int statusCodeOverride)
+        {
+            statusCode = statusCodeOverride;
+        }
+
         if (errors.Count == 1)
         {
             return Results.Problem(

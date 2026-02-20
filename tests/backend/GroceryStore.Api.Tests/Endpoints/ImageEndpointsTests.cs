@@ -67,6 +67,44 @@ public class ImageEndpointsTests : IClassFixture<GroceryStoreApiFactory>
 
     #endregion
 
+    #region POST /api/images/upload
+
+    [Fact]
+    public async Task UploadImage_WithValidPng_ReturnsCreated_AndCanBeFetched()
+    {
+        // Arrange
+        // 1x1 transparent PNG
+        var pngBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO2Z2z8AAAAASUVORK5CYII=");
+
+        using var form = new MultipartFormDataContent();
+        using var fileContent = new ByteArrayContent(pngBytes);
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+
+        form.Add(fileContent, "File", "tiny.png");
+        form.Add(new StringContent("Tiny image"), "AltText");
+
+        // Act
+        var response = await _client.PostAsync("/api/images/upload", form);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var created = await response.Content.ReadFromJsonAsync<IdResponse>();
+        created.Should().NotBeNull();
+        created!.Id.Should().NotBeEmpty();
+
+        var getResponse = await _client.GetAsync($"/api/images/{created.Id}");
+        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var image = await getResponse.Content.ReadFromJsonAsync<ImageAssetDto>();
+        image.Should().NotBeNull();
+        image!.OriginalFileName.Should().Be("tiny.png");
+        image.ContentType.Should().Be("image/png");
+        image.AltText.Should().Be("Tiny image");
+        image.StoragePath.Should().StartWith("/images/uploads/");
+    }
+
+    #endregion
+
     #region GET /api/images/batch
 
     [Fact]
