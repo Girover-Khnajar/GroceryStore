@@ -27,7 +27,7 @@ public sealed class ConfigurePipelineBehaviorsContext(PipelineOptions pipelineOp
         pipelineOptions.OrderAuthorization = order;
     }
 
-    public void UseValidation(bool use = true, int order = 40)
+    public void UseValidation(bool use = true, int order = 4000)
     {
         pipelineOptions.UseValidation = use;
         pipelineOptions.OrderValidation = order;
