@@ -1,7 +1,7 @@
 using CQRS.Abstractions.Messaging;
 using GroceryStore.Api.Contracts.Products;
 using GroceryStore.Api.Extensions;
-using GroceryStore.Application.Products.Commands;
+using GroceryStore.Application.Products.Commands.AssignImageAssetToProduct;
 
 namespace GroceryStore.Api.Endpoints.Products;
 

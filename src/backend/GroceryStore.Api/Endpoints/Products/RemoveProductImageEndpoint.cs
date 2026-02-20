@@ -1,6 +1,6 @@
 using CQRS.Abstractions.Messaging;
 using GroceryStore.Api.Extensions;
-using GroceryStore.Application.Products.Commands;
+using GroceryStore.Application.Products.Commands.RemoveProductImage;
 
 namespace GroceryStore.Api.Endpoints.Products;
 
