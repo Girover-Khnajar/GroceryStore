@@ -1,4 +1,3 @@
-using GroceryStore.Domain.Common;
 using GroceryStore.Domain.Common.DomainEvents;
 using GroceryStore.Domain.Exceptions;
 using GroceryStore.Domain.ValueObjects;
@@ -46,6 +45,10 @@ public sealed class ProductImageRef : Entity
 
         return new ProductImageRef
         {
+            // Important for EF Core: ProductImageRef.Id is configured as ValueGeneratedOnAdd.
+            // If we pre-set a non-default Guid here, EF may assume the entity already exists
+            // when it's added via the Product navigation, leading to concurrency exceptions.
+            Id = Guid.Empty,
             ImageId = imageId,
             IsPrimary = isPrimary,
             SortOrder = sortOrder,
