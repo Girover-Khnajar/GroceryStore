@@ -1,0 +1,39 @@
+﻿@using GroceryStore.Ui.Data
+@using GroceryStore.Ui.Models
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+<section class="section banner-section">
+    <div class="container">
+        <div class="banner-slider aos-init aos-animate" id="bannerSlider" data-aos="fade-up">
+
+            @foreach (var slide in Slides)
+            {
+                <BannerSlide Slide="@slide"  />
+            }
+
+        </div>
+    </div>
+</section>
+
+@code
+{
+    public List<Slide> Slides { get; set; } = Db.Slides;
+
+    protected override void OnInitialized()
+    {
+        for (var i = 0; i < Slides.Count; i++)
+        {
+            Slides[i].Active = i == 0;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        await JS.InvokeVoidAsync("UI.initBannerSlider", "bannerSlider", 5000);
+    }
+}

@@ -1,0 +1,22 @@
+@using GroceryStore.Ui.Models
+
+<div class="category-card aos-init aos-animate" data-aos="zoom-in" data-aos-delay="@aosDelay"
+     onclick="Router.navigate('@category.Route')">
+    <div class="category-image">
+        <img src="@category.ImageUrl" alt="@category.ImageAlt" loading="lazy"
+             onerror="this.onerror=null;this.src='images/ui/category-placeholder.svg';">
+    </div>
+    <div class="category-info">
+        <h3>@category.Name</h3>
+        <p>@category.CardText</p>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public required Category category { get; set; }
+
+    [Parameter]
+    public int aosDelay { get; set; } = 0;
+}

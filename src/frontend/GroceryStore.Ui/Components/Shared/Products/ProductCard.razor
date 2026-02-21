@@ -1,0 +1,32 @@
+﻿@using GroceryStore.Ui.Models
+
+<div class="product-card aos-init aos-animate" data-aos="fade-up" data-aos-delay="0">
+    <span class="product-badge">مميز</span>
+    <div class="product-image" onclick="Router.navigate('product/@product.Name.ToLower().Replace(' ', '-'))">
+        <img src="@product.ImageUrl" alt="@product.Name" loading="lazy"
+             onerror="this.onerror=null;this.src='images/ui/product-placeholder.svg';">
+    </div>
+    <div class="product-info">
+        <div class="product-category">@product.Category</div>
+        <h3 class="product-name">@product.Name</h3>
+        <div class="product-price">
+            <span class="price-current">@product.CurrentPrice</span>
+            <span class="price-unit">@product.PriceUnit</span>
+        </div>
+        <div class="product-actions">
+            <button class="btn-whatsapp" onclick="App.sendWhatsApp('@product.Name', @product.CurrentPrice, '@product.Unit')">
+                <i class="fab fa-whatsapp"></i>
+                واتساب
+            </button>
+            <button class="btn-details" onclick="Router.navigate('product/@product.Name.ToLower().Replace(' ', '-'))">
+                <i class="fas fa-info-circle"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public required Product product {get; set;}
+}

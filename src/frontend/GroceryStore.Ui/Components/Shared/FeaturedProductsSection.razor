@@ -1,0 +1,28 @@
+﻿@using GroceryStore.Ui.Components.Shared.Products
+@using GroceryStore.Ui.Data
+@using GroceryStore.Ui.Models
+@using System.Data.Common
+<section class="section" style="background: var(--white);">
+    <div class="container">
+        <h2 class="section-title">المنتجات المميزة</h2>
+        <div class="products-grid">
+
+            @foreach (var product in Products)
+            {
+                <ProductCard product="product" />
+            }
+
+        </div>
+        <div style="text-align:center;margin-top:2rem;">
+            <button class="btn btn-primary" onclick="Router.navigate('products')">
+                عرض جميع المنتجات
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+@code
+{
+    public List<Product> Products { get; set; } = Db.Products;
+}
