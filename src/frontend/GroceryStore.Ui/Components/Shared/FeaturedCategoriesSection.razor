@@ -1,0 +1,30 @@
+﻿@using GroceryStore.Ui.Components.Shared.Categories
+@using GroceryStore.Ui.Data
+@using GroceryStore.Ui.Models
+
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">الأقسام المميزة</h2>
+        <div class="categories-grid">
+
+            @for (var i = 0; i < Categories.Count; i++)
+            {
+                var category = Categories[i];
+
+                <CategoryCard category="category" aosDelay="@(i * 70)" />
+            }
+
+        </div>
+        <div style="text-align:center;margin-top:2rem;">
+            <button class="btn btn-outline" onclick="Router.navigate('categories')">
+                عرض جميع الأقسام
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+@code
+{
+    public List<Category> Categories { get; set; } = Db.Categories;
+}

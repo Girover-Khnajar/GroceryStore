@@ -1,0 +1,22 @@
+﻿@using GroceryStore.Ui.Models
+<div class="banner-slide @(Slide.Active ? "active" : null)" data-link="categories">
+    <img src="@Slide.ImageUrl" alt="@Slide.Title" loading="lazy"
+         onerror="this.onerror=null;this.src='images/ui/banner-placeholder.svg';">
+    <div class="banner-overlay">
+        <div class="banner-content">
+            <h2>@Slide.Title</h2>
+
+            <button class="btn btn-outline" onclick="Router.navigate('@Slide.Link')">
+                اكتشف الآن
+                <i class="fas fa-arrow-left"></i>
+            </button>
+
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] 
+    public required Slide Slide { get; set; }
+}

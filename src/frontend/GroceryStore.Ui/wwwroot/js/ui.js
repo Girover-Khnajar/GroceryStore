@@ -4,6 +4,9 @@
 (function () {
     const THEME_KEY = 'theme';
 
+    // Keep slider timers per element (safe to re-init)
+    const bannerSliderTimers = new WeakMap();
+
     function getSystemTheme() {
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         return prefersDark ? 'dark' : 'light';
@@ -98,12 +101,45 @@
         }
     }
 
+    function initBannerSlider(rootId = 'bannerSlider', intervalMs = 5000) {
+        const slider = document.getElementById(rootId);
+        if (!slider) return;
+
+        const slides = Array.from(slider.querySelectorAll('.banner-slide'));
+        if (slides.length <= 1) {
+            // Ensure at least one visible
+            slides[0]?.classList.add('active');
+            return;
+        }
+
+        const existingTimer = bannerSliderTimers.get(slider);
+        if (existingTimer) {
+            clearInterval(existingTimer);
+            bannerSliderTimers.delete(slider);
+        }
+
+        let index = slides.findIndex(s => s.classList.contains('active'));
+        if (index < 0) {
+            index = 0;
+            slides.forEach((s, i) => s.classList.toggle('active', i === 0));
+        }
+
+        const timerId = setInterval(() => {
+            slides[index]?.classList.remove('active');
+            index = (index + 1) % slides.length;
+            slides[index]?.classList.add('active');
+        }, Math.max(1000, Number(intervalMs) || 5000));
+
+        bannerSliderTimers.set(slider, timerId);
+    }
+
     window.UI = {
         applyTheme,
         initTheme,
         initThemeToggle,
         initAOS,
-        refreshAOS
+        refreshAOS,
+        initBannerSlider
     };
 
     // Boot
@@ -112,5 +148,8 @@
         initThemeToggle();
         initAOS();
         refreshAOS();
+
+        // Banner slider (if present on the current page)
+        initBannerSlider();
     });
 })();
