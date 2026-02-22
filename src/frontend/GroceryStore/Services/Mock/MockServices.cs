@@ -8,7 +8,7 @@ namespace GroceryStore.Services.Mock;
 //  All CRUD operations mutate these lists so changes persist within a session.
 //  Swap these services for the Http implementations when the real API is ready.
 // ══════════════════════════════════════════════════════════════════════════════
-internal static class MockDb
+public static class MockDb
 {
     // ── Categories ────────────────────────────────────────────────────────────
     public static List<Category> Categories { get; } = new( )
@@ -324,7 +324,9 @@ public sealed class MockCategoryService : ICategoryService
         => Task.FromResult(MockDb.Categories.Where(c => c.IsActive).OrderBy(c => c.DisplayOrder).ToList( ));
 
     public Task<List<Category>> GetAllCategoriesAsync()
-        => Task.FromResult(MockDb.Categories.OrderBy(c => c.DisplayOrder).ToList( ));
+    {
+        return Task.FromResult(MockDb.Categories.OrderBy(c => c.DisplayOrder).ToList( ));
+    }
 
     public Task<Category?> GetCategoryByIdAsync(int id)
         => Task.FromResult(MockDb.Categories.FirstOrDefault(c => c.Id == id));
