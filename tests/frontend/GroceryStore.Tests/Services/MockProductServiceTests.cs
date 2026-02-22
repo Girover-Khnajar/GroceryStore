@@ -17,8 +17,6 @@ public class MockProductServiceTests
 {
     private readonly MockProductService _sut = new( );
 
-    // ── GetProductsAsync ─────────────────────────────────────────────────────
-
     [Fact]
     public async Task GetProducts_DefaultQuery_ReturnsActiveProducts()
     {
