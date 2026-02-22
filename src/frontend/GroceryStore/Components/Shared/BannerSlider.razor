@@ -1,0 +1,87 @@
+@* ══════════════════════════════════════════════════════════
+   BannerSlider.razor — Auto-advancing hero carousel
+════════════════════════════════════════════════════════ *@
+
+@implements IAsyncDisposable
+@inject NavigationManager Nav
+
+@if (Slides.Count == 0) { return; }
+
+<section class="section banner-section">
+    <div class="container">
+        <div class="banner-slider">
+            @for (int i = 0; i < Slides.Count; i++)
+            {
+                var slide = Slides[i];
+                var active = i == _activeIndex;
+                <div class="banner-slide @(active ? "active" : "")">
+                    <img src="@slide.ImageUrl" alt="@slide.Title" loading="lazy"
+                         onerror="this.onerror=null;this.src='images/ui/banner-placeholder.svg';" />
+                    <div class="banner-overlay">
+                        <div class="banner-content">
+                            <h2>@slide.Title</h2>
+                            @if (!string.IsNullOrWhiteSpace(slide.NavRoute))
+                            {
+                                <button class="btn btn-outline" @onclick="() => Navigate(slide.NavRoute!)">
+                                    Shop Now <i class="fas fa-arrow-right"></i>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (Slides.Count > 1)
+            {
+                <div class="banner-dots" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10;">
+                    @for (int i = 0; i < Slides.Count; i++)
+                    {
+                        var idx = i;
+                        <button class="banner-dot @(idx == _activeIndex ? "active" : "")"
+                                @onclick="() => GoTo(idx)"
+                                style="width:10px;height:10px;border-radius:50%;border:none;cursor:pointer;
+                                               background:@(idx == _activeIndex ? "var(--primary)" : "rgba(255,255,255,.6)");
+                                               transition:.3s;"></button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public List<BannerSlide> Slides { get; set; } = new( );
+    [Parameter] public int IntervalMs { get; set; } = 4500;
+
+    private int _activeIndex;
+    private System.Timers.Timer? _timer;
+
+    protected override void OnParametersSet()
+    {
+        StopTimer( );
+        if (Slides.Count > 1)
+            StartTimer( );
+    }
+
+    public async ValueTask DisposeAsync() { StopTimer( ); await Task.CompletedTask; }
+
+    private void GoTo(int i) { _activeIndex = i; StopTimer( ); if (Slides.Count > 1) StartTimer( ); }
+    private void Navigate(string r) => Nav.NavigateTo("/" + r.TrimStart('/'));
+
+    private void StartTimer()
+    {
+        _timer = new System.Timers.Timer(IntervalMs);
+        _timer.Elapsed += (_,_) => InvokeAsync(() => { _activeIndex = (_activeIndex + 1) % Slides.Count; StateHasChanged( ); });
+        _timer.AutoReset = true;
+        _timer.Start( );
+    }
+
+    private void StopTimer() { _timer?.Dispose( ); _timer = null; }
+
+    public sealed class BannerSlide
+    {
+        public string Title { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+        public string? NavRoute { get; set; }
+    }
+}

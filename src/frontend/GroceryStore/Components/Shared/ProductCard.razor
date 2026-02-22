@@ -1,0 +1,47 @@
+@inject NavigationManager Nav
+@inject ISettingsService SettingsService
+
+<div class="product-card">
+    <div class="product-image" @onclick="GoToProduct" style="cursor:pointer;">
+        @if (Product.IsFeatured)
+        {
+            <span class="badge badge-featured" style="position:absolute;top:10px;right:10px;background:var(--primary);color:#fff;padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:600;z-index:1;">
+                Featured
+            </span>
+        }
+        <img src="@(Product.PrimaryImage ?? "images/ui/product-placeholder.svg")"
+             alt="@Product.Name"
+             loading="lazy"
+             onerror="this.onerror=null;this.src='images/ui/product-placeholder.svg';" />
+    </div>
+    <div class="product-info">
+        <h3 class="product-name" @onclick="GoToProduct" style="cursor:pointer;">@Product.Name</h3>
+        @if (!string.IsNullOrWhiteSpace(Product.CategoryName))
+        {
+            <p class="product-category" style="color:var(--text-light);font-size:.85rem;margin:.25rem 0;">
+                @Product.CategoryName
+            </p>
+        }
+        <div class="product-footer">
+            <span class="product-price">@Product.FormattedPrice</span>
+            <button class="btn-whatsapp" @onclick="OrderWhatsApp" title="Order via WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Product Product { get; set; } = null!;
+
+    private void GoToProduct() => Nav.NavigateTo($"/products/{Product.Slug}");
+
+    private async Task OrderWhatsApp()
+    {
+        var s = await SettingsService.GetSettingsAsync( );
+        if (s is null)
+            return;
+        var msg = $"Hello, I'd like to order: {Product.Name} ({Product.Price:0.##} {s.Currency}/{Product.Unit})";
+        Nav.NavigateTo($"https://wa.me/{s.WhatsappNumber}?text={Uri.EscapeDataString(msg)}",forceLoad: true);
+    }
+}

@@ -1,0 +1,242 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@inject IProductService ProductService
+@inject ICategoryService CategoryService
+
+<!-- ═══════════════════════════════════════
+     NAVIGATION BAR
+════════════════════════════════════════ -->
+<nav class="navbar @(_scrolled ? "scrolled" : "")" id="navbar">
+    <div class="container">
+        <div class="nav-wrapper">
+
+            <a href="/" class="logo">
+                <i class="fas fa-shopping-basket"></i>
+                <span>Fresh Grocery</span>
+            </a>
+
+            <div class="nav-menu @(_menuOpen ? "active" : "")">
+                <NavLink href="/" class="nav-link" Match="NavLinkMatch.All">
+                    <i class="fas fa-home"></i><span>Home</span>
+                </NavLink>
+                <NavLink href="/categories" class="nav-link">
+                    <i class="fas fa-th-large"></i><span>Categories</span>
+                </NavLink>
+                <NavLink href="/products" class="nav-link">
+                    <i class="fas fa-box-open"></i><span>Products</span>
+                </NavLink>
+                <NavLink href="/contact" class="nav-link">
+                    <i class="fas fa-envelope"></i><span>Contact</span>
+                </NavLink>
+            </div>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" @onclick="ToggleTheme" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="search-toggle" @onclick="OpenSearch">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="menu-toggle" @onclick="ToggleMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     SEARCH OVERLAY
+════════════════════════════════════════ -->
+<div class="search-overlay @(_searchOpen ? "active" : "")" @onclick="CloseSearchOnBackdrop">
+    <div class="search-container" @onclick:stopPropagation>
+        <button class="search-close" @onclick="CloseSearch">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text"
+                   id="globalSearch"
+                   placeholder="Search products, categories, brands..."
+                   @bind="_searchQuery"
+                   @oninput="HandleSearch" />
+        </div>
+        <div class="search-results">
+            @if (string.IsNullOrWhiteSpace(_searchQuery))
+            {
+                <p style="text-align:center;color:var(--text-light);padding:2rem;">
+                    Start typing to search…
+                </p>
+            }
+            else if (_isSearching)
+            {
+                <p style="text-align:center;padding:2rem;">
+                    <i class="fas fa-spinner fa-spin"></i> Searching…
+                </p>
+            }
+            else if (_searchProducts.Count == 0 && _searchCategories.Count == 0)
+            {
+                <div class="empty-state">
+                    <h3>No results found</h3>
+                    <p>Try different keywords.</p>
+                </div>
+            }
+            else
+            {
+                @if (_searchCategories.Count > 0)
+                {
+                    <h4 style="padding:1rem 0;color:var(--text-light);font-size:0.8rem;text-transform:uppercase;letter-spacing:.05em;">Categories</h4>
+                    @foreach (var cat in _searchCategories)
+                    {
+                        <div class="search-result-item" @onclick="() => NavigateToCategory(cat.Slug)">
+                            <img src="@(cat.Image ?? "images/ui/category-placeholder.svg")" alt="@cat.Name" loading="lazy" />
+                            <div class="search-result-info">
+                                <h4>@cat.Name</h4>
+                                <p>Category</p>
+                            </div>
+                        </div>
+                    }
+                }
+                @if (_searchProducts.Count > 0)
+                {
+                    <h4 style="padding:1rem 0;color:var(--text-light);font-size:0.8rem;text-transform:uppercase;letter-spacing:.05em;">Products</h4>
+                    @foreach (var prod in _searchProducts.Take(10))
+                    {
+                        <div class="search-result-item" @onclick="() => NavigateToProduct(prod.Slug)">
+                            <img src="@(prod.PrimaryImage ?? "images/ui/product-placeholder.svg")" alt="@prod.Name" loading="lazy" />
+                            <div class="search-result-info">
+                                <h4>@prod.Name</h4>
+                                <p>@prod.CategoryName • @prod.FormattedPrice</p>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE BODY
+════════════════════════════════════════ -->
+<main id="app">@Body</main>
+
+<!-- ═══════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-shopping-basket"></i> Fresh Grocery</h3>
+                <p>The freshest products at competitive prices.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/categories">Categories</a></li>
+                    <li><a href="/products">Products</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul class="contact-info">
+                    <li><i class="fas fa-phone"></i> +964 750 123 4567</li>
+                    <li><i class="fas fa-envelope"></i> info@freshgrocery.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Erbil, Kurdistan, Iraq</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Opening Hours</h4>
+                <ul>
+                    <li>Sat – Thu: 8:00 AM – 10:00 PM</li>
+                    <li>Friday: 9:00 AM – 11:00 PM</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Fresh Grocery Store. All rights reserved.</p>
+            <p>Developed by <a href="mailto:jan4ma@gmail.com">Juan Khanjar</a></p>
+        </div>
+    </div>
+</footer>
+
+<Toast @ref="_toast" />
+
+@code {
+    private Toast? _toast;
+    private bool _menuOpen;
+    private bool _searchOpen;
+    private bool _scrolled;
+    private string _searchQuery = string.Empty;
+    private bool _isSearching;
+    private List<Product> _searchProducts = new( );
+    private List<Category> _searchCategories = new( );
+    private System.Timers.Timer? _debounce;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initTheme");
+            StateHasChanged( );
+        }
+    }
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+    private async Task ToggleTheme() => await JS.InvokeVoidAsync("toggleTheme");
+
+    private void OpenSearch() { _searchOpen = true; _menuOpen = false; }
+    private void CloseSearch() { _searchOpen = false; _searchQuery = string.Empty; _searchProducts.Clear( ); _searchCategories.Clear( ); }
+    private void CloseSearchOnBackdrop() => CloseSearch( );
+
+    private void NavigateTo(string path) { CloseSearch( ); Nav.NavigateTo("/" + path.TrimStart('/')); }
+
+    private void HandleSearch(ChangeEventArgs e)
+    {
+        _searchQuery = e.Value?.ToString( ) ?? string.Empty;
+        _debounce?.Dispose( );
+        _debounce = new System.Timers.Timer(350);
+        _debounce.Elapsed += async (_,_) => { _debounce?.Dispose( ); await InvokeAsync(RunSearchAsync); };
+        _debounce.AutoReset = false;
+        _debounce.Start( );
+    }
+
+    private async Task RunSearchAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            _searchProducts.Clear( );
+            _searchCategories.Clear( );
+            StateHasChanged( );
+            return;
+        }
+        _isSearching = true;
+        StateHasChanged( );
+        var allCats = await CategoryService.GetCategoriesAsync( );
+        _searchCategories = allCats.Where(c => c.Name.Contains(_searchQuery,StringComparison.OrdinalIgnoreCase)).ToList( );
+        _searchProducts = await ProductService.SearchProductsAsync(_searchQuery);
+        _isSearching = false;
+        StateHasChanged( );
+    }
+
+    private void NavigateToCategory(string categorySlug)
+    {
+        Nav.NavigateTo($"/categories/{categorySlug}");
+    }
+
+    private void NavigateToProduct(string productSlug)
+    {
+        Nav.NavigateTo($"/products/{productSlug}");
+    }
+}

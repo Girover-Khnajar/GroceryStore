@@ -1,0 +1,116 @@
+@inherits LayoutComponentBase
+@inject IAuthService AuthService
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+@if (!_initialized)
+{
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;">
+        <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--primary);"></i>
+    </div>
+}
+else if (!AuthService.IsAuthenticated)
+{
+    <script>window.location.href = '/admin/login';</script>
+}
+else
+{
+    <div class="admin-dashboard">
+
+        <!-- Sidebar -->
+        <aside class="admin-sidebar @(_sidebarOpen ? "show" : "")">
+            <div class="sidebar-header">
+                <i class="fas fa-shopping-basket"></i>
+                <h2>Admin Panel</h2>
+            </div>
+
+            <nav class="sidebar-menu">
+                <NavLink href="/admin/dashboard" class="menu-item" ActiveClass="active">
+                    <i class="fas fa-chart-line"></i><span>Dashboard</span>
+                </NavLink>
+                <NavLink href="/admin/products" class="menu-item" ActiveClass="active">
+                    <i class="fas fa-box-open"></i><span>Products</span>
+                </NavLink>
+                <NavLink href="/admin/categories" class="menu-item" ActiveClass="active">
+                    <i class="fas fa-th-large"></i><span>Categories</span>
+                </NavLink>
+                <NavLink href="/admin/brands" class="menu-item" ActiveClass="active">
+                    <i class="fas fa-tag"></i><span>Brands</span>
+                </NavLink>
+                <NavLink href="/admin/banners" class="menu-item" ActiveClass="active">
+                    <i class="fas fa-images"></i><span>Banners</span>
+                </NavLink>
+                <NavLink href="/admin/settings" class="menu-item" ActiveClass="active">
+                    <i class="fas fa-cog"></i><span>Settings</span>
+                </NavLink>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" @onclick="HandleLogout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="admin-main">
+            <div class="admin-header">
+                <button class="menu-toggle" @onclick="() => _sidebarOpen = !_sidebarOpen">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Admin Panel</h1>
+                <div class="admin-actions">
+                    <button class="theme-toggle" @onclick="ToggleTheme" aria-label="Toggle theme">
+                        <i class="fas fa-moon"></i>
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    <a href="/" target="_blank" class="btn-view-site">
+                        <i class="fas fa-external-link-alt"></i>
+                        View Site
+                    </a>
+                </div>
+            </div>
+
+            <div class="admin-content">
+                @Body
+            </div>
+        </main>
+    </div>
+
+    @if (_sidebarOpen)
+    {
+        <div style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;"
+             @onclick="() => _sidebarOpen = false"></div>
+    }
+}
+
+<Toast @ref="_toast" />
+
+@code {
+    private Toast? _toast;
+    private bool _initialized;
+    private bool _sidebarOpen;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return Task.CompletedTask;
+
+        // ── REAL API: uncomment the block below when switching to HttpAuthService ──
+        // if (AuthService is GroceryStore.Services.Http.HttpAuthService concrete)
+        //     await concrete.RestoreSessionAsync();
+
+        _initialized = true;
+        StateHasChanged( );
+        return Task.CompletedTask;
+    }
+
+    private async Task ToggleTheme() => await JS.InvokeVoidAsync("toggleTheme");
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync( );
+        Nav.NavigateTo("/admin/login");
+    }
+}

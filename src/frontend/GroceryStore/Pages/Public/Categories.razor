@@ -1,0 +1,38 @@
+@page "/categories"
+@layout GroceryStore.Components.Layout.MainLayout
+@inject ICategoryService CategoryService
+
+<PageTitle>Categories | Fresh Grocery</PageTitle>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">All Categories</h1>
+        @if (_loading)
+        {
+            <div class="loading-spinner show"><div class="spinner"></div></div>
+        }
+        else if (_categories.Count == 0)
+        {
+            <div class="empty-state"><h3>No categories found.</h3></div>
+        }
+        else
+        {
+            <div class="categories-grid">
+                @foreach (var cat in _categories)
+                {
+                    <CategoryCard Category="cat" />
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private bool _loading = true;
+    private List<Category> _categories = new( );
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await CategoryService.GetCategoriesAsync( );
+        _loading = false;
+    }
+}

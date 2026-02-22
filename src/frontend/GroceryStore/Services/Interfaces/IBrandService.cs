@@ -1,0 +1,16 @@
+using GroceryStore.Models;
+
+namespace GroceryStore.Services.Interfaces;
+
+public interface IBrandService
+{
+    Task<List<Brand>> GetBrandsAsync();       // active only
+    Task<List<Brand>> GetAllBrandsAsync();    // admin — includes inactive
+
+    Task<Brand?> GetBrandByIdAsync(int id);
+
+    // Admin CRUD
+    Task<Brand> CreateBrandAsync(Brand brand);
+    Task<Brand> UpdateBrandAsync(Brand brand);
+    Task<bool> DeleteBrandAsync(int id);
+}

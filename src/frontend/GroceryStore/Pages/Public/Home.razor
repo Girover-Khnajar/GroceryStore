@@ -1,0 +1,117 @@
+@page "/"
+@layout GroceryStore.Components.Layout.MainLayout
+@inject IBannerService BannerService
+@inject ICategoryService CategoryService
+@inject IProductService ProductService
+
+<PageTitle>Fresh Grocery Store — Best Fresh Products</PageTitle>
+
+@if (_loading)
+{
+    <div class="loading-spinner show"><div class="spinner"></div></div>
+}
+else
+{
+    @if (_bannerSlides.Count > 0)
+    {
+        <BannerSlider Slides="_bannerSlides" />
+    }
+
+    <!-- Hero -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    The Best Fresh Products
+                    <span class="highlight">for Your Family</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Shop premium fresh and packaged products at competitive prices.
+                </p>
+                <div class="hero-actions">
+                    <a href="/products" class="btn btn-primary">
+                        <i class="fas fa-shopping-cart"></i> Shop Now
+                    </a>
+                    <a href="/categories" class="btn btn-outline">
+                        <i class="fas fa-th-large"></i> Browse Categories
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    @if (_categories.Count > 0)
+    {
+        <section class="section" id="categories">
+            <div class="container">
+                <h2 class="section-title">Categories</h2>
+                <div class="categories-grid">
+                    @foreach (var cat in _categories)
+                    {
+                        <CategoryCard Category="cat" />
+                    }
+                </div>
+                <div style="text-align:center;margin-top:2rem;">
+                    <a href="/categories" class="btn btn-outline">
+                        All Categories <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    }
+
+    <!-- Featured Products -->
+    @if (_featured.Count > 0)
+    {
+        <section class="section section-alt" id="products">
+            <div class="container">
+                <h2 class="section-title">Featured Products</h2>
+                <div class="products-grid">
+                    @foreach (var p in _featured)
+                    {
+                        <ProductCard Product="p" />
+                    }
+                </div>
+                <div style="text-align:center;margin-top:2rem;">
+                    <a href="/products" class="btn btn-primary">
+                        <i class="fas fa-box-open"></i> All Products
+                    </a>
+                </div>
+            </div>
+        </section>
+    }
+}
+
+@code {
+    private bool _loading = true;
+    private List<BannerSlider.BannerSlide> _bannerSlides = new( );
+    private List<Category> _categories = new( );
+    private List<Product> _featured = new( );
+
+    protected override async Task OnInitializedAsync()
+    {
+        var t1 = BannerService.GetBannersAsync( );
+        var t2 = CategoryService.GetCategoriesAsync( );
+        var t3 = ProductService.GetFeaturedProductsAsync(6);
+        await Task.WhenAll(t1,t2,t3);
+
+        _bannerSlides = t1.Result
+            .Where(b => b.Placement == "HomeHero")
+            .SelectMany(b =>
+            {
+                var imgs = b.Images.Count > 0 ? b.Images : new( ) { b.ImageUrl ?? "" };
+                return imgs.Where(i => !string.IsNullOrWhiteSpace(i))
+                           .Select(i => new BannerSlider.BannerSlide
+                           {
+                               Title = b.Title,
+                               ImageUrl = i,
+                               NavRoute = b.NavRoute
+                           });
+            }).ToList( );
+
+        _categories = t2.Result.Take(5).ToList( );
+        _featured = t3.Result;
+        _loading = false;
+    }
+}

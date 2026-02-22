@@ -1,0 +1,250 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FRESH GROCERY STORE — Admin Panel Styles
+   Author: Juan Khanjar
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Admin Layout ────────────────────────────────────────────────────────── */
+.admin-dashboard {
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg);
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.admin-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform .3s ease;
+    z-index: 100;
+}
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+.sidebar-header i { font-size: 1.4rem; }
+.sidebar-header h2 { font-size: 1.1rem; }
+.sidebar-menu { flex: 1; padding: 1rem 0; }
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding: .85rem 1.5rem;
+    margin: .2rem .75rem;
+    border-radius: var(--radius-md);
+    font-size: .9rem;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all var(--transition);
+    text-decoration: none;
+}
+.menu-item:hover, .menu-item.active {
+    background: var(--primary);
+    color: #fff;
+}
+.menu-item i { width: 18px; text-align: center; font-size: .95rem; }
+.sidebar-footer { padding: 1rem .75rem; border-top: 1px solid var(--border); }
+.btn-logout {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    width: 100%;
+    padding: .8rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--danger);
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: var(--font);
+}
+.btn-logout:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+/* ── Main Area ───────────────────────────────────────────────────────────── */
+.admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.admin-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 2rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+.admin-header h1 { font-size: 1.1rem; font-weight: 700; flex: 1; }
+.admin-header .menu-toggle { display: none; }
+.admin-actions { display: flex; align-items: center; gap: .75rem; }
+.btn-view-site {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text);
+    transition: all var(--transition);
+    background: transparent;
+    text-decoration: none;
+}
+.btn-view-site:hover { border-color: var(--primary); color: var(--primary); }
+.admin-content { flex: 1; padding: 2rem; overflow-y: auto; }
+
+/* ── Admin Forms ─────────────────────────────────────────────────────────── */
+.form-group { margin-bottom: 1.25rem; }
+.form-label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: .4rem; color: var(--text); }
+.form-control {
+    width: 100%;
+    padding: .7rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: .95rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    transition: border-color var(--transition);
+    outline: none;
+}
+.form-control:focus { border-color: var(--primary); }
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+/* ── Admin Buttons ───────────────────────────────────────────────────────── */
+.btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .7rem 1.5rem;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: var(--font);
+}
+.btn-submit:hover:not([disabled]) { background: var(--primary-dark); transform: translateY(-1px); }
+.btn-submit[disabled] { opacity: .6; cursor: not-allowed; }
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .7rem 1.25rem;
+    background: var(--surface-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: var(--font);
+}
+.btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+
+.btn-edit, .btn-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin: 0 .2rem;
+    transition: all var(--transition);
+    font-size: .85rem;
+}
+.btn-edit   { background: #dbeafe; color: #2563eb; }
+.btn-edit:hover   { background: #2563eb; color: #fff; }
+.btn-delete { background: #fee2e2; color: #dc2626; }
+.btn-delete:hover { background: #dc2626; color: #fff; }
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+}
+.modal.show { opacity: 1; pointer-events: all; }
+.modal-content {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    transform: scale(.95);
+    transition: transform .25s ease;
+}
+.modal.show .modal-content { transform: scale(1); }
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { font-size: 1.15rem; font-weight: 700; }
+.modal-close {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text); cursor: pointer; font-size: .9rem;
+    transition: all var(--transition);
+}
+.modal-close:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.modal-body { padding: 2rem; }
+
+/* ── Validation ──────────────────────────────────────────────────────────── */
+.validation-message { color: var(--danger); font-size: .8rem; margin-top: .25rem; display: block; }
+
+/* ── Admin Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .admin-sidebar {
+        position: fixed;
+        left: 0; top: 0;
+        height: 100vh;
+        transform: translateX(-100%);
+    }
+    .admin-sidebar.show { transform: translateX(0); box-shadow: var(--shadow-lg); }
+    .admin-main { width: 100%; }
+    .admin-header .menu-toggle { display: flex; }
+    .admin-content { padding: 1.25rem; }
+}

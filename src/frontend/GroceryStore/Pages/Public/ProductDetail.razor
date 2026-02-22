@@ -1,0 +1,144 @@
+@page "/products/{Slug}"
+@layout GroceryStore.Components.Layout.MainLayout
+@inject IProductService ProductService
+@inject ISettingsService SettingsService
+@inject NavigationManager Nav
+
+<PageTitle>@(_product?.Name ?? "Product") | Fresh Grocery</PageTitle>
+
+@if (_loading)
+{
+    <div class="loading-spinner show"><div class="spinner"></div></div>
+}
+else if (_product is null)
+{
+    <section class="section">
+        <div class="container" style="text-align:center;padding:4rem 0;">
+            <i class="fas fa-box-open" style="font-size:4rem;color:var(--text-light);"></i>
+            <h2 style="margin:1.5rem 0;">Product not found</h2>
+            <a href="/products" class="btn btn-primary">Back to Products</a>
+        </div>
+    </section>
+}
+else
+{
+    <section class="section">
+        <div class="container">
+            <nav style="margin-bottom:1.5rem;color:var(--text-light);font-size:.9rem;">
+                <a href="/">Home</a> / <a href="/products">Products</a> / <span>@_product.Name</span>
+            </nav>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;">
+
+                <!-- Images -->
+                <div>
+                    <div style="border-radius:var(--radius-lg);overflow:hidden;border:2px solid var(--border);aspect-ratio:1;background:var(--surface);">
+                        <img src="@(_product.Images.ElementAtOrDefault(_activeImg) ?? _product.PrimaryImage ?? "images/ui/product-placeholder.svg")"
+                             alt="@_product.Name"
+                             style="width:100%;height:100%;object-fit:cover;" />
+                    </div>
+                    @if (_product.Images.Count > 1)
+                    {
+                        <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap;">
+                            @for (int i = 0; i < _product.Images.Count; i++)
+                            {
+                                var idx = i;
+                                <img src="@_product.Images[i]" alt="View @(i + 1)"
+                                     style="width:72px;height:72px;object-fit:cover;border-radius:var(--radius-sm);
+                                                        border:3px solid @(idx == _activeImg ? "var(--primary)" : "var(--border)");
+                                                        cursor:pointer;transition:.2s;"
+                                     @onclick="() => _activeImg = idx" />
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Info -->
+                <div>
+                    @if (_product.IsFeatured)
+                    {
+                        <span style="background:var(--primary);color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;">
+                            Featured
+                        </span>
+                    }
+                    <h1 style="font-size:2rem;margin:.75rem 0;font-weight:700;">@_product.Name</h1>
+
+                    <div style="display:flex;gap:1.5rem;margin:.75rem 0;font-size:.9rem;color:var(--text-light);">
+                        @if (!string.IsNullOrWhiteSpace(_product.CategoryName))
+                        {
+                            <span><i class="fas fa-tag" style="color:var(--primary);margin-right:.35rem;"></i>@_product.CategoryName</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(_product.BrandName))
+                        {
+                            <span><i class="fas fa-industry" style="color:var(--primary);margin-right:.35rem;"></i>@_product.BrandName</span>
+                        }
+                        <span><i class="fas fa-barcode" style="color:var(--primary);margin-right:.35rem;"></i>@_product.Sku</span>
+                    </div>
+
+                    <div style="font-size:2.2rem;font-weight:700;color:var(--primary);margin:1.25rem 0;">
+                        @_product.Price.ToString("0.##") <span style="font-size:1rem;font-weight:400;color:var(--text-light);">@_product.Currency / @_product.Unit</span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(_product.Description))
+                    {
+                        <p style="color:var(--text-light);line-height:1.8;margin-bottom:1.5rem;">@_product.Description</p>
+                    }
+
+                    <!-- Quantity -->
+                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
+                        <label style="font-weight:600;">Quantity:</label>
+                        <div style="display:flex;align-items:center;border:2px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
+                            <button @onclick="() => { if (_qty > 1) _qty--; }"
+                                    style="padding:10px 16px;background:var(--surface);border:none;cursor:pointer;font-size:1.1rem;color:var(--text);">
+                                −
+                            </button>
+                            <span style="padding:10px 20px;font-size:1.1rem;font-weight:600;border-left:2px solid var(--border);border-right:2px solid var(--border);">@_qty</span>
+                            <button @onclick="() => _qty++"
+                                    style="padding:10px 16px;background:var(--surface);border:none;cursor:pointer;font-size:1.1rem;color:var(--text);">
+                                +
+                            </button>
+                        </div>
+                        <span style="color:var(--text-light);">
+                            Total: <strong style="color:var(--primary);">@((_product.Price * _qty).ToString("0.##")) @_product.Currency</strong>
+                        </span>
+                    </div>
+
+                    <button class="btn-whatsapp" style="width:100%;padding:1rem;font-size:1.1rem;border-radius:var(--radius-md);
+                                                             display:flex;align-items:center;justify-content:center;gap:.75rem;"
+                            @onclick="OrderWhatsApp">
+                        <i class="fab fa-whatsapp" style="font-size:1.4rem;"></i>
+                        Order via WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+    private bool _loading = true;
+    private Product? _product;
+    private int _activeImg;
+    private int _qty = 1;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _product = null;
+        _activeImg = 0;
+        _qty = 1;
+        _product = await ProductService.GetProductBySlugAsync(Slug);
+        _loading = false;
+    }
+
+    private async Task OrderWhatsApp()
+    {
+        if (_product is null)
+            return;
+        var s = await SettingsService.GetSettingsAsync( );
+        var wa = s?.WhatsappNumber ?? "";
+        var msg = $"Hello, I'd like to order:\n{_product.Name}\nQuantity: {_qty} {_product.Unit}\nTotal: {(_product.Price * _qty):0.##} {_product.Currency}";
+        Nav.NavigateTo($"https://wa.me/{wa}?text={Uri.EscapeDataString(msg)}",forceLoad: true);
+    }
+}

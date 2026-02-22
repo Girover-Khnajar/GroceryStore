@@ -1,0 +1,20 @@
+
+@inject NavigationManager Nav
+
+<div class="category-card" @onclick="NavigateToCategory" style="cursor:pointer;">
+    <div class="category-image">
+        <img src="@(Category.Image ?? "images/ui/category-placeholder.svg")"
+             alt="@Category.Name"
+             loading="lazy"
+             onerror="this.onerror=null;this.src='images/ui/category-placeholder.svg';" />
+    </div>
+    <div class="category-info">
+        <h3>@Category.Name</h3>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Category Category { get; set; } = null!;
+    private void NavigateToCategory()
+        => Nav.NavigateTo($"/categories/{Category.Slug}");
+}

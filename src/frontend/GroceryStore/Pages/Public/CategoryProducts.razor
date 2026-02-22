@@ -1,0 +1,78 @@
+@page "/categories/{Slug}"
+@layout GroceryStore.Components.Layout.MainLayout
+@inject ICategoryService CategoryService
+@inject IProductService ProductService
+
+<PageTitle>@(_category?.Name ?? "Category") | Fresh Grocery</PageTitle>
+
+<section class="section">
+    <div class="container">
+        <nav style="margin-bottom:1.5rem;color:var(--text-light);font-size:.9rem;">
+            <a href="/">Home</a> / <a href="/categories">Categories</a> / <span>@(_category?.Name ?? Slug)</span>
+        </nav>
+
+        @if (_loading)
+        {
+            <div class="loading-spinner show"><div class="spinner"></div></div>
+        }
+        else if (_category is null)
+        {
+            <div class="empty-state" style="text-align:center;padding:4rem 0;">
+                <h3>Category not found.</h3>
+                <a href="/categories" class="btn btn-primary" style="margin-top:1rem;">Back to Categories</a>
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrWhiteSpace(_category.Image))
+            {
+                <div style="background-image:url('@_category.Image');height:240px;border-radius:var(--radius-lg);
+                                    background-size:cover;background-position:center;position:relative;overflow:hidden;margin-bottom:2rem;">
+                    <div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;">
+                        <h1 style="color:#fff;font-size:2.5rem;font-weight:700;">@_category.Name</h1>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <h1 class="section-title">@_category.Name</h1>
+            }
+
+            @if (_products.Count == 0)
+            {
+                <div class="empty-state">
+                    <h3>No products in this category.</h3>
+                    <a href="/products" class="btn btn-outline" style="margin-top:1rem;">All Products</a>
+                </div>
+            }
+            else
+            {
+                <p style="color:var(--text-light);margin-bottom:1.5rem;">@_products.Count product(s) found</p>
+                <div class="products-grid">
+                    @foreach (var p in _products)
+                    {
+                        <ProductCard Product="p" />
+                    }
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+    private bool _loading = true;
+    private Category? _category;
+    private List<Product> _products = new( );
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _category = null;
+        _products.Clear( );
+        _category = await CategoryService.GetCategoryBySlugAsync(Slug);
+        if (_category is not null)
+            _products = await ProductService.GetProductsByCategoryAsync(_category.Id);
+        _loading = false;
+    }
+}

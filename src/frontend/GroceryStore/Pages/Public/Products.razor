@@ -1,0 +1,135 @@
+@page "/products"
+@layout GroceryStore.Components.Layout.MainLayout
+@inject IProductService ProductService
+@inject ICategoryService CategoryService
+@inject IBrandService BrandService
+
+<PageTitle>Products | Fresh Grocery</PageTitle>
+
+<section class="section" id="products">
+    <div class="container">
+        <h1 class="section-title">All Products</h1>
+
+        <!-- Filter Bar -->
+        <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;align-items:center;">
+
+            <div style="flex:1;min-width:200px;position:relative;">
+                <i class="fas fa-search" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-light);pointer-events:none;"></i>
+                <input type="text" placeholder="Search products…"
+                       style="width:100%;padding:12px 42px 12px 14px;border:2px solid var(--border);border-radius:var(--radius-md);font-size:1rem;background:var(--surface);color:var(--text);"
+                       @bind="_query.Search" @oninput="OnFilterChange" />
+            </div>
+
+            <select style="padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius-md);font-size:1rem;background:var(--surface);color:var(--text);min-width:160px;"
+                    @bind="_catId" @bind:after="OnFilterChange">
+                <option value="0">All Categories</option>
+                @foreach (var c in _categories)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+
+            <select style="padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius-md);font-size:1rem;background:var(--surface);color:var(--text);min-width:160px;"
+                    @bind="_brandId" @bind:after="OnFilterChange">
+                <option value="0">All Brands</option>
+                @foreach (var b in _brands)
+                {
+                    <option value="@b.Id">@b.Name</option>
+                }
+            </select>
+
+            <select style="padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius-md);font-size:1rem;background:var(--surface);color:var(--text);min-width:160px;"
+                    @bind="_query.SortBy" @bind:after="OnFilterChange">
+                <option value="newest">Newest First</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name">Name A–Z</option>
+            </select>
+        </div>
+
+        <!-- Grid -->
+        @if (_loading)
+        {
+            <div class="loading-spinner show"><div class="spinner"></div></div>
+        }
+        else if (_result.Items.Count == 0)
+        {
+            <div class="empty-state">
+                <h3>No products match your filters.</h3>
+                <p>Try adjusting the search or filter criteria.</p>
+            </div>
+        }
+        else
+        {
+            <p style="color:var(--text-light);margin-bottom:1rem;">@_result.TotalCount product(s) found</p>
+            <div class="products-grid">
+                @foreach (var p in _result.Items)
+                {
+                    <ProductCard Product="p" />
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (_result.TotalPages > 1)
+            {
+                <div style="display:flex;justify-content:center;gap:.5rem;margin-top:2.5rem;flex-wrap:wrap;">
+                    <button class="page-btn" @onclick="() => GoTo(_query.Page - 1)" disabled="@(_query.Page <= 1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    @for (int i = 1; i <= _result.TotalPages; i++)
+                    {
+                        var pg = i;
+                        <button class="page-btn @(pg == _query.Page ? "active" : "")" @onclick="() => GoTo(pg)">@pg</button>
+                    }
+                    <button class="page-btn" @onclick="() => GoTo(_query.Page + 1)" disabled="@(_query.Page >= _result.TotalPages)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@code {
+    private bool _loading = true;
+    private ProductQuery _query = new( ) { PageSize = 12 };
+    private PagedResult<Product> _result = new( );
+    private List<Category> _categories = new( );
+    private List<Brand> _brands = new( );
+    private int _catId;
+    private int _brandId;
+    private System.Timers.Timer? _debounce;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var t1 = CategoryService.GetCategoriesAsync( );
+        var t2 = BrandService.GetBrandsAsync( );
+        await Task.WhenAll(t1,t2);
+        _categories = t1.Result;
+        _brands = t2.Result;
+        await LoadAsync( );
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        StateHasChanged( );
+        _query.CategoryId = _catId == 0 ? null : _catId;
+        _query.BrandId = _brandId == 0 ? null : _brandId;
+        _result = await ProductService.GetProductsAsync(_query);
+        _loading = false;
+        StateHasChanged( );
+    }
+
+    private void OnFilterChange()
+    {
+        _query.Page = 1;
+        _debounce?.Dispose( );
+        _debounce = new System.Timers.Timer(380);
+        _debounce.Elapsed += async (_,_) => { _debounce?.Dispose( ); await InvokeAsync(LoadAsync); };
+        _debounce.AutoReset = false;
+        _debounce.Start( );
+    }
+
+    private async Task GoTo(int page) { _query.Page = page; await LoadAsync( ); }
+}

@@ -1,0 +1,35 @@
+
+
+<div class="toast @(_visible ? "show" : "")" id="toast">
+    <i class="fas @_icon"></i>
+    <span>@_message</span>
+</div>
+
+@code {
+    public enum ToastType { Success, Error, Warning, Info }
+
+    private bool _visible;
+    private string _message = string.Empty;
+    private string _icon = "fa-check-circle";
+    private System.Timers.Timer? _timer;
+
+    public void Show(string message,ToastType type = ToastType.Success)
+    {
+        _message = message;
+        _icon = type switch
+        {
+            ToastType.Error => "fa-exclamation-circle",
+            ToastType.Warning => "fa-exclamation-triangle",
+            ToastType.Info => "fa-info-circle",
+            _ => "fa-check-circle"
+        };
+        _timer?.Dispose( );
+        _visible = true;
+        InvokeAsync(StateHasChanged);
+
+        _timer = new System.Timers.Timer(3200);
+        _timer.Elapsed += (_,_) => { _visible = false; _timer?.Dispose( ); InvokeAsync(StateHasChanged); };
+        _timer.AutoReset = false;
+        _timer.Start( );
+    }
+}
