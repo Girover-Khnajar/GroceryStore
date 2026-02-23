@@ -21,6 +21,7 @@ $testProjects = @{
     "application"    = ".\tests\backend\GroceryStore.Application.Tests\GroceryStore.Application.Tests.csproj"
     "infrastructure" = ".\tests\backend\GroceryStore.Infrastructure.Tests\GroceryStore.Infrastructure.Tests.csproj"
     "api"            = ".\tests\backend\GroceryStore.Api.Tests\GroceryStore.Api.Tests.csproj"
+    "app"            = ".\tests\frontend\GroceryStore.Tests\GroceryStore.Tests.csproj"
     "cqrs"           = ".\src\libs\CQRS\tests\CQRS.Tests.csproj"
 }
 

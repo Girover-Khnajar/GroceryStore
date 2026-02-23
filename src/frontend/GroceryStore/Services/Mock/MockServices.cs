@@ -359,7 +359,7 @@ public sealed class MockCategoryService : ICategoryService
 public sealed class MockBrandService : IBrandService
 {
     public Task<List<Brand>> GetBrandsAsync()
-        => Task.FromResult(MockDb.Brands.Where(b => b.IsActive).ToList( ));
+        => Task.FromResult(MockDb.Brands.Where(b => b != null && b.IsActive).ToList());
 
     public Task<List<Brand>> GetAllBrandsAsync()
         => Task.FromResult(MockDb.Brands.ToList( ));
