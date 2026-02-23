@@ -1,6 +1,6 @@
 param(
     [Parameter(Position = 0)]
-    [ValidateSet("api", "ui")]
+    [ValidateSet("api", "ui", "app")]
     [string]$Project = "api"
 )
 
@@ -12,5 +12,9 @@ switch ($Project) {
     "ui" {
         Write-Host "Starting GroceryStore UI..." -ForegroundColor Cyan
         dotnet watch run --project "src/frontend/GroceryStore.Ui"
+    }
+    "app" {
+        Write-Host "Starting GroceryStore App..." -ForegroundColor Cyan
+        dotnet watch run --project "src/frontend/GroceryStore"
     }
 }
