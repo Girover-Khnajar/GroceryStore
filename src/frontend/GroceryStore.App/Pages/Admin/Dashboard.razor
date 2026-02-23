@@ -1,0 +1,105 @@
+@page "/admin/dashboard"
+@using GroceryStore.App.Models
+@using GroceryStore.App.Services.Interfaces
+@layout GroceryStore.App.Components.Layout.AdminLayout
+@inject IDashboardService DashboardService
+
+<PageTitle>Dashboard | Admin</PageTitle>
+
+<h2 style="margin-bottom:2rem;font-size:1.6rem;font-weight:700;">
+    <i class="fas fa-chart-line" style="color:var(--primary);margin-right:.5rem;"></i>
+    Dashboard
+</h2>
+
+@if (_loading)
+{
+    <div class="loading-spinner show"><div class="spinner"></div></div>
+}
+else
+{
+    <!-- Stat Cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-bottom:2.5rem;">
+
+        <div class="stat-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:1.75rem;border:1px solid var(--border);display:flex;align-items:center;gap:1.25rem;">
+            <div style="background:#dbeafe;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-box-open" style="font-size:1.5rem;color:#2563eb;"></i>
+            </div>
+            <div>
+                <div style="font-size:2rem;font-weight:700;">@_stats.TotalProducts</div>
+                <div style="color:var(--text-light);font-size:.9rem;">Total Products</div>
+            </div>
+        </div>
+
+        <div class="stat-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:1.75rem;border:1px solid var(--border);display:flex;align-items:center;gap:1.25rem;">
+            <div style="background:#d1fae5;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-th-large" style="font-size:1.5rem;color:#059669;"></i>
+            </div>
+            <div>
+                <div style="font-size:2rem;font-weight:700;">@_stats.TotalCategories</div>
+                <div style="color:var(--text-light);font-size:.9rem;">Categories</div>
+            </div>
+        </div>
+
+        <div class="stat-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:1.75rem;border:1px solid var(--border);display:flex;align-items:center;gap:1.25rem;">
+            <div style="background:#fef3c7;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-tag" style="font-size:1.5rem;color:#d97706;"></i>
+            </div>
+            <div>
+                <div style="font-size:2rem;font-weight:700;">@_stats.TotalBrands</div>
+                <div style="color:var(--text-light);font-size:.9rem;">Brands</div>
+            </div>
+        </div>
+
+        <div class="stat-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:1.75rem;border:1px solid var(--border);display:flex;align-items:center;gap:1.25rem;">
+            <div style="background:#fce7f3;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-images" style="font-size:1.5rem;color:#db2777;"></i>
+            </div>
+            <div>
+                <div style="font-size:2rem;font-weight:700;">@_stats.TotalBanners</div>
+                <div style="color:var(--text-light);font-size:.9rem;">Banners</div>
+            </div>
+        </div>
+
+        <div class="stat-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:1.75rem;border:1px solid var(--border);display:flex;align-items:center;gap:1.25rem;">
+            <div style="background:#ede9fe;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-check-circle" style="font-size:1.5rem;color:#7c3aed;"></i>
+            </div>
+            <div>
+                <div style="font-size:2rem;font-weight:700;">@_stats.ActiveProducts</div>
+                <div style="color:var(--text-light);font-size:.9rem;">Active Products</div>
+            </div>
+        </div>
+
+        <div class="stat-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:1.75rem;border:1px solid var(--border);display:flex;align-items:center;gap:1.25rem;">
+            <div style="background:#fef9c3;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-star" style="font-size:1.5rem;color:#ca8a04;"></i>
+            </div>
+            <div>
+                <div style="font-size:2rem;font-weight:700;">@_stats.FeaturedProducts</div>
+                <div style="color:var(--text-light);font-size:.9rem;">Featured Products</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div style="background:var(--surface);border-radius:var(--radius-lg);padding:2rem;border:1px solid var(--border);">
+        <h3 style="margin-bottom:1.5rem;font-size:1.1rem;font-weight:600;">Quick Actions</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:1rem;">
+            <a href="/admin/products" class="btn btn-primary"><i class="fas fa-plus"></i> Add Product</a>
+            <a href="/admin/categories" class="btn btn-primary"><i class="fas fa-plus"></i> Add Category</a>
+            <a href="/admin/brands" class="btn btn-primary"><i class="fas fa-plus"></i> Add Brand</a>
+            <a href="/admin/banners" class="btn btn-primary"><i class="fas fa-plus"></i> Add Banner</a>
+            <a href="/admin/settings" class="btn btn-outline"><i class="fas fa-cog"></i> Store Settings</a>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private DashboardStats _stats = new( );
+    protected override async Task OnInitializedAsync()
+    {
+        _stats = await DashboardService.GetStatsAsync( );
+        _loading = false;
+    }
+}

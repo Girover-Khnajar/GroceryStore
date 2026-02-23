@@ -1,0 +1,274 @@
+@page "/admin/products"
+@using GroceryStore.App.Models
+@using GroceryStore.App.Services.Interfaces
+@layout GroceryStore.App.Components.Layout.AdminLayout
+@inject IProductService ProductService
+@inject ICategoryService CategoryService
+@inject IBrandService BrandService
+
+<PageTitle>Manage Products | Admin</PageTitle>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+    <h2 style="font-size:1.5rem;font-weight:700;">
+        <i class="fas fa-box-open" style="color:var(--primary);margin-right:.5rem;"></i>
+        Products
+    </h2>
+    <button class="btn btn-primary" @onclick="OpenNew">
+        <i class="fas fa-plus"></i> Add Product
+    </button>
+</div>
+
+<Toast @ref="_toast" />
+
+<!-- Search -->
+<div style="margin-bottom:1.5rem;position:relative;">
+    <i class="fas fa-search" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-light);pointer-events:none;"></i>
+    <input type="text" placeholder="Search products…"
+           style="width:100%;padding:12px 42px 12px 14px;border:2px solid var(--border);border-radius:var(--radius-md);
+                  font-size:1rem;background:var(--surface);color:var(--text);"
+           @bind="_search" @oninput="StateHasChanged" />
+</div>
+
+@if (_loading)
+{
+    <div class="loading-spinner show"><div class="spinner"></div></div>
+}
+else
+{
+    var filtered = string.IsNullOrWhiteSpace(_search)
+        ? _products
+        : _products.Where(p => p.Name.Contains(_search,StringComparison.OrdinalIgnoreCase) ||
+                               p.Sku.Contains(_search,StringComparison.OrdinalIgnoreCase)).ToList( );
+
+    <div class="table-wrapper" style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+            <thead>
+                <tr style="background:var(--bg);border-bottom:2px solid var(--border);">
+                    <th style="padding:14px 16px;text-align:left;font-weight:600;white-space:nowrap;">Image</th>
+                    <th style="padding:14px 16px;text-align:left;font-weight:600;">Name</th>
+                    <th style="padding:14px 16px;text-align:left;font-weight:600;">SKU</th>
+                    <th style="padding:14px 16px;text-align:left;font-weight:600;">Category</th>
+                    <th style="padding:14px 16px;text-align:left;font-weight:600;">Price</th>
+                    <th style="padding:14px 16px;text-align:center;font-weight:600;">Active</th>
+                    <th style="padding:14px 16px;text-align:center;font-weight:600;">Featured</th>
+                    <th style="padding:14px 16px;text-align:center;font-weight:600;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (filtered.Count == 0)
+                {
+                    <tr><td colspan="8" style="padding:3rem;text-align:center;color:var(--text-light);">No products found.</td></tr>
+                }
+                @foreach (var p in filtered)
+                {
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:12px 16px;">
+                            <img src="@(p.PrimaryImage ?? "images/ui/product-placeholder.svg")"
+                                 style="width:52px;height:52px;object-fit:cover;border-radius:var(--radius-sm);" />
+                        </td>
+                        <td style="padding:12px 16px;font-weight:500;">@p.Name</td>
+                        <td style="padding:12px 16px;color:var(--text-light);font-size:.85rem;">@p.Sku</td>
+                        <td style="padding:12px 16px;color:var(--text-light);">@p.CategoryName</td>
+                        <td style="padding:12px 16px;font-weight:600;color:var(--primary);">@p.FormattedPrice</td>
+                        <td style="padding:12px 16px;text-align:center;">
+                            <span style="color:@(p.IsActive ? "#059669" : "#dc2626");">
+                                <i class="fas @(p.IsActive ? "fa-check-circle" : "fa-times-circle")"></i>
+                            </span>
+                        </td>
+                        <td style="padding:12px 16px;text-align:center;">
+                            <span style="color:@(p.IsFeatured ? "#d97706" : "var(--text-light)");">
+                                <i class="fas @(p.IsFeatured ? "fa-star" : "fa-star")"></i>
+                            </span>
+                        </td>
+                        <td style="padding:12px 16px;text-align:center;white-space:nowrap;">
+                            <button class="btn-edit" @onclick="() => OpenEdit(p)" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" @onclick="() => ConfirmDelete(p)" title="Delete"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<!-- Modal -->
+<div class="modal @(_showModal ? "show" : "")">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="modal-header">
+            <h3>@(_form.Id == 0 ? "Add Product" : "Edit Product")</h3>
+            <button class="modal-close" @onclick="CloseModal"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <EditForm Model="_form" OnValidSubmit="Save">
+                <DataAnnotationsValidator />
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label class="form-label">Product Name *</label>
+                        <InputText @bind-Value="_form.Name" class="form-control" placeholder="e.g. Fresh Tomatoes" />
+                        <ValidationMessage For="() => _form.Name" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Slug</label>
+                        <InputText @bind-Value="_form.Slug" class="form-control" placeholder="auto-from-name" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">SKU *</label>
+                        <InputText @bind-Value="_form.Sku" class="form-control" placeholder="VEG001" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <InputSelect @bind-Value="_form.CategoryId" class="form-control">
+                            <option value="0">— Select —</option>
+                            @foreach (var c in _categories)
+                            {
+                                <option value="@c.Id">@c.Name</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <InputSelect @bind-Value="_form.BrandId" class="form-control">
+                            <option value="0">— Select —</option>
+                            @foreach (var b in _brands)
+                            {
+                                <option value="@b.Id">@b.Name</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price *</label>
+                        <InputNumber @bind-Value="_form.Price" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unit (e.g. kg, ltr, pkt)</label>
+                        <InputText @bind-Value="_form.Unit" class="form-control" placeholder="kg" />
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label class="form-label">Description</label>
+                        <InputTextArea @bind-Value="_form.Description" class="form-control" rows="3" />
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <label class="form-label">Image URLs (one per line)</label>
+                        <textarea class="form-control" rows="3" @bind="_imagesText" placeholder="https://example.com/image1.jpg"></textarea>
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:center;gap:.5rem;">
+                        <InputCheckbox @bind-Value="_form.IsActive" id="chkActive" />
+                        <label for="chkActive">Active</label>
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:center;gap:.5rem;">
+                        <InputCheckbox @bind-Value="_form.IsFeatured" id="chkFeatured" />
+                        <label for="chkFeatured">Featured</label>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1rem;">
+                    <button type="button" class="btn-secondary" @onclick="CloseModal">Cancel</button>
+                    <button type="submit" class="btn-submit" disabled="@_busy">
+                        @if (_busy)
+                        {
+                            <i class="fas fa-spinner fa-spin"></i>
+                        }
+                        else
+                        {
+
+                            <i class="fas fa-save"></i>
+                        }
+                        Save
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<ConfirmDialog @ref="_dlg" OnConfirmed="DeleteConfirmed" />
+
+@code {
+    private Toast? _toast;
+    private ConfirmDialog? _dlg;
+    private bool _loading, _showModal, _busy;
+    private string _search = string.Empty;
+    private string _imagesText = string.Empty;
+    private List<Product> _products = new( );
+    private List<Category> _categories = new( );
+    private List<Brand> _brands = new( );
+    private Product _form = new( );
+    private Product? _toDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        var t1 = ProductService.GetProductsAsync(new ProductQuery { PageSize = 200,IsActive = null });
+        var t2 = CategoryService.GetAllCategoriesAsync( );
+        var t3 = BrandService.GetAllBrandsAsync( );
+        await Task.WhenAll(t1,t2,t3);
+        _products = t1.Result.Items;
+        _categories = t2.Result;
+        _brands = t3.Result;
+        _loading = false;
+    }
+
+    private void OpenNew()
+    {
+        _form = new Product { IsActive = true,Currency = "USD" };
+        _imagesText = string.Empty;
+        _showModal = true;
+    }
+
+    private void OpenEdit(Product p)
+    {
+        _form = new Product
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Slug = p.Slug,
+            Sku = p.Sku,
+            CategoryId = p.CategoryId,
+            BrandId = p.BrandId,
+            Price = p.Price,
+            Currency = p.Currency,
+            Unit = p.Unit,
+            Description = p.Description,
+            IsActive = p.IsActive,
+            IsFeatured = p.IsFeatured,
+            Images = new(p.Images),
+            CreatedAt = p.CreatedAt
+        };
+        _imagesText = string.Join("\n",p.Images);
+        _showModal = true;
+    }
+
+    private void CloseModal() => _showModal = false;
+
+    private async Task Save()
+    {
+        _busy = true;
+        _form.Images = _imagesText.Split('\n',StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList( );
+        if (string.IsNullOrWhiteSpace(_form.Slug))
+            _form.Slug = _form.Name.ToLower( ).Replace(" ","-").Trim( );
+        _form.CategoryName = _categories.FirstOrDefault(c => c.Id == _form.CategoryId)?.Name;
+        _form.BrandName = _brands.FirstOrDefault(b => b.Id == _form.BrandId)?.Name;
+
+        if (_form.Id == 0)
+            await ProductService.CreateProductAsync(_form);
+        else
+            await ProductService.UpdateProductAsync(_form);
+
+        _busy = false;
+        _showModal = false;
+        _toast?.Show(_form.Id == 0 ? "Product added!" : "Product updated!");
+        var result = await ProductService.GetProductsAsync(new ProductQuery { PageSize = 200,IsActive = null });
+        _products = result.Items;
+    }
+
+    private void ConfirmDelete(Product p) { _toDelete = p; _dlg?.ShowAsync( ); }
+
+    private async Task DeleteConfirmed()
+    {
+        if (_toDelete is null)
+            return;
+        await ProductService.DeleteProductAsync(_toDelete.Id);
+        _toast?.Show("Product deleted.",Toast.ToastType.Warning);
+        _products.Remove(_toDelete);
+        _toDelete = null;
+    }
+}
