@@ -15,7 +15,7 @@
     <Project Path="tests/backend/GroceryStore.Infrastructure.Tests/GroceryStore.Infrastructure.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/frontend/">
-    <Project Path="tests/frontend/GroceryStore.Tests/GroceryStore.Tests.csproj" />
+    <Project Path="tests/frontend/GroceryStore.App.Tests/GroceryStore.App.Tests.csproj" />
     <Project Path="tests/frontend/GroceryStore.UI.Tests/GroceryStore.UI.Tests.csproj" />
   </Folder>
   <Project Path="src/backend/GroceryStore.Api/GroceryStore.Api.csproj" />
@@ -23,6 +23,6 @@
   <Project Path="src/backend/GroceryStore.Domain/GroceryStore.Domain.csproj" />
   <Project Path="src/backend/GroceryStore.Infrastructure/GroceryStore.Infrastructure.csproj" />
   <Project Path="src/frontend/GroceryStore.Ui/GroceryStore.Ui.csproj" />
-  <Project Path="src/frontend/GroceryStore/GroceryStore.csproj" />
+  <Project Path="src/frontend/GroceryStore.App/GroceryStore.App.csproj" />
   <Project Path="src/libs/CQRS/src/CQRS.csproj" />
 </Solution>

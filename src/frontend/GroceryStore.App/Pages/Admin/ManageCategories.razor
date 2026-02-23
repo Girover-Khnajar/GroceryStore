@@ -1,0 +1,176 @@
+@page "/admin/categories"
+@using GroceryStore.App.Models
+@using GroceryStore.App.Services.Interfaces
+@layout GroceryStore.App.Components.Layout.AdminLayout
+@inject ICategoryService CategoryService
+
+<PageTitle>Manage Categories | Admin</PageTitle>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+    <h2 style="font-size:1.5rem;font-weight:700;">
+        <i class="fas fa-th-large" style="color:var(--primary);margin-right:.5rem;"></i>
+        Categories
+    </h2>
+    <button class="btn btn-primary" @onclick="OpenNew"><i class="fas fa-plus"></i> Add Category</button>
+</div>
+
+<Toast @ref="_toast" />
+
+@if (_loading)
+{
+    <div class="loading-spinner show"><div class="spinner"></div></div>
+}
+else
+{
+    <div class="table-wrapper" style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+            <thead>
+                <tr style="background:var(--bg);border-bottom:2px solid var(--border);">
+                    <th style="padding:14px 16px;text-align:left;">Image</th>
+                    <th style="padding:14px 16px;text-align:left;">Name</th>
+                    <th style="padding:14px 16px;text-align:left;">Slug</th>
+                    <th style="padding:14px 16px;text-align:center;">Order</th>
+                    <th style="padding:14px 16px;text-align:center;">Active</th>
+                    <th style="padding:14px 16px;text-align:center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (_categories.Count == 0)
+                {
+                    <tr><td colspan="6" style="padding:3rem;text-align:center;color:var(--text-light);">No categories yet.</td></tr>
+                }
+                @foreach (var c in _categories)
+                {
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:12px 16px;">
+                            <img src="@(c.Image ?? "images/ui/category-placeholder.svg")"
+                                 style="width:52px;height:52px;object-fit:cover;border-radius:var(--radius-sm);" />
+                        </td>
+                        <td style="padding:12px 16px;font-weight:500;">@c.Name</td>
+                        <td style="padding:12px 16px;color:var(--text-light);font-size:.85rem;">@c.Slug</td>
+                        <td style="padding:12px 16px;text-align:center;">@c.DisplayOrder</td>
+                        <td style="padding:12px 16px;text-align:center;">
+                            <span style="color:@(c.IsActive ? "#059669" : "#dc2626");">
+                                <i class="fas @(c.IsActive ? "fa-check-circle" : "fa-times-circle")"></i>
+                            </span>
+                        </td>
+                        <td style="padding:12px 16px;text-align:center;white-space:nowrap;">
+                            <button class="btn-edit" @onclick="() => OpenEdit(c)"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" @onclick="() => ConfirmDelete(c)"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<!-- Modal -->
+<div class="modal @(_showModal ? "show" : "")">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+            <h3>@(_form.Id == 0 ? "Add Category" : "Edit Category")</h3>
+            <button class="modal-close" @onclick="CloseModal"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <EditForm Model="_form" OnValidSubmit="Save">
+                <DataAnnotationsValidator />
+                <div class="form-group">
+                    <label class="form-label">Name *</label>
+                    <InputText @bind-Value="_form.Name" class="form-control" placeholder="e.g. Fresh Vegetables" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Slug</label>
+                    <InputText @bind-Value="_form.Slug" class="form-control" placeholder="auto-from-name" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Image URL</label>
+                    <InputText @bind-Value="_form.Image" class="form-control" placeholder="https://..." />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Display Order</label>
+                    <InputNumber @bind-Value="_form.DisplayOrder" class="form-control" />
+                </div>
+                <div class="form-group" style="display:flex;align-items:center;gap:.5rem;">
+                    <InputCheckbox @bind-Value="_form.IsActive" id="catActive" />
+                    <label for="catActive">Active</label>
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1rem;">
+                    <button type="button" class="btn-secondary" @onclick="CloseModal">Cancel</button>
+                    <button type="submit" class="btn-submit" disabled="@_busy">
+                        @if (_busy)
+                        {
+                            <i class="fas fa-spinner fa-spin"></i>
+                        }
+                        else
+                        {
+
+                            <i class="fas fa-save"></i>
+                        }
+                        Save
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<ConfirmDialog @ref="_dlg" OnConfirmed="DeleteConfirmed" />
+
+@code {
+    private Toast? _toast;
+    private ConfirmDialog? _dlg;
+    private bool _loading, _showModal, _busy;
+    private List<Category> _categories = new( );
+    private Category _form = new( );
+    private Category? _toDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        _categories = await CategoryService.GetAllCategoriesAsync( );
+        _loading = false;
+    }
+
+    private void OpenNew() { _form = new Category { IsActive = true }; _showModal = true; }
+    private void OpenEdit(Category c)
+    {
+        _form = new Category
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Slug = c.Slug,
+            Image = c.Image,
+            DisplayOrder = c.DisplayOrder,
+            IsActive = c.IsActive
+        };
+        _showModal = true;
+    }
+    private void CloseModal() => _showModal = false;
+
+    private async Task Save()
+    {
+        _busy = true;
+        if (string.IsNullOrWhiteSpace(_form.Slug))
+            _form.Slug = _form.Name.ToLower( ).Replace(" ","-").Trim( );
+        if (_form.Id == 0)
+            await CategoryService.CreateCategoryAsync(_form);
+        else
+            await CategoryService.UpdateCategoryAsync(_form);
+        _busy = false;
+        _showModal = false;
+        _toast?.Show(_form.Id == 0 ? "Category added!" : "Category updated!");
+        _categories = await CategoryService.GetAllCategoriesAsync( );
+    }
+
+    private void ConfirmDelete(Category c) { _toDelete = c; _dlg?.ShowAsync( ); }
+    private async Task DeleteConfirmed()
+    {
+        if (_toDelete is null)
+            return;
+        await CategoryService.DeleteCategoryAsync(_toDelete.Id);
+        _toast?.Show("Category deleted.",Toast.ToastType.Warning);
+        _categories.Remove(_toDelete);
+        _toDelete = null;
+    }
+}
