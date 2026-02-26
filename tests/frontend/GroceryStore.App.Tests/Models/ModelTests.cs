@@ -1,4 +1,5 @@
 using FluentAssertions;
+using GroceryStore.App.Contracts.Requests;
 using GroceryStore.App.Models;
 
 namespace GroceryStore.App.Tests.Models;
@@ -139,7 +140,7 @@ public class ProductQueryDefaultsTests
     [Fact]
     public void NewProductQuery_DefaultPage_IsOne()
     {
-        var query = new ProductQuery( );
+        var query = new GetProductsRequest( );
 
         query.Page.Should( ).Be(1);
     }
@@ -147,23 +148,23 @@ public class ProductQueryDefaultsTests
     [Fact]
     public void NewProductQuery_DefaultPageSize_IsTwelve()
     {
-        var query = new ProductQuery( );
+        var query = new GetProductsRequest( );
 
-        query.PageSize.Should( ).Be(12);
+        query.PageSize.Should( ).Be(20);
     }
 
     [Fact]
     public void NewProductQuery_DefaultSortBy_IsNewest()
     {
-        var query = new ProductQuery( );
+        var query = new GetProductsRequest( );
 
-        query.SortBy.Should( ).Be("newest");
+        query.Sort.Should( ).Be("newest");
     }
 
     [Fact]
     public void NewProductQuery_DefaultIsActive_IsTrue()
     {
-        var query = new ProductQuery( );
+        var query = new GetProductsRequest( );
 
         query.IsActive.Should( ).BeTrue( );
     }
@@ -171,10 +172,10 @@ public class ProductQueryDefaultsTests
     [Fact]
     public void NewProductQuery_OptionalFilters_AreNull()
     {
-        var query = new ProductQuery( );
+        var query = new GetProductsRequest( );
 
         query.CategoryId.Should( ).BeNull( );
-        query.BrandId.Should( ).BeNull( );
+        query.Brand.Should( ).BeNull( );
         query.Search.Should( ).BeNull( );
         query.IsFeatured.Should( ).BeNull( );
     }

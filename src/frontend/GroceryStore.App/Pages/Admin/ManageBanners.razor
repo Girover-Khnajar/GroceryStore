@@ -71,7 +71,7 @@ else
 <div class="modal @(_showModal ? "show" : "")">
     <div class="modal-content" style="max-width:520px;">
         <div class="modal-header">
-            <h3>@(_form.Id == 0 ? "Add Banner" : "Edit Banner")</h3>
+            <h3>@(_form.Id == Guid.Empty ? "Add Banner" : "Edit Banner")</h3>
             <button class="modal-close" @onclick="CloseModal"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
@@ -174,13 +174,13 @@ else
         _busy = true;
         _form.Images = _imagesText.Split('\n',StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList( );
         _form.ImageUrl = _form.Images.FirstOrDefault( );
-        if (_form.Id == 0)
+        if (_form.Id == Guid.Empty)
             await BannerService.CreateBannerAsync(_form);
         else
             await BannerService.UpdateBannerAsync(_form);
         _busy = false;
         _showModal = false;
-        _toast?.Show(_form.Id == 0 ? "Banner added!" : "Banner updated!");
+        _toast?.Show(_form.Id == Guid.Empty ? "Banner added!" : "Banner updated!");
         _banners = await BannerService.GetAllBannersAsync( );
     }
 

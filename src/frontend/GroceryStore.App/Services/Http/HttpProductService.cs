@@ -1,3 +1,4 @@
+using GroceryStore.App.Contracts.Requests;
 using GroceryStore.App.Models;
 using GroceryStore.App.Services.Interfaces;
 
@@ -11,13 +12,13 @@ public sealed class HttpProductService : IProductService
         _http = f.CreateClient("ApiClient");
     }
 
-    public async Task<PagedResult<Product>> GetProductsAsync(ProductQuery q)
+    public async Task<PagedResult<Product>> GetProductsAsync(GetProductsRequest q)
     {
         var result = await _http.GetFromJsonAsync<PagedResult<Product>>($"api/products?{Build(q)}");
         return result ?? new( );
     }
 
-    public async Task<Product?> GetProductByIdAsync(int id)
+    public async Task<Product?> GetProductByIdAsync(Guid id)
     {
         return await _http.GetFromJsonAsync<Product>($"api/products/{id}");
     }
@@ -27,7 +28,7 @@ public sealed class HttpProductService : IProductService
         return await _http.GetFromJsonAsync<Product>($"api/products/slug/{slug}");
     }
 
-    public async Task<List<Product>> GetProductsByCategoryAsync(int categoryId)
+    public async Task<List<Product>> GetProductsByCategoryAsync(Guid categoryId)
     {
         return await _http.GetFromJsonAsync<List<Product>>(
                    $"api/products?categoryId={categoryId}&isActive=true&pageSize=100") ?? new( );
@@ -59,18 +60,18 @@ public sealed class HttpProductService : IProductService
         return (await r.Content.ReadFromJsonAsync<Product>( ))!;
     }
 
-    public async Task<bool> DeleteProductAsync(int id)
+    public async Task<bool> DeleteProductAsync(Guid id)
     {
         return (await _http.DeleteAsync($"api/products/{id}")).IsSuccessStatusCode;
     }
 
-    private static string Build(ProductQuery q)
+    private static string Build(GetProductsRequest q)
     {
-        var p = new List<string> { $"page={q.Page}",$"pageSize={q.PageSize}",$"sortBy={q.SortBy}" };
+        var p = new List<string> { $"page={q.Page}",$"pageSize={q.PageSize}",$"sortBy={q.Sort}" };
         if (q.CategoryId.HasValue)
             p.Add($"categoryId={q.CategoryId}");
-        if (q.BrandId.HasValue)
-            p.Add($"brandId={q.BrandId}");
+        if (!string.IsNullOrWhiteSpace(q.Brand))
+            p.Add($"brand={Uri.EscapeDataString(q.Brand)}");
         if (q.IsFeatured.HasValue)
             p.Add($"isFeatured={q.IsFeatured.ToString( )!.ToLower( )}");
         if (q.IsActive.HasValue)

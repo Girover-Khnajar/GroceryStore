@@ -25,7 +25,7 @@ public sealed class ImageAssetRepository : IImageAssetRepository
         var guidIds = imageIds.Select(id => (Guid)id).ToList();
 
         if (guidIds.Count == 0)
-            return [];
+            return Array.Empty<ImageAsset>();
 
         return await _dbContext.ImageAssets
             .Where(a => guidIds.Contains(a.Id))
@@ -51,5 +51,22 @@ public sealed class ImageAssetRepository : IImageAssetRepository
     {
         return await _dbContext.ImageAssets
             .AnyAsync(a => a.ImageId == imageId, cancellationToken);
+    }
+
+    public Task<List<ImageAsset>> GetImagesAsync(string? search, CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.ImageAssets.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var trimmedSearch = search.Trim();
+            query = query.Where(a =>
+                a.Metadata.OriginalFileName.Contains(trimmedSearch) ||
+                a.AltText.Contains(trimmedSearch));
+        }
+
+        return query
+            .OrderByDescending(a => a.CreatedOnUtc)
+            .ToListAsync(cancellationToken);
     }
 }

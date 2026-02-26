@@ -18,7 +18,7 @@ public sealed class HttpBrandService : IBrandService
         return await _http.GetFromJsonAsync<List<Brand>>("api/brands") ?? new( );
     }
 
-    public async Task<Brand?> GetBrandByIdAsync(int id)
+    public async Task<Brand?> GetBrandByIdAsync(Guid id)
     {
         return await _http.GetFromJsonAsync<Brand>($"api/brands/{id}");
     }
@@ -37,7 +37,7 @@ public sealed class HttpBrandService : IBrandService
         return (await r.Content.ReadFromJsonAsync<Brand>( ))!;
     }
 
-    public async Task<bool> DeleteBrandAsync(int id)
+    public async Task<bool> DeleteBrandAsync(Guid id)
     {
         return (await _http.DeleteAsync($"api/brands/{id}")).IsSuccessStatusCode;
     }

@@ -1,4 +1,5 @@
 @page "/products"
+@using GroceryStore.App.Contracts.Requests
 @using GroceryStore.App.Models
 @using GroceryStore.App.Services.Interfaces
 @layout GroceryStore.App.Components.Layout.MainLayout
@@ -41,7 +42,7 @@
             </select>
 
             <select style="padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius-md);font-size:1rem;background:var(--surface);color:var(--text);min-width:160px;"
-                    @bind="_query.SortBy" @bind:after="OnFilterChange">
+                    @bind="_query.Sort" @bind:after="OnFilterChange">
                 <option value="newest">Newest First</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
@@ -94,12 +95,12 @@
 
 @code {
     private bool _loading = true;
-    private ProductQuery _query = new( ) { PageSize = 12 };
+    private GetProductsRequest _query = new( ) { PageSize = 12 };
     private PagedResult<Product> _result = new( );
     private List<Category> _categories = new( );
     private List<Brand> _brands = new( );
-    private int _catId;
-    private int _brandId;
+    private Guid _catId;
+    private Guid _brandId;
     private System.Timers.Timer? _debounce;
 
     protected override async Task OnInitializedAsync()
@@ -116,8 +117,8 @@
     {
         _loading = true;
         StateHasChanged( );
-        _query.CategoryId = _catId == 0 ? null : _catId;
-        _query.BrandId = _brandId == 0 ? null : _brandId;
+        _query.CategoryId = _catId == Guid.Empty ? null : _catId;
+        @* _query.Brand = _brandId == Guid.Empty ? null : _brandId; *@
         _result = await ProductService.GetProductsAsync(_query);
         _loading = false;
         StateHasChanged( );

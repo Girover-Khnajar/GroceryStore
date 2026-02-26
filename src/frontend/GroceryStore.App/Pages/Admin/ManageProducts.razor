@@ -1,4 +1,5 @@
 @page "/admin/products"
+@using GroceryStore.App.Contracts.Requests
 @using GroceryStore.App.Models
 @using GroceryStore.App.Services.Interfaces
 @layout GroceryStore.App.Components.Layout.AdminLayout
@@ -95,7 +96,7 @@ else
 <div class="modal @(_showModal ? "show" : "")">
     <div class="modal-content" style="max-width:640px;">
         <div class="modal-header">
-            <h3>@(_form.Id == 0 ? "Add Product" : "Edit Product")</h3>
+            <h3>@(_form.Id == Guid.Empty ? "Add Product" : "Edit Product")</h3>
             <button class="modal-close" @onclick="CloseModal"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
@@ -127,7 +128,7 @@ else
                     </div>
                     <div class="form-group">
                         <label class="form-label">Brand</label>
-                        <InputSelect @bind-Value="_form.BrandId" class="form-control">
+                        <InputSelect @bind-Value="_form.Brand" class="form-control">
                             <option value="0">— Select —</option>
                             @foreach (var b in _brands)
                             {
@@ -197,7 +198,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        var t1 = ProductService.GetProductsAsync(new ProductQuery { PageSize = 200,IsActive = null });
+        var t1 = ProductService.GetProductsAsync(new GetProductsRequest { PageSize = 200,IsActive = null });
         var t2 = CategoryService.GetAllCategoriesAsync( );
         var t3 = BrandService.GetAllBrandsAsync( );
         await Task.WhenAll(t1,t2,t3);
@@ -223,7 +224,7 @@ else
             Slug = p.Slug,
             Sku = p.Sku,
             CategoryId = p.CategoryId,
-            BrandId = p.BrandId,
+            Brand = p.Brand,
             Price = p.Price,
             Currency = p.Currency,
             Unit = p.Unit,
@@ -246,17 +247,17 @@ else
         if (string.IsNullOrWhiteSpace(_form.Slug))
             _form.Slug = _form.Name.ToLower( ).Replace(" ","-").Trim( );
         _form.CategoryName = _categories.FirstOrDefault(c => c.Id == _form.CategoryId)?.Name;
-        _form.BrandName = _brands.FirstOrDefault(b => b.Id == _form.BrandId)?.Name;
+        _form.BrandName = _form.Brand;
 
-        if (_form.Id == 0)
+        if (_form.Id == Guid.Empty)
             await ProductService.CreateProductAsync(_form);
         else
             await ProductService.UpdateProductAsync(_form);
 
         _busy = false;
         _showModal = false;
-        _toast?.Show(_form.Id == 0 ? "Product added!" : "Product updated!");
-        var result = await ProductService.GetProductsAsync(new ProductQuery { PageSize = 200,IsActive = null });
+        _toast?.Show(_form.Id == Guid.Empty ? "Product added!" : "Product updated!");
+        var result = await ProductService.GetProductsAsync(new GetProductsRequest { PageSize = 200,IsActive = null });
         _products = result.Items;
     }
 

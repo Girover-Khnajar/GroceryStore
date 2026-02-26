@@ -18,7 +18,7 @@ public sealed class HttpCategoryService : ICategoryService
         return await _http.GetFromJsonAsync<List<Category>>("api/categories") ?? new( );
     }
 
-    public async Task<Category?> GetCategoryByIdAsync(int id)
+    public async Task<Category?> GetCategoryByIdAsync(Guid id)
     {
         return await _http.GetFromJsonAsync<Category>($"api/categories/{id}");
     }
@@ -42,7 +42,7 @@ public sealed class HttpCategoryService : ICategoryService
         return (await r.Content.ReadFromJsonAsync<Category>( ))!;
     }
 
-    public async Task<bool> DeleteCategoryAsync(int id)
+    public async Task<bool> DeleteCategoryAsync(Guid id)
     {
         return (await _http.DeleteAsync($"api/categories/{id}")).IsSuccessStatusCode;
     }

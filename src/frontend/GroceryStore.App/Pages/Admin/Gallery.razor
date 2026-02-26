@@ -1,0 +1,811 @@
+@page "/admin/gallery"
+@using GroceryStore.App.Contracts.Requests
+@using GroceryStore.App.Models
+@using GroceryStore.App.Services.Interfaces
+@layout GroceryStore.App.Components.Layout.AdminLayout
+@inject IImageGalleryService GalleryService
+@inject IProductService ProductService
+@inject ICategoryService CategoryService
+@inject IJSRuntime JS
+
+<PageTitle>Gallery | Admin</PageTitle>
+
+<style>
+    /* ── Drop Zone ────────────────────────────────────── */
+    .drop-zone {
+        border: 2px dashed var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2.25rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color .2s, background .2s;
+        background: var(--bg);
+        position: relative;
+    }
+    .drop-zone.drag-over {
+        border-color: var(--primary);
+        background: color-mix(in srgb, var(--primary) 7%, transparent);
+    }
+    .drop-zone .dz-input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+    .drop-zone-icon { font-size: 2rem; color: var(--primary); margin-bottom: .4rem; }
+    .drop-zone-label { font-weight: 600; color: var(--text); }
+    .drop-zone-sub { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+
+    /* ── Preview strip ────────────────────────────────── */
+    .preview-strip { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .75rem; }
+    .preview-thumb {
+        position: relative;
+        width: 70px; height: 70px;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+    .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-thumb .rm {
+        position: absolute; top: 2px; right: 2px;
+        background: rgba(0,0,0,.6); color: #fff;
+        border: none; border-radius: 50%;
+        width: 17px; height: 17px; font-size: .6rem;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; padding: 0; line-height: 1;
+    }
+
+    /* ── Progress bar ─────────────────────────────────── */
+    .upload-progress { margin-top: .75rem; font-size: .85rem; }
+    .pb-track {
+        height: 6px; background: var(--border);
+        border-radius: 999px; overflow: hidden; margin-top: .35rem;
+    }
+    .pb-fill { height: 100%; background: var(--primary); border-radius: 999px; transition: width .2s; }
+
+    /* ── Toolbar (search + bulk) ──────────────────────── */
+    .gallery-toolbar {
+        display: flex; align-items: center; gap: .65rem; flex-wrap: wrap;
+        margin-bottom: .9rem;
+    }
+    .search-box {
+        flex: 1; min-width: 160px;
+        display: flex; align-items: center; gap: .5rem;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); padding: .45rem .75rem;
+    }
+    .search-box i { color: var(--muted); font-size: .9rem; }
+    .search-box input {
+        border: none; outline: none; background: transparent;
+        color: var(--text); font-size: .9rem; width: 100%;
+    }
+    .bulk-bar {
+        display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+        background: color-mix(in srgb, var(--primary) 9%, var(--surface));
+        border: 1px solid var(--primary);
+        border-radius: var(--radius-lg); padding: .55rem .9rem;
+        margin-bottom: .9rem;
+    }
+    .bulk-bar .count { font-weight: 700; color: var(--primary); }
+
+    /* ── Gallery grid ─────────────────────────────────── */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+        gap: .9rem;
+    }
+    .gallery-card {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: border-color .15s, box-shadow .15s, transform .15s, opacity .15s;
+        position: relative;
+        user-select: none;
+    }
+    .gallery-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 4px 18px rgba(0,0,0,.11);
+        transform: translateY(-2px);
+    }
+    .gallery-card.selected {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+    }
+    .gallery-card.is-primary { border-color: #f59e0b; }
+    .gallery-card.dragging { opacity: .35; transform: scale(.96); }
+    .gallery-card.drag-target { border-color: var(--primary); border-style: dashed; }
+
+    .primary-badge {
+        position: absolute; top: .38rem; left: .38rem;
+        background: #f59e0b; color: #fff;
+        font-size: .68rem; font-weight: 700;
+        padding: .12rem .38rem; border-radius: 999px; z-index: 3;
+        letter-spacing: .03em;
+    }
+    .select-check {
+        position: absolute; top: .42rem; right: .42rem; z-index: 3;
+        width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;
+    }
+    .drag-handle {
+        position: absolute; top: .46rem; right: 1.95rem; z-index: 3;
+        color: rgba(255,255,255,.85); font-size: .82rem;
+        cursor: grab; text-shadow: 0 1px 3px rgba(0,0,0,.55);
+    }
+    .drag-handle:active { cursor: grabbing; }
+
+    .gallery-img-wrap {
+        aspect-ratio: 1/1; background: var(--bg);
+        display: flex; align-items: center; justify-content: center;
+        cursor: zoom-in; overflow: hidden;
+    }
+    .gallery-img-wrap img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform .2s;
+        pointer-events: none;
+    }
+    .gallery-card:hover .gallery-img-wrap img { transform: scale(1.05); }
+
+    .gallery-meta { padding: .6rem .7rem .7rem; }
+    .gallery-filename {
+        font-size: .84rem; font-weight: 600;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .gallery-info {
+        font-size: .74rem; color: var(--muted);
+        margin-top: .18rem; display: flex; gap: .35rem; flex-wrap: wrap; align-items: center;
+    }
+    .info-badge {
+        background: var(--bg); border: 1px solid var(--border);
+        border-radius: 4px; padding: .08rem .28rem;
+        font-size: .7rem; font-weight: 500;
+    }
+    .gallery-actions { display: flex; gap: .35rem; margin-top: .5rem; }
+    .gallery-actions button { flex: 1; }
+
+    /* ── Lightbox ─────────────────────────────────────── */
+    .lb-backdrop {
+        position: fixed; inset: 0; background: rgba(0,0,0,.9);
+        z-index: 2000; display: flex; align-items: center; justify-content: center;
+        animation: lb-fade .15s ease;
+    }
+    @@keyframes lb-fade { from { opacity: 0; } to { opacity: 1; } }
+    .lb-inner {
+        position: relative; display: flex; flex-direction: column;
+        align-items: center; gap: .65rem;
+        max-width: 90vw;
+    }
+    .lb-inner img {
+        max-width: 90vw; max-height: 80vh; object-fit: contain;
+        border-radius: var(--radius-lg); box-shadow: 0 8px 48px rgba(0,0,0,.7);
+    }
+    .lb-close {
+        position: absolute; top: -2.4rem; right: 0;
+        background: rgba(255,255,255,.15); color: #fff; border: none;
+        border-radius: 50%; width: 32px; height: 32px; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .lb-nav {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        background: rgba(255,255,255,.15); color: #fff; border: none;
+        border-radius: 50%; width: 40px; height: 40px; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: background .15s;
+    }
+    .lb-nav:hover { background: rgba(255,255,255,.28); }
+    .lb-nav.prev { right: calc(100% + .75rem); }
+    .lb-nav.next { left: calc(100% + .75rem); }
+    .lb-caption { color: rgba(255,255,255,.7); font-size: .88rem; text-align: center; }
+    .lb-counter { color: rgba(255,255,255,.45); font-size: .78rem; }
+
+    /* ── Empty / loading states ───────────────────────── */
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+    .empty-state i { font-size: 2.4rem; margin-bottom: .65rem; display: block; }
+</style>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:1rem;">
+    <h2 style="font-size:1.5rem;font-weight:700;">
+        <i class="fas fa-photo-video" style="color:var(--primary);margin-right:.5rem;"></i>
+        Gallery Library
+    </h2>
+
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="btn @(_view == ViewMode.Library ? "btn-primary" : "btn-secondary") btn-sm"
+                @onclick="() => SwitchView(ViewMode.Library)">
+            <i class="fas fa-images"></i> Library
+        </button>
+        <button class="btn @(_view == ViewMode.Entity ? "btn-primary" : "btn-secondary") btn-sm"
+                @onclick="() => SwitchView(ViewMode.Entity)">
+            <i class="fas fa-link"></i> Entity images
+        </button>
+    </div>
+</div>
+
+<Toast @ref="_toast" />
+
+<!-- ── Upload card (always available: uploads go to Library) ── -->
+<div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.2rem;margin-bottom:1rem;">
+    <div class="drop-zone @(_isDragOver ? "drag-over" : "")"
+         @ondragover:preventDefault
+         @ondragover="() => _isDragOver = true"
+         @ondragleave="() => _isDragOver = false"
+         @ondrop:preventDefault
+         @ondrop="() => _isDragOver = false">
+        <InputFile class="dz-input" OnChange="HandleFiles" multiple accept="image/*" />
+        <div class="drop-zone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <div class="drop-zone-label">Drag & drop images here (Library)</div>
+        <div class="drop-zone-sub">or click to browse · PNG, JPG, WEBP, GIF · max 10 MB each</div>
+    </div>
+
+    @if (_previews.Count > 0)
+    {
+        <div style="margin-top:.75rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
+            <span style="font-size:.88rem;font-weight:600;">
+                @_previews.Count file@(_previews.Count == 1 ? "" : "s") queued
+            </span>
+
+            <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" @onclick="ClearPreviews" disabled="@_uploading">Clear</button>
+                <button class="btn btn-primary btn-sm" @onclick="UploadQueued" disabled="@_uploading">
+                    @if (_uploading)
+                    {
+                        <i class="fas fa-spinner fa-spin"></i><span> Uploading…</span>
+                    }
+                    else
+                    {
+                        <i class="fas fa-upload"></i><span> Upload to library</span>
+                    }
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-strip">
+            @foreach (var pv in _previews)
+            {
+                <div class="preview-thumb">
+                    <img src="@pv.DataUrl" alt="@pv.Name" />
+                    <button class="rm" @onclick="() => RemovePreview(pv)" disabled="@_uploading">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            }
+        </div>
+
+        @if (_uploading)
+        {
+            <div class="upload-progress">
+                <span>Uploading @_uploadedCount of @_previews.Count…</span>
+                <div class="pb-track">
+                    <div class="pb-fill" style="width:@(_previews.Count == 0 ? 0 : _uploadedCount * 100 / _previews.Count)%;"></div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- ── Assign panel ───────────────────────────────────────── -->
+<div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.2rem;margin-bottom:1rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div style="font-weight:700;">
+            <i class="fas fa-tag" style="color:var(--primary);margin-right:.35rem;"></i>
+            Assign selected images
+        </div>
+
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+            <label style="display:flex;gap:.4rem;align-items:center;font-size:.83rem;color:var(--muted);cursor:pointer;">
+                <input type="checkbox" @bind="_assignSetFirstPrimary" />
+                Make first assigned primary (products only)
+            </label>
+
+            <button class="btn btn-secondary btn-sm" @onclick="DeselectAll" disabled="@(_selected.Count==0)">
+                Deselect
+            </button>
+        </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:1rem;align-items:end;margin-top:.9rem;">
+        <div class="form-group" style="margin:0;">
+            <label class="form-label">Target</label>
+            <InputSelect class="form-control" @bind-Value="_target" @onchange="OnTargetChanged">
+                <option value="@GalleryTarget.Category">Category</option>
+                <option value="@GalleryTarget.Product">Product</option>
+            </InputSelect>
+        </div>
+
+        <div class="form-group" style="margin:0;">
+            <label class="form-label">@(_target == GalleryTarget.Category ? "Category" : "Product")</label>
+            @if (_target == GalleryTarget.Category)
+            {
+                <InputSelect class="form-control" @bind-Value="_entityId" @onchange="ReloadEntityImages">
+                    <option value="0">Select category…</option>
+                    @foreach (var c in _categories)
+                    {
+                        <option value="@c.Id">@c.Name (@c.Id)</option>
+                    }
+                </InputSelect>
+            }
+            else
+            {
+                <InputSelect class="form-control" @bind-Value="_entityId" @onchange="ReloadEntityImages">
+                    <option value="0">Select product…</option>
+                    @foreach (var p in _products)
+                    {
+                        <option value="@p.Id">@p.Name (@p.Id)</option>
+                    }
+                </InputSelect>
+            }
+        </div>
+
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;">
+            <button class="btn btn-primary btn-sm"
+                    disabled="@(_selected.Count==0 || _entityId==0 || _busyAssign)"
+                    @onclick="AssignSelected">
+                <i class="fas fa-link"></i> Assign
+            </button>
+
+            <button class="btn btn-danger btn-sm"
+                    disabled="@(_selected.Count==0 || _entityId==0 || _busyAssign)"
+                    @onclick="UnassignSelected">
+                <i class="fas fa-unlink"></i> Unassign
+            </button>
+        </div>
+    </div>
+
+    @if (_view == ViewMode.Entity)
+    {
+        <div style="margin-top:.9rem;color:var(--muted);font-size:.85rem;">
+            Viewing: @(_entityId == 0 ? "No entity selected" : $"{_target} #{_entityId}")
+            · Entity images: @_entityImages.Count
+        </div>
+    }
+</div>
+
+<!-- ── Search + bulk bar ──────────────────────────────────── -->
+<div class="gallery-toolbar">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search by filename…"
+               @bind="_search" @bind:event="oninput" />
+        @if (!string.IsNullOrEmpty(_search))
+        {
+            <button style="background:none;border:none;color:var(--muted);cursor:pointer;padding:0;"
+                    @onclick="() => _search = string.Empty">
+                <i class="fas fa-times"></i>
+            </button>
+        }
+    </div>
+
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted);cursor:pointer;white-space:nowrap;">
+        <input type="checkbox"
+               checked="@(_selected.Count > 0 && _selected.Count == _filtered.Count)"
+               @onchange="ToggleSelectAll" />
+        Select all
+    </label>
+</div>
+
+@if (_selected.Count > 0)
+{
+    <div class="bulk-bar">
+        <span class="count">@_selected.Count selected</span>
+        <button class="btn btn-secondary btn-sm" @onclick="DeselectAll">Deselect all</button>
+        <button class="btn btn-danger btn-sm" @onclick="BulkDelete">
+            <i class="fas fa-trash"></i> Delete selected (library)
+        </button>
+    </div>
+}
+
+<!-- ── Gallery grid ───────────────────────────────────────── -->
+@if (_loading)
+{
+    <div class="loading-spinner show"><div class="spinner"></div></div>
+}
+else if (_filtered.Count == 0)
+{
+    <div class="card" style="background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius-lg);">
+        <div class="empty-state">
+            <i class="fas fa-images"></i>
+            No images match your search.
+        </div>
+    </div>
+}
+else
+{
+    <div class="gallery-grid">
+        @foreach (var img in _filtered)
+        {
+            var isSelected = _selected.Contains(img.Id);
+
+            <div class="gallery-card @(isSelected ? "selected" : "")"
+                 draggable="@(_view == ViewMode.Entity)"
+                 @ondragstart="() => DragStart(img.Id)"
+                 @ondragover:preventDefault
+                 @ondragover="() => _dragTargetId = img.Id"
+                 @ondrop:preventDefault
+                 @ondrop="() => DragDrop(img.Id)">
+
+                @if (_view == ViewMode.Entity && img.IsPrimary)
+                {
+                    <span class="primary-badge">
+                        <i class="fas fa-star" style="margin-right:.2rem;"></i>Primary
+                    </span>
+                }
+
+                @if (_view == ViewMode.Entity)
+                {
+                    <i class="fas fa-grip-vertical drag-handle" title="Drag to reorder"></i>
+                }
+
+                <input class="select-check" type="checkbox"
+                       checked="@isSelected"
+                       @onclick:stopPropagation
+                       @onchange="() => ToggleSelect(img.Id)" />
+
+                <div class="gallery-img-wrap" @onclick="() => OpenLightbox(img)">
+                    <img src="@img.Url" alt="@img.FileName" loading="lazy" />
+                </div>
+
+                <div class="gallery-meta">
+                    <div class="gallery-filename" title="@img.FileName">@img.FileName</div>
+
+                    <div class="gallery-info">
+                        <span>@img.CreatedOnUtc.ToLocalTime().ToString("yyyy-MM-dd")</span>
+                        @if (!string.IsNullOrEmpty(img.ContentType))
+                        {
+                            <span class="info-badge">@img.ContentType.Replace("image/","").ToUpper()</span>
+                        }
+                        @if (img.FileSizeBytes > 0)
+                        {
+                            <span class="info-badge">@FormatSize(img.FileSizeBytes)</span>
+                        }
+                    </div>
+
+                    <div class="gallery-actions">
+                        @if (_view == ViewMode.Entity && _target == GalleryTarget.Product && _entityId != 0 && !img.IsPrimary)
+                        {
+                            <button class="btn btn-secondary btn-sm" title="Set primary (entity)"
+                                    @onclick="() => SetPrimaryInEntity(img.Id)">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        }
+
+                        <button class="btn btn-secondary btn-sm" title="Copy URL"
+                                @onclick="() => Copy(img.Url)">
+                            <i class="fas fa-link"></i>
+                        </button>
+
+                        <button class="btn btn-danger btn-sm" title="Delete from library"
+                                @onclick="() => Delete(img.Id)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- ── Lightbox ──────────────────────────────────────────── -->
+@if (_lightboxImage != null)
+{
+    <div class="lb-backdrop" @onclick="CloseLightbox">
+        <div class="lb-inner" @onclick:stopPropagation>
+            <button class="lb-close" @onclick="CloseLightbox"><i class="fas fa-times"></i></button>
+            <img src="@_lightboxImage.Url" alt="@_lightboxImage.FileName" />
+            <div class="lb-caption">@_lightboxImage.FileName</div>
+            <div class="lb-counter">@(_lightboxIndex + 1) / @_filtered.Count</div>
+        </div>
+    </div>
+}
+
+@code {
+    private Toast? _toast;
+
+    private enum ViewMode { Library, Entity }
+    private ViewMode _view = ViewMode.Library;
+
+    private bool _loading;
+
+    // data sources
+    private List<Category> _categories = new();
+    private List<Product> _products = new();
+
+    // library images (all)
+    private List<GalleryImage> _libraryImages = new();
+
+    // entity images (assigned to selected target/entity)
+    private List<GalleryImage> _entityImages = new();
+
+    // current view images
+    private List<GalleryImage> _currentImages =>
+        _view == ViewMode.Library ? _libraryImages : _entityImages;
+
+    // search/filter
+    private string _search = string.Empty;
+    private List<GalleryImage> _filtered =>
+        string.IsNullOrWhiteSpace(_search)
+            ? _currentImages
+            : _currentImages.Where(i => (i.FileName ?? "").Contains(_search, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    // selection
+    private HashSet<Guid> _selected = new();
+
+    // assign target/entity
+    private GalleryTarget _target = GalleryTarget.Category;
+    private int _entityId = 0;
+    private bool _assignSetFirstPrimary = true;
+    private bool _busyAssign;
+
+    // upload previews
+    private bool _isDragOver;
+    private bool _uploading;
+    private int _uploadedCount;
+    private record PreviewItem(string Name, string DataUrl, IBrowserFile File);
+    private List<PreviewItem> _previews = new();
+
+    // drag reorder (entity view only)
+    private Guid _draggingId = Guid.Empty;
+    private Guid _dragTargetId = Guid.Empty;
+
+    // lightbox
+    private GalleryImage? _lightboxImage;
+    private int _lightboxIndex;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = (await CategoryService.GetAllCategoriesAsync()) ?? new List<Category>();
+        var page = await ProductService.GetProductsAsync(new GetProductsRequest() with { Page = 1, PageSize = 250 });
+        _products = page?.Items ?? new List<Product>();
+
+        await ReloadLibrary();
+    }
+
+    private async Task SwitchView(ViewMode mode)
+    {
+        _view = mode;
+        _selected.Clear();
+        _search = string.Empty;
+
+        if (_view == ViewMode.Library)
+            await ReloadLibrary();
+        else
+            await ReloadEntityImages();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ReloadLibrary()
+    {
+        _loading = true;
+        try
+        {
+            _libraryImages = await GalleryService.GetImagesAsync(); // library list
+        }
+        catch (Exception ex) { _toast?.Show(ex.Message); }
+        finally { _loading = false; }
+    }
+
+    private async Task OnTargetChanged(ChangeEventArgs _)
+    {
+        _entityId = 0;
+        _entityImages.Clear();
+        if (_view == ViewMode.Entity)
+            await ReloadEntityImages();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ReloadEntityImages(ChangeEventArgs? _ = null)
+    {
+        if (_view != ViewMode.Entity)
+            return;
+
+        _loading = true;
+        try
+        {
+            _entityImages = _entityId == 0
+                ? new List<GalleryImage>()
+                : await GalleryService.GetEntityImagesAsync(_target, _entityId);
+        }
+        catch (Exception ex) { _toast?.Show(ex.Message); }
+        finally { _loading = false; }
+    }
+
+    // file picking & previewing
+    private async Task HandleFiles(InputFileChangeEventArgs e)
+    {
+        foreach (var f in e.GetMultipleFiles(50))
+            await AddPreview(f);
+    }
+
+    private async Task AddPreview(IBrowserFile f)
+    {
+        if (_previews.Any(p => p.Name == f.Name)) return;
+        try
+        {
+            using var stream = f.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            var dataUrl = $"data:{f.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+            _previews.Add(new PreviewItem(f.Name, dataUrl, f));
+        }
+        catch { /* skip */ }
+    }
+
+    private void RemovePreview(PreviewItem p) => _previews.Remove(p);
+    private void ClearPreviews() => _previews.Clear();
+
+    // upload to library
+    private async Task UploadQueued()
+    {
+        if (_previews.Count == 0 || _uploading) return;
+        _uploading = true;
+        _uploadedCount = 0;
+
+        try
+        {
+            foreach (var pv in _previews.ToList())
+            {
+                // Upload to library (no target/entity here)
+                await GalleryService.UploadAsync(pv.File);
+                _uploadedCount++;
+                StateHasChanged();
+            }
+
+            _previews.Clear();
+            _toast?.Show("Uploaded to library.");
+            await ReloadLibrary();
+
+            // لو كنت على entity view وتبغى تظهر الجديد مباشرة في المكتبة فقط، ما نعمل reload entity هنا
+        }
+        catch (Exception ex) { _toast?.Show(ex.Message); }
+        finally { _uploading = false; }
+    }
+
+    // selection
+    private void ToggleSelect(Guid id)
+    {
+        if (!_selected.Remove(id)) _selected.Add(id);
+    }
+
+    private void ToggleSelectAll(ChangeEventArgs e)
+    {
+        var all = (bool)(e.Value ?? false);
+        _selected = all ? _filtered.Select(i => i.Id).ToHashSet() : new HashSet<Guid>();
+    }
+
+    private void DeselectAll() => _selected.Clear();
+
+    // bulk delete (library)
+    private async Task BulkDelete()
+    {
+        foreach (var id in _selected.ToList())
+        {
+            try { await GalleryService.DeleteAsync(id); }
+            catch { /* continue */ }
+        }
+        _selected.Clear();
+        _toast?.Show("Deleted selected images from library.");
+        await ReloadLibrary();
+        if (_view == ViewMode.Entity) await ReloadEntityImages();
+    }
+
+    // single delete
+    private async Task Delete(Guid id)
+    {
+        try
+        {
+            if (await GalleryService.DeleteAsync(id))
+            {
+                _toast?.Show("Deleted.");
+                _selected.Remove(id);
+
+                await ReloadLibrary();
+                if (_view == ViewMode.Entity) await ReloadEntityImages();
+
+                if (_lightboxImage?.Id == id) CloseLightbox();
+            }
+        }
+        catch (Exception ex) { _toast?.Show(ex.Message); }
+    }
+
+    // assign/unassign selected to entity
+    private async Task AssignSelected()
+    {
+        if (_selected.Count == 0 || _entityId == 0 || _busyAssign) return;
+
+        _busyAssign = true;
+        try
+        {
+            await GalleryService.AssignAsync(_selected.ToList(), _target, _entityId, _assignSetFirstPrimary);
+            _toast?.Show("Assigned.");
+            if (_view == ViewMode.Entity) await ReloadEntityImages();
+        }
+        catch (Exception ex) { _toast?.Show(ex.Message); }
+        finally { _busyAssign = false; }
+    }
+
+    private async Task UnassignSelected()
+    {
+        if (_selected.Count == 0 || _entityId == 0 || _busyAssign) return;
+
+        _busyAssign = true;
+        try
+        {
+            await GalleryService.UnassignAsync(_selected.ToList(), _target, _entityId);
+            _toast?.Show("Unassigned.");
+            if (_view == ViewMode.Entity) await ReloadEntityImages();
+        }
+        catch (Exception ex) { _toast?.Show(ex.Message); }
+        finally { _busyAssign = false; }
+    }
+
+    // set primary inside entity (entity view)
+    private async Task SetPrimaryInEntity(Guid imageId)
+    {
+        if (_entityId == 0) return;
+        try
+        {
+            await GalleryService.SetPrimaryAsync(imageId, _target, _entityId);
+            _toast?.Show("Primary updated.");
+            await ReloadEntityImages();
+        }
+        catch (Exception ex) { _toast?.Show(ex.Message); }
+    }
+
+    // drag-to-reorder (entity view)
+    private void DragStart(Guid id)
+    {
+        if (_view != ViewMode.Entity || _entityId == 0) return;
+        _draggingId = id;
+        _dragTargetId = Guid.Empty;
+    }
+
+    private async Task DragDrop(Guid targetId)
+    {
+        if (_view != ViewMode.Entity || _entityId == 0) return;
+
+        if (_draggingId == Guid.Empty || _draggingId == targetId)
+        {
+            _draggingId = _dragTargetId = Guid.Empty;
+            return;
+        }
+
+        try
+        {
+            await GalleryService.ReorderAsync(_target, _entityId, _draggingId, targetId);
+            await ReloadEntityImages();
+        }
+        catch (Exception ex) { _toast?.Show("Reorder failed: " + ex.Message); }
+        finally
+        {
+            _draggingId = _dragTargetId = Guid.Empty;
+        }
+    }
+
+    // copy url
+    private async Task Copy(string url)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", url);
+            _toast?.Show("Copied URL.");
+        }
+        catch { _toast?.Show("Copy manually: " + url); }
+    }
+
+    // lightbox
+    private void OpenLightbox(GalleryImage img)
+    {
+        _lightboxIndex = _filtered.IndexOf(img);
+        _lightboxImage = img;
+    }
+    private void CloseLightbox() => _lightboxImage = null;
+
+    private static string FormatSize(long bytes) =>
+        bytes >= 1_048_576 ? $"{bytes / 1_048_576.0:F1} MB" :
+        bytes >= 1_024     ? $"{bytes / 1_024.0:F0} KB" :
+                             $"{bytes} B";
+}

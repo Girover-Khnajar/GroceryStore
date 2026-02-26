@@ -1,3 +1,4 @@
+using GroceryStore.Application.Products;
 using GroceryStore.Domain.Interfaces;
 using GroceryStore.Infrastructure.Persistence;
 using GroceryStore.Infrastructure.Persistence.Catalog.Repositories;
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IImageAssetRepository, ImageAssetRepository>();
+        services.AddScoped<IProductsReadStore, ProductsReadStore>();
 
         return services;
     }

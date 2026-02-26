@@ -1,0 +1,123 @@
+[
+  {
+    "id": "72d1f577-ccfe-49ce-8f6f-89635f0a46f3",
+    "target": 0,
+    "entityId": 6,
+    "url": "/uploads/categories/6/db209a6864ed457398094b2d29385b41.png",
+    "fileName": "c_frozen.png",
+    "contentType": "",
+    "fileSizeBytes": 0,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-23T11:44:45.5043867Z"
+  },
+  {
+    "id": "938b2eec-2485-4ce1-8208-b7e36fbe2319",
+    "target": 1,
+    "entityId": 7,
+    "url": "/uploads/products/7/d2a03c788811465182a53d21d852d554.png",
+    "fileName": "c_household.png",
+    "contentType": "",
+    "fileSizeBytes": 0,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-23T11:45:46.1433799Z"
+  },
+  {
+    "id": "d36c4314-b4ce-4205-b233-12edbbdcc66d",
+    "target": 1,
+    "entityId": 15,
+    "url": "/uploads/products/15/d84b76f2e8af42ecbe18bb35078eca9e.png",
+    "fileName": "c_health_and_wellness.png",
+    "contentType": "",
+    "fileSizeBytes": 0,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-23T11:55:04.7385901Z"
+  },
+  {
+    "id": "5112c0c4-5d92-45da-a179-97cb2c8fd8c6",
+    "target": 0,
+    "entityId": 2,
+    "url": "/uploads/categories/2/d1308f6ba8ac48a3a03dfa97b964cb99.png",
+    "fileName": "c_personal_care.png",
+    "contentType": "image/png",
+    "fileSizeBytes": 1562999,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-24T07:42:41.3162038Z"
+  },
+  {
+    "id": "d7715267-d97f-40ab-8e94-fa4d3fb43372",
+    "target": 0,
+    "entityId": 2,
+    "url": "/uploads/categories/2/2d2778b093ab491cac1ad052d7302919.png",
+    "fileName": "c_ready_and_convenience.png",
+    "contentType": "image/png",
+    "fileSizeBytes": 1981776,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-24T07:42:41.6951565Z"
+  },
+  {
+    "id": "fa8363fb-0851-4727-8380-0cdb5c42aee7",
+    "target": 0,
+    "entityId": 2,
+    "url": "/uploads/categories/2/79577ccdc52e49b78bebd7c1a467494b.png",
+    "fileName": "c_pet_products.png",
+    "contentType": "image/png",
+    "fileSizeBytes": 1782332,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-24T07:42:41.0514655Z"
+  },
+  {
+    "id": "826323a3-733d-4481-80d1-cd2a15f4973b",
+    "target": 0,
+    "entityId": 2,
+    "url": "/uploads/categories/2/a96e1c375dde499fba5aa19fb04065fe.png",
+    "fileName": "c_household.png",
+    "contentType": "image/png",
+    "fileSizeBytes": 1649177,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-24T07:42:41.5130138Z"
+  },
+  {
+    "id": "90a919f5-69b7-44c0-aa05-65ff08b06e27",
+    "target": 0,
+    "entityId": 2,
+    "url": "/uploads/categories/2/c1a450f8e10541329f76d6b7fb47d590.png",
+    "fileName": "c_frozen.png",
+    "contentType": "image/png",
+    "fileSizeBytes": 2056258,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-24T07:42:41.9371904Z"
+  },
+  {
+    "id": "fb4be469-3530-438a-ad72-4879843c5dd2",
+    "target": 0,
+    "entityId": 2,
+    "url": "/uploads/categories/2/6fdb59656090442498c7281dedf5cb5a.png",
+    "fileName": "c_snacks.png",
+    "contentType": "image/png",
+    "fileSizeBytes": 1671137,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-24T07:42:42.1135263Z"
+  },
+  {
+    "id": "6bc53369-7f32-418f-8464-4f81e4433f3c",
+    "target": 0,
+    "entityId": 2,
+    "url": "/uploads/categories/2/6574990338284aafa6230d8af4acc073.png",
+    "fileName": "c_health_and_wellness.png",
+    "contentType": "image/png",
+    "fileSizeBytes": 1601783,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-24T07:47:47.9718014Z"
+  },
+  {
+    "id": "200a1596-6f96-4eb7-86bf-ed93e7cab784",
+    "target": 0,
+    "entityId": 2,
+    "url": "/uploads/categories/2/b52d334425c847758ef596843d05fa19.png",
+    "fileName": "c_baby_products.png",
+    "contentType": "image/png",
+    "fileSizeBytes": 1489520,
+    "isPrimary": false,
+    "uploadedAtUtc": "2026-02-24T07:47:48.1361564Z"
+  }
+]

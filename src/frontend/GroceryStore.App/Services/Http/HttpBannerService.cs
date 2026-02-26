@@ -21,7 +21,7 @@ public sealed class HttpBannerService : IBannerService
         return [.. (await _http.GetFromJsonAsync<List<Banner>>("api/banners") ?? new( )).OrderBy(b => b.DisplayOrder)];
     }
 
-    public async Task<Banner?> GetBannerByIdAsync(int id)
+    public async Task<Banner?> GetBannerByIdAsync(Guid id)
     {
         return await _http.GetFromJsonAsync<Banner>($"api/banners/{id}");
     }
@@ -40,7 +40,7 @@ public sealed class HttpBannerService : IBannerService
         return (await r.Content.ReadFromJsonAsync<Banner>( ))!;
     }
 
-    public async Task<bool> DeleteBannerAsync(int id)
+    public async Task<bool> DeleteBannerAsync(Guid id)
     {
         return (await _http.DeleteAsync($"api/banners/{id}")).IsSuccessStatusCode;
     }

@@ -10,6 +10,7 @@ namespace GroceryStore.Domain.Interfaces;
 public interface IImageAssetRepository
 {
     Task<ImageAsset?> GetByIdAsync(ImageId imageId, CancellationToken cancellationToken = default);
+    Task<List<ImageAsset>> GetImagesAsync(string? search, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ImageAsset>> GetByIdsAsync(IEnumerable<ImageId> imageIds, CancellationToken cancellationToken = default);
     Task AddAsync(ImageAsset imageAsset, CancellationToken cancellationToken = default);
     void Update(ImageAsset imageAsset);
