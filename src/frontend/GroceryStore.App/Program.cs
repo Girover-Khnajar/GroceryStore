@@ -12,7 +12,9 @@
 // ║  depend on the interfaces, not the implementations.                     ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
+using GroceryStore.App.Services.Http;
 using GroceryStore.App.Services.Interfaces;
+using GroceryStore.App.Services.Local;
 using GroceryStore.App.Services.Mock;
 
 // using GroceryStore.Services.Http;  // ← Uncomment when switching to real API
@@ -31,12 +33,13 @@ builder.Services.AddServerSideBlazor();
 // │  ✅ MOCK  (no backend needed — hardcoded in-memory data)                │
 // │  ── Active right now ──────────────────────────────────────────────────  │
 // └─────────────────────────────────────────────────────────────────────────┘
-builder.Services.AddSingleton<IProductService,   MockProductService>();
-builder.Services.AddSingleton<ICategoryService,  MockCategoryService>();
-builder.Services.AddSingleton<IBrandService,     MockBrandService>();
-builder.Services.AddSingleton<IBannerService,    MockBannerService>();
-builder.Services.AddSingleton<ISettingsService,  MockSettingsService>();
+// builder.Services.AddSingleton<IProductService,   MockProductService>();
+// builder.Services.AddSingleton<ICategoryService,  MockCategoryService>();
+// builder.Services.AddSingleton<IBrandService,     MockBrandService>();
+// builder.Services.AddSingleton<IBannerService,    MockBannerService>();
+// builder.Services.AddSingleton<ISettingsService,  MockSettingsService>();
 builder.Services.AddSingleton<IDashboardService, MockDashboardService>();
+// builder.Services.AddSingleton<IImageGalleryService, LocalImageGalleryService>();
 builder.Services.AddScoped   <IAuthService,      MockAuthService>();
 
 // ┌─────────────────────────────────────────────────────────────────────────┐
@@ -49,7 +52,7 @@ builder.Services.AddScoped   <IAuthService,      MockAuthService>();
 // └─────────────────────────────────────────────────────────────────────────┘
 /*
 builder.Services.AddDataProtection();   // required for ProtectedSessionStorage
-
+*/
 var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"]
                  ?? throw new InvalidOperationException(
                         "ApiSettings:BaseUrl is not configured in appsettings.json");
@@ -61,14 +64,16 @@ builder.Services.AddHttpClient("ApiClient", client =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
+
 builder.Services.AddScoped<IProductService,   HttpProductService>();
 builder.Services.AddScoped<ICategoryService,  HttpCategoryService>();
 builder.Services.AddScoped<IBrandService,     HttpBrandService>();
 builder.Services.AddScoped<IBannerService,    HttpBannerService>();
 builder.Services.AddScoped<ISettingsService,  HttpSettingsService>();
-builder.Services.AddScoped<IDashboardService, HttpDashboardService>();
-builder.Services.AddScoped<IAuthService,      HttpAuthService>();
-*/
+// builder.Services.AddScoped<IDashboardService, HttpDashboardService>();
+builder.Services.AddSingleton<IImageGalleryService, HttpImageGalleryService>();
+// builder.Services.AddScoped<IAuthService,      HttpAuthService>();
+
 
 // ── Middleware Pipeline ───────────────────────────────────────────────────────
 var app = builder.Build();
@@ -79,7 +84,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Currently, the app is served over HTTP for simplicity. In production, you would typically serve over HTTPS and enable the line below.
+// app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 

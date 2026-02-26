@@ -15,6 +15,6 @@ switch ($Project) {
     }
     "app" {
         Write-Host "Starting GroceryStore App..." -ForegroundColor Cyan
-        dotnet watch run --project "src/frontend/GroceryStore"
+        dotnet watch run --project "src/frontend/GroceryStore.App"
     }
 }

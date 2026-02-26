@@ -3,11 +3,11 @@ namespace GroceryStore.App.Models;
 /// <summary>Represents a product in the grocery store catalog.</summary>
 public class Product
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
-    public int CategoryId { get; set; }
-    public int BrandId { get; set; }
+    public Guid CategoryId { get; set; }
+    public string? Brand { get; set; }
     public decimal Price { get; set; }
     public string Currency { get; set; } = "USD";
     public string Unit { get; set; } = string.Empty;

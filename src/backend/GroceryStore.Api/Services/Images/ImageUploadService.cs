@@ -29,23 +29,23 @@ public sealed class ImageUploadService : IImageUploadService
         _dispatcher = dispatcher;
     }
 
-    public async Task<Result<Guid>> UploadAsync(HttpRequest httpRequest, UploadImageRequest request, CancellationToken cancellationToken)
+    public async Task<Result<StoredImageDto>> UploadAsync(HttpRequest httpRequest, UploadImageRequest request, CancellationToken cancellationToken)
     {
         if (request.File is null)
-            return Result<Guid>.Fail(Error.BadRequest("File is required."));
+            return Result<StoredImageDto>.Fail(Error.BadRequest("File is required."));
 
         if (request.File.Length <= 0)
-            return Result<Guid>.Fail(Error.Validation("File is empty."));
+            return Result<StoredImageDto>.Fail(Error.Validation("File is empty."));
 
         if (request.File.Length > MaxFileSizeBytes)
-            return Result<Guid>.Fail(
+            return Result<StoredImageDto>.Fail(
                 Error.BadRequest($"File size must not exceed {MaxFileSizeBytes / (1024 * 1024)} MB.")
                     .WithMetadata("statusCode", StatusCodes.Status413PayloadTooLarge));
 
         var contentType = request.File.ContentType?.Trim();
         if (string.IsNullOrWhiteSpace(contentType) || !AllowedContentTypes.Contains(contentType))
         {
-            return Result<Guid>.Fail(Error.Validation($"ContentType '{request.File.ContentType}' is not allowed."));
+            return Result<StoredImageDto>.Fail(Error.Validation($"ContentType '{request.File.ContentType}' is not allowed."));
         }
 
         var (width, height) = await TryGetDimensionsAsync(request.File, cancellationToken);
@@ -67,25 +67,25 @@ public sealed class ImageUploadService : IImageUploadService
         {
             await using var stream = File.Create(physicalPath);
             await request.File.CopyToAsync(stream, cancellationToken);
+
+            var storedImage = new StoredImageDto(
+                Id: Guid.NewGuid(), // This will be replaced by the actual ImageId from the database after the command is processed
+                Url: $"{httpRequest.Scheme}://{httpRequest.Host}/{relativeUrlPath}",
+                StoragePath: dbStoragePath,
+                FileName: Path.GetFileName(request.File.FileName),
+                ContentType: contentType,
+                FileSizeBytes: request.File.Length,
+                Width: width,
+                Height: height,
+                AltText: request.AltText,
+                CreatedAtUtc: DateTime.UtcNow
+            );
+            return Result<StoredImageDto>.Ok(storedImage);
         }
         catch
         {
-            return Result<Guid>.Fail(Error.Unexpected("Failed to store the uploaded file."));
+            return Result<StoredImageDto>.Fail(Error.Unexpected("Failed to store the uploaded file."));
         }
-
-        var url = $"{httpRequest.Scheme}://{httpRequest.Host}/{relativeUrlPath}";
-
-        var command = new CreateImageAssetCommand(
-            StoragePath: dbStoragePath,
-            Url: url,
-            FileName: Path.GetFileName(request.File.FileName),
-            ContentType: contentType,
-            FileSizeBytes: request.File.Length,
-            Width: width,
-            Height: height,
-            AltText: request.AltText);
-
-        return await _dispatcher.SendAsync<CreateImageAssetCommand, Guid>(command, cancellationToken);
     }
 
     private static async Task<(int width, int height)> TryGetDimensionsAsync(IFormFile file, CancellationToken cancellationToken)

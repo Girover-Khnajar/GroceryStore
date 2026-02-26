@@ -62,7 +62,7 @@ else
 <div class="modal @(_showModal ? "show" : "")">
     <div class="modal-content" style="max-width:400px;">
         <div class="modal-header">
-            <h3>@(_form.Id == 0 ? "Add Brand" : "Edit Brand")</h3>
+            <h3>@(_form.Id == Guid.Empty ? "Add Brand" : "Edit Brand")</h3>
             <button class="modal-close" @onclick="CloseModal"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
@@ -130,13 +130,13 @@ else
         _busy = true;
         if (string.IsNullOrWhiteSpace(_form.Slug))
             _form.Slug = _form.Name.ToLower( ).Replace(" ","-").Trim( );
-        if (_form.Id == 0)
+        if (_form.Id == Guid.Empty)
             await BrandService.CreateBrandAsync(_form);
         else
             await BrandService.UpdateBrandAsync(_form);
         _busy = false;
         _showModal = false;
-        _toast?.Show(_form.Id == 0 ? "Brand added!" : "Brand updated!");
+        _toast?.Show(_form.Id == Guid.Empty ? "Brand added!" : "Brand updated!");
         _brands = await BrandService.GetAllBrandsAsync( );
     }
 

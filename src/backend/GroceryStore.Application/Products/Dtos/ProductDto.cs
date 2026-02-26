@@ -48,3 +48,19 @@ public sealed record ProductImageRefDto(
     bool IsPrimary,
     int SortOrder,
     string? AltText);
+
+public sealed record ProductListItemDto(
+    Guid Id,
+    Guid CategoryId,
+    string Name,
+    string Slug,
+    decimal PriceAmount,
+    string PriceCurrency,
+    string Unit,
+    bool IsActive,
+    bool IsFeatured,
+    int SortOrder,
+    string? Brand,
+    string? PrimaryImageId,
+    DateTime CreatedOnUtc
+);

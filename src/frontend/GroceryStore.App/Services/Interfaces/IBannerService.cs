@@ -7,10 +7,10 @@ public interface IBannerService
     Task<List<Banner>> GetBannersAsync();      // active only, sorted by DisplayOrder
     Task<List<Banner>> GetAllBannersAsync();   // admin
 
-    Task<Banner?> GetBannerByIdAsync(int id);
+    Task<Banner?> GetBannerByIdAsync(Guid id);
 
     // Admin CRUD
     Task<Banner> CreateBannerAsync(Banner banner);
     Task<Banner> UpdateBannerAsync(Banner banner);
-    Task<bool> DeleteBannerAsync(int id);
+    Task<bool> DeleteBannerAsync(Guid id);
 }

@@ -159,3 +159,5 @@ desktop.ini
 *.old
 **/bin/
 **/obj/
+# Ignore uploaded images
+src/backend/GroceryStore.Api/wwwroot/images/*
