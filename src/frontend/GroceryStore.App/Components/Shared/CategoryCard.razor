@@ -3,7 +3,7 @@
 
 <div class="category-card" @onclick="NavigateToCategory" style="cursor:pointer;">
     <div class="category-image">
-        <img src="@(Category.Image ?? "images/ui/category-placeholder.svg")"
+        <img src="@(Category.ImageUrl ?? "images/ui/category-placeholder.svg")"
              alt="@Category.Name"
              loading="lazy"
              onerror="this.onerror=null;this.src='images/ui/category-placeholder.svg';" />

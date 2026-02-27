@@ -33,11 +33,11 @@ builder.Services.AddServerSideBlazor();
 // │  ✅ MOCK  (no backend needed — hardcoded in-memory data)                │
 // │  ── Active right now ──────────────────────────────────────────────────  │
 // └─────────────────────────────────────────────────────────────────────────┘
-// builder.Services.AddSingleton<IProductService,   MockProductService>();
-// builder.Services.AddSingleton<ICategoryService,  MockCategoryService>();
-// builder.Services.AddSingleton<IBrandService,     MockBrandService>();
-// builder.Services.AddSingleton<IBannerService,    MockBannerService>();
-// builder.Services.AddSingleton<ISettingsService,  MockSettingsService>();
+builder.Services.AddSingleton<IProductService,   MockProductService>();
+builder.Services.AddSingleton<ICategoryService,  MockCategoryService>();
+builder.Services.AddSingleton<IBrandService,     MockBrandService>();
+builder.Services.AddSingleton<IBannerService,    MockBannerService>();
+builder.Services.AddSingleton<ISettingsService,  MockSettingsService>();
 builder.Services.AddSingleton<IDashboardService, MockDashboardService>();
 // builder.Services.AddSingleton<IImageGalleryService, LocalImageGalleryService>();
 builder.Services.AddScoped   <IAuthService,      MockAuthService>();
@@ -65,11 +65,11 @@ builder.Services.AddHttpClient("ApiClient", client =>
 });
 
 
-builder.Services.AddScoped<IProductService,   HttpProductService>();
-builder.Services.AddScoped<ICategoryService,  HttpCategoryService>();
-builder.Services.AddScoped<IBrandService,     HttpBrandService>();
-builder.Services.AddScoped<IBannerService,    HttpBannerService>();
-builder.Services.AddScoped<ISettingsService,  HttpSettingsService>();
+// builder.Services.AddScoped<IProductService,   HttpProductService>();
+// builder.Services.AddScoped<ICategoryService,  HttpCategoryService>();
+// builder.Services.AddScoped<IBrandService,     HttpBrandService>();
+// builder.Services.AddScoped<IBannerService,    HttpBannerService>();
+// builder.Services.AddScoped<ISettingsService,  HttpSettingsService>();
 // builder.Services.AddScoped<IDashboardService, HttpDashboardService>();
 builder.Services.AddSingleton<IImageGalleryService, HttpImageGalleryService>();
 // builder.Services.AddScoped<IAuthService,      HttpAuthService>();
