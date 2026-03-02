@@ -542,7 +542,7 @@ else
     private bool _isDragOver;
     private bool _uploading;
     private int _uploadedCount;
-    private record PreviewItem(string Name, string DataUrl, IBrowserFile File);
+    private record PreviewItem(string Name, string DataUrl, byte[] FileData, string ContentType, string FileName);
     private List<PreviewItem> _previews = new();
 
     // drag reorder (entity view only)
@@ -628,8 +628,9 @@ else
             using var stream = f.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
             using var ms = new MemoryStream();
             await stream.CopyToAsync(ms);
-            var dataUrl = $"data:{f.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
-            _previews.Add(new PreviewItem(f.Name, dataUrl, f));
+            var bytes = ms.ToArray();
+            var dataUrl = $"data:{f.ContentType};base64,{Convert.ToBase64String(bytes)}";
+            _previews.Add(new PreviewItem(f.Name, dataUrl, bytes, f.ContentType, f.Name));
         }
         catch { /* skip */ }
     }
@@ -649,7 +650,7 @@ else
             foreach (var pv in _previews.ToList())
             {
                 // Upload to library (no target/entity here)
-                await GalleryService.UploadAsync(pv.File);
+                await GalleryService.UploadAsync(pv.FileData, pv.FileName, pv.ContentType);
                 _uploadedCount++;
                 StateHasChanged();
             }

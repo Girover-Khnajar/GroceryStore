@@ -1,5 +1,4 @@
 using GroceryStore.App.Models;
-using Microsoft.AspNetCore.Components.Forms;
 
 namespace GroceryStore.App.Services.Interfaces;
 
@@ -7,7 +6,7 @@ public interface IImageGalleryService
 {
     // Library
     Task<List<GalleryImage>> GetImagesAsync(string? search = null);
-    Task<GalleryImage> UploadAsync(IBrowserFile file);
+    Task<GalleryImage> UploadAsync(byte[] fileData, string fileName, string contentType);
     Task<bool> DeleteAsync(Guid id);
 
     // Assignments

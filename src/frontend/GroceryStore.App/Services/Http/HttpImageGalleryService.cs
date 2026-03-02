@@ -1,7 +1,6 @@
 using System.Net.Http.Headers;
 using GroceryStore.App.Models;
 using GroceryStore.App.Services.Interfaces;
-using Microsoft.AspNetCore.Components.Forms;
 
 namespace GroceryStore.App.Services.Http;
 
@@ -27,19 +26,17 @@ public sealed class HttpImageGalleryService : IImageGalleryService
         return res ?? [];
     }
 
-    public async Task<GalleryImage> UploadAsync(IBrowserFile file)
+    public async Task<GalleryImage> UploadAsync(byte[] fileData, string fileName, string contentType)
     {
-        if (file is null) throw new ArgumentNullException(nameof(file));
-
-        // Keep in sync with domain max size (10MB)
-        var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+        if (fileData is null || fileData.Length == 0)
+            throw new ArgumentException("File data is empty.", nameof(fileData));
 
         using var form = new MultipartFormDataContent();
-        var fileContent = new StreamContent(stream);
-        fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+        var fileContent = new ByteArrayContent(fileData);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
 
         // IMPORTANT: parameter name must match UploadImageRequest.File => "file"
-        form.Add(fileContent, "file", file.Name);
+        form.Add(fileContent, "file", fileName);
 
         var httpRes = await _http.PostAsync("/api/images/upload", form);
         if (!httpRes.IsSuccessStatusCode)
