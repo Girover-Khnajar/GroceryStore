@@ -48,7 +48,13 @@ public sealed class ImageUploadService : IImageUploadService
             return Result<StoredImageDto>.Fail(Error.Validation($"ContentType '{request.File.ContentType}' is not allowed."));
         }
 
-        var (width, height) = await TryGetDimensionsAsync(request.File, cancellationToken);
+        // Buffer the file once so the stream can be used for both dimension detection and disk write
+        using var memoryStream = new MemoryStream();
+        await request.File.CopyToAsync(memoryStream, cancellationToken);
+        memoryStream.Position = 0;
+
+        var (width, height) = await TryGetDimensionsAsync(memoryStream, request.File.ContentType, cancellationToken);
+        memoryStream.Position = 0;
 
         var extension = GetExtension(request.File.FileName, contentType);
         var now = DateTimeOffset.UtcNow;
@@ -66,7 +72,7 @@ public sealed class ImageUploadService : IImageUploadService
         try
         {
             await using var stream = File.Create(physicalPath);
-            await request.File.CopyToAsync(stream, cancellationToken);
+            await memoryStream.CopyToAsync(stream, cancellationToken);
 
             var storedImage = new StoredImageDto(
                 Id: Guid.NewGuid(), // This will be replaced by the actual ImageId from the database after the command is processed
@@ -88,14 +94,13 @@ public sealed class ImageUploadService : IImageUploadService
         }
     }
 
-    private static async Task<(int width, int height)> TryGetDimensionsAsync(IFormFile file, CancellationToken cancellationToken)
+    private static async Task<(int width, int height)> TryGetDimensionsAsync(Stream stream, string? contentType, CancellationToken cancellationToken)
     {
-        if (string.Equals(file.ContentType, "image/svg+xml", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(contentType, "image/svg+xml", StringComparison.OrdinalIgnoreCase))
             return (0, 0);
 
         try
         {
-            await using var stream = file.OpenReadStream();
             var info = await Image.IdentifyAsync(stream, cancellationToken);
             if (info is null)
                 return (0, 0);
