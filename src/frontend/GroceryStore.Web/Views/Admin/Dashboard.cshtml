@@ -1,0 +1,61 @@
+@model AdminDashboardViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dashboard";
+}
+
+@* ═══ Stat Cards ═══ *@
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.5rem;margin-bottom:2rem;">
+    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;display:flex;align-items:center;gap:1rem;">
+        <div style="width:48px;height:48px;background:#dbeafe;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-box-open" style="font-size:1.25rem;color:#2563eb;"></i>
+        </div>
+        <div>
+            <div style="font-size:1.5rem;font-weight:800;">@Model.TotalProducts</div>
+            <div style="font-size:.85rem;color:var(--text-light);">Total Products</div>
+        </div>
+    </div>
+    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;display:flex;align-items:center;gap:1rem;">
+        <div style="width:48px;height:48px;background:#dcfce7;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-th-large" style="font-size:1.25rem;color:#16a34a;"></i>
+        </div>
+        <div>
+            <div style="font-size:1.5rem;font-weight:800;">@Model.TotalCategories</div>
+            <div style="font-size:.85rem;color:var(--text-light);">Categories</div>
+        </div>
+    </div>
+    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;display:flex;align-items:center;gap:1rem;">
+        <div style="width:48px;height:48px;background:#d1fae5;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-check-circle" style="font-size:1.25rem;color:#059669;"></i>
+        </div>
+        <div>
+            <div style="font-size:1.5rem;font-weight:800;">@Model.ActiveProducts</div>
+            <div style="font-size:.85rem;color:var(--text-light);">Active Products</div>
+        </div>
+    </div>
+    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;display:flex;align-items:center;gap:1rem;">
+        <div style="width:48px;height:48px;background:#fef3c7;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-star" style="font-size:1.25rem;color:#d97706;"></i>
+        </div>
+        <div>
+            <div style="font-size:1.5rem;font-weight:800;">@Model.FeaturedProducts</div>
+            <div style="font-size:.85rem;color:var(--text-light);">Featured</div>
+        </div>
+    </div>
+</div>
+
+@* ═══ Quick Actions ═══ *@
+<div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:2rem;">
+    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Quick Actions</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;">
+        <a asp-action="CategoryCreate" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Category
+        </a>
+        <a asp-action="ProductCreate" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Product
+        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline">
+            <i class="fas fa-external-link-alt"></i> View Store
+        </a>
+    </div>
+</div>

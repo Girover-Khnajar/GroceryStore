@@ -1,0 +1,100 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+@* ═══ Hero Section ═══ *@
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">The Best Fresh Products <span class="highlight">for Your Family</span></h1>
+            <p class="hero-subtitle">Shop premium fresh and packaged products at competitive prices. Quality you can taste, prices you'll love.</p>
+            <div class="hero-actions">
+                <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart"></i> Shop Now
+                </a>
+                <a asp-controller="Categories" asp-action="Index" class="btn btn-outline">
+                    <i class="fas fa-th-large"></i> Browse Categories
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ═══ Categories ═══ *@
+@if (Model.Categories.Count > 0)
+{
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Shop by Category</h2>
+            <div class="categories-grid">
+                @foreach (var cat in Model.Categories.Take(5))
+                {
+                    var categoryImage = !string.IsNullOrWhiteSpace(cat.ImageUrl)
+                        ? cat.ImageUrl!
+                        : $"https://picsum.photos/seed/category-{Uri.EscapeDataString(cat.Slug)}/900/675";
+
+                    <a asp-controller="Categories" asp-action="Details" asp-route-slug="@cat.Slug"
+                       class="category-card">
+                        <div class="category-image">
+                            <img src="@categoryImage" alt="@cat.Name" />
+                        </div>
+                        <div class="category-info">
+                            <h3>@cat.Name</h3>
+                        </div>
+                    </a>
+                }
+            </div>
+            <div style="text-align:center; margin-top:2rem;">
+                <a asp-controller="Categories" asp-action="Index" class="btn btn-outline">
+                    All Categories <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+}
+
+@* ═══ Featured Products ═══ *@
+@if (Model.FeaturedProducts.Count > 0)
+{
+    <section class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Featured Products</h2>
+            <div class="products-grid">
+                @foreach (var p in Model.FeaturedProducts.Take(6))
+                {
+                    var productImage = $"https://picsum.photos/seed/{Uri.EscapeDataString(p.Slug)}/900/900";
+
+                    <a asp-controller="Products" asp-action="Details" asp-route-slug="@p.Slug"
+                       class="product-card">
+                        <div class="product-image">
+                            <img src="@productImage" alt="@p.Name" loading="lazy" />
+                            @if (p.IsFeatured)
+                            {
+                                <span class="badge-featured"><i class="fas fa-star"></i> Featured</span>
+                            }
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name">@p.Name</div>
+                            @if (!string.IsNullOrWhiteSpace(p.Brand))
+                            {
+                                <div class="product-category">@p.Brand</div>
+                            }
+                            <div class="product-footer">
+                                <span class="product-price">@p.PriceAmount.ToString("N2") @p.PriceCurrency</span>
+                                <button class="btn-whatsapp" onclick="event.preventDefault();" title="Order via WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+            <div style="text-align:center; margin-top:2rem;">
+                <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-box-open"></i> All Products
+                </a>
+            </div>
+        </div>
+    </section>
+}

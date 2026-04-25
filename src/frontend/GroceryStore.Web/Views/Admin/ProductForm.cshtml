@@ -1,0 +1,98 @@
+@model ProductFormViewModel
+@{
+    Layout = "_AdminLayout";
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Product" : "Add Product";
+}
+
+<div class="form-card" style="max-width:720px;">
+    <form asp-action="@(isEdit ? "ProductEdit" : "ProductCreate")"
+          asp-route-id="@Model.Id"
+          method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" style="color:var(--danger);margin-bottom:1rem;"></div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Fresh Tomatoes" />
+                <span asp-validation-for="Name" class="validation-message"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Slug" class="form-label"></label>
+                <input asp-for="Slug" class="form-control" placeholder="fresh-tomatoes" />
+                <span asp-validation-for="Slug" class="validation-message"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="CategoryId" class="form-label">Category</label>
+            <select asp-for="CategoryId" class="form-control">
+                <option value="">— Select Category —</option>
+                @foreach (var c in Model.AvailableCategories)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+            <span asp-validation-for="CategoryId" class="validation-message"></span>
+        </div>
+
+        <div class="form-row" style="grid-template-columns:1fr 1fr 1fr;">
+            <div class="form-group">
+                <label asp-for="PriceAmount" class="form-label">Price</label>
+                <input asp-for="PriceAmount" type="number" step="0.01" class="form-control" />
+                <span asp-validation-for="PriceAmount" class="validation-message"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PriceCurrency" class="form-label">Currency</label>
+                <input asp-for="PriceCurrency" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Unit" class="form-label">Unit</label>
+                <input asp-for="Unit" class="form-control" placeholder="kg, ltr, pkt" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="SortOrder" class="form-label"></label>
+                <input asp-for="SortOrder" type="number" class="form-control" />
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;padding-top:1.5rem;gap:.5rem;">
+                <input asp-for="IsFeatured" type="checkbox" />
+                <label asp-for="IsFeatured" style="font-weight:500;">Featured</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ShortDescription" class="form-label"></label>
+            <textarea asp-for="ShortDescription" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="LongDescription" class="form-label"></label>
+            <textarea asp-for="LongDescription" class="form-control" rows="4"></textarea>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;" />
+        <h4 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">SEO</h4>
+
+        <div class="form-group">
+            <label asp-for="SeoMetaTitle" class="form-label">Meta Title</label>
+            <input asp-for="SeoMetaTitle" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label asp-for="SeoMetaDescription" class="form-label">Meta Description</label>
+            <textarea asp-for="SeoMetaDescription" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1.5rem;">
+            <a asp-action="Products" class="btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+            <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

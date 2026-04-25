@@ -1,0 +1,174 @@
+@inject GroceryStore.Web.Services.IStoreSettingsService StoreSettingsService
+@{
+    var footerSettings = await StoreSettingsService.GetAsync();
+    var footerHours = (footerSettings.OpeningHours ?? string.Empty)
+        .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+        .Select(x => x.Trim())
+        .Where(x => !string.IsNullOrWhiteSpace(x))
+        .ToList();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - @footerSettings.StoreName</title>
+
+    @* Prevent theme flash *@
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+
+    @* Google Fonts *@
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    @* Font Awesome 6.4 *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    @* App styles *@
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body>
+    @* ═══ Navbar ═══ *@
+    <nav class="navbar" id="navbar">
+        <div class="container nav-wrapper">
+            <a asp-controller="Home" asp-action="Index" class="logo">
+                <i class="fas fa-leaf"></i>
+                <span>@footerSettings.StoreName</span>
+            </a>
+
+            <div class="nav-menu" id="navMenu">
+                <a asp-controller="Home" asp-action="Index" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a asp-controller="Categories" asp-action="Index" class="nav-link">
+                    <i class="fas fa-th-large"></i> Categories
+                </a>
+                <a asp-controller="Products" asp-action="Index" class="nav-link">
+                    <i class="fas fa-box-open"></i> Products
+                </a>
+                <a asp-controller="Home" asp-action="Contact" class="nav-link">
+                    <i class="fas fa-envelope"></i> Contact
+                </a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="search-toggle" onclick="openSearch()" title="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="menu-toggle" onclick="toggleMenu()" title="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    @* ═══ Search Overlay ═══ *@
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-container">
+            <button class="search-close" onclick="closeSearch()">
+                <i class="fas fa-times"></i>
+            </button>
+            <form asp-controller="Products" asp-action="Index" method="get" class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Search products, categories..." autocomplete="off" />
+            </form>
+        </div>
+    </div>
+
+    @* ═══ Toast ═══ *@
+    @{
+        var toastMsg = TempData["Success"] as string ?? TempData["Error"] as string;
+        var toastType = TempData["Success"] != null ? "success" : (TempData["Error"] != null ? "error" : "");
+    }
+    <div class="toast" id="toast"
+         data-message="@toastMsg"
+         data-type="@toastType">
+        <i class="fas fa-check-circle"></i>
+        <span></span>
+    </div>
+
+    @* ═══ Main Content ═══ *@
+    <main>
+        @RenderBody()
+    </main>
+
+    @* ═══ Footer ═══ *@
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                @* Brand *@
+                <div class="footer-section">
+                    <h3><i class="fas fa-leaf" style="color:var(--primary);"></i> @footerSettings.StoreName</h3>
+                    <p>Your trusted neighborhood grocery store offering premium fresh and packaged products at competitive prices.</p>
+                    <div class="social-links">
+                        <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                @* Quick Links *@
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li><a asp-controller="Categories" asp-action="Index">Categories</a></li>
+                        <li><a asp-controller="Products" asp-action="Index">Products</a></li>
+                        <li><a asp-controller="Home" asp-action="Contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                @* Contact Info *@
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> <span>@footerSettings.Phone</span></li>
+                        <li><i class="fab fa-whatsapp"></i> <span>@footerSettings.WhatsappNumber</span></li>
+                        <li><i class="fas fa-envelope"></i> <span>@footerSettings.Email</span></li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span>@footerSettings.Address</span></li>
+                    </ul>
+                </div>
+
+                @* Opening Hours *@
+                <div class="footer-section">
+                    <h4>Opening Hours</h4>
+                    <ul>
+                        @if (footerHours.Count == 0)
+                        {
+                            <li>Opening hours not set</li>
+                        }
+                        else
+                        {
+                            foreach (var line in footerHours)
+                            {
+                                <li>@line</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; @DateTime.UtcNow.Year Fresh Grocery Store. All rights reserved.</p>
+                <p>Built with <i class="fas fa-heart" style="color:var(--danger);"></i> by Juan &amp; Majed</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
