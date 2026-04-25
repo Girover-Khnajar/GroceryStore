@@ -69,7 +69,13 @@
                                 <div class="product-category">@p.Brand</div>
                             }
                             <div class="product-footer">
-                                <span class="product-price">@p.PriceAmount.ToString("N2") @p.PriceCurrency</span>
+                                <span class="product-price">
+                                    @p.PriceAmount.ToString("N2") @p.PriceCurrency
+                                    @if (!string.IsNullOrWhiteSpace(p.Unit))
+                                    {
+                                        <span style="color:var(--text-light);font-size:.85rem;">/ @p.Unit</span>
+                                    }
+                                </span>
                                 <button class="btn-whatsapp" onclick="event.preventDefault();" title="Order via WhatsApp">
                                     <i class="fab fa-whatsapp"></i>
                                 </button>

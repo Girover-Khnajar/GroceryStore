@@ -225,8 +225,10 @@ public class AdminController : Controller
     {
         var vm = new ProductFormViewModel
         {
-            AvailableCategories = await GetAllCategories(ct)
+            AvailableCategories = await GetAllCategories(ct),
+            AvailableCurrencies = await GetAvailableCurrenciesAsync(),
         };
+        vm.PriceCurrency = vm.AvailableCurrencies.FirstOrDefault() ?? vm.PriceCurrency;
         return View("ProductForm", vm);
     }
 
@@ -237,6 +239,7 @@ public class AdminController : Controller
         if (!ModelState.IsValid)
         {
             vm.AvailableCategories = await GetAllCategories(ct);
+            vm.AvailableCurrencies = await GetAvailableCurrenciesAsync(vm.PriceCurrency);
             return View("ProductForm", vm);
         }
 
@@ -258,6 +261,7 @@ public class AdminController : Controller
         if (!result.Succeeded(this))
         {
             vm.AvailableCategories = await GetAllCategories(ct);
+            vm.AvailableCurrencies = await GetAvailableCurrenciesAsync(vm.PriceCurrency);
             return View("ProductForm", vm);
         }
 
@@ -291,7 +295,8 @@ public class AdminController : Controller
             LongDescription = dto.LongDescription,
             SeoMetaTitle = dto.SeoMetaTitle,
             SeoMetaDescription = dto.SeoMetaDescription,
-            AvailableCategories = await GetAllCategories(ct)
+            AvailableCategories = await GetAllCategories(ct),
+            AvailableCurrencies = await GetAvailableCurrenciesAsync(dto.PriceCurrency),
         };
 
         return View("ProductForm", vm);
@@ -304,6 +309,7 @@ public class AdminController : Controller
         if (!ModelState.IsValid)
         {
             vm.AvailableCategories = await GetAllCategories(ct);
+            vm.AvailableCurrencies = await GetAvailableCurrenciesAsync(vm.PriceCurrency);
             return View("ProductForm", vm);
         }
 
@@ -326,6 +332,7 @@ public class AdminController : Controller
         if (!result.Succeeded(this))
         {
             vm.AvailableCategories = await GetAllCategories(ct);
+            vm.AvailableCurrencies = await GetAvailableCurrenciesAsync(vm.PriceCurrency);
             return View("ProductForm", vm);
         }
 
@@ -628,5 +635,31 @@ public class AdminController : Controller
             .QueryAsync<GetAllActiveCategoriesQuery, IReadOnlyList<CategoryDto>>(
                 new GetAllActiveCategoriesQuery(), ct);
         return result.IsSuccess ? result.Value! : [];
+    }
+
+    private async Task<IReadOnlyList<string>> GetAvailableCurrenciesAsync(string? selectedCurrency = null)
+    {
+        var settings = await _settingsService.GetAsync();
+        var configured = settings.Currency?.Trim().ToUpperInvariant();
+        var selected = selectedCurrency?.Trim().ToUpperInvariant();
+
+        var options = new List<string>
+        {
+            "USD",
+            "EUR",
+            "DKK",
+            "SEK",
+            "NOK",
+            "CHF",
+            "GBP"
+        };
+
+        if (!string.IsNullOrWhiteSpace(configured) && configured.Length == 3 && !options.Contains(configured))
+            options.Insert(0, configured);
+
+        if (!string.IsNullOrWhiteSpace(selected) && selected.Length == 3 && !options.Contains(selected))
+            options.Insert(0, selected);
+
+        return options;
     }
 }
