@@ -1,0 +1,130 @@
+@model GroceryStore.Web.ViewModels.LoginViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Admin Login";
+}
+
+<style>
+    .login-wrapper {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--surface);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border);
+        padding: 3rem 2.5rem;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .login-card .login-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .login-card .login-header i {
+        font-size: 3rem;
+        color: var(--primary);
+    }
+
+    .login-card .login-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: .75rem 0 .25rem;
+    }
+
+    .login-card .login-header p {
+        color: var(--text-light);
+    }
+
+    .login-input-wrap {
+        position: relative;
+    }
+
+    .login-input-wrap i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+    }
+
+    .login-input-wrap .form-control {
+        padding-left: 42px;
+    }
+
+    .login-hint {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: var(--bg);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        font-size: .85rem;
+        color: var(--text-light);
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fas fa-shopping-basket"></i>
+            <h1>Admin Login</h1>
+            <p>Sign in to manage your store</p>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+        {
+            <div class="alert alert-danger" style="margin-bottom:1.5rem;">
+                <i class="fas fa-exclamation-circle"></i>
+                @ViewData.ModelState[string.Empty]!.Errors[0].ErrorMessage
+            </div>
+        }
+
+        <form asp-action="Login" asp-controller="Account" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            <div class="form-group">
+                <label asp-for="Username" class="form-label">Username</label>
+                <div class="login-input-wrap">
+                    <i class="fas fa-user"></i>
+                    <input asp-for="Username" class="form-control"
+                           placeholder="Enter username"
+                           autocomplete="username" />
+                </div>
+                <span asp-validation-for="Username" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Password</label>
+                <div class="login-input-wrap">
+                    <i class="fas fa-lock"></i>
+                    <input asp-for="Password" type="password" class="form-control"
+                           placeholder="Enter password"
+                           autocomplete="current-password" />
+                </div>
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary"
+                    style="width:100%;padding:1rem;font-size:1.05rem;margin-top:.5rem;">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+
+        <div class="login-hint">
+            <strong>Default credentials:</strong><br />
+            Username: <code>admin</code> &nbsp;|&nbsp; Password: <code>admin123</code>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

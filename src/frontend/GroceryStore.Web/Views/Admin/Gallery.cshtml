@@ -1,0 +1,346 @@
+@model List<GroceryStore.Application.Images.Dtos.ImageAssetDto>
+@using System.Text.Json
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Gallery";
+    var images = Model.Where(i => !i.IsDeleted).ToList();
+    var jsonOpts = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    var imagesJson = JsonSerializer.Serialize(images, jsonOpts);
+    var categoriesJson = ViewBag.Categories != null ? JsonSerializer.Serialize((object)ViewBag.Categories, jsonOpts) : "[]";
+    var productsJson = ViewBag.Products != null ? JsonSerializer.Serialize((object)ViewBag.Products, jsonOpts) : "[]";
+}
+
+<style>
+    /* ── Drop Zone ────────────────────────────────────── */
+    .drop-zone {
+        border: 2px dashed var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2.25rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color .2s, background .2s;
+        background: var(--bg);
+        position: relative;
+    }
+    .drop-zone.drag-over {
+        border-color: var(--primary);
+        background: color-mix(in srgb, var(--primary) 7%, transparent);
+    }
+    .drop-zone .dz-input {
+        position: absolute; inset: 0; opacity: 0;
+        cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-zone-icon { font-size: 2rem; color: var(--primary); margin-bottom: .4rem; }
+    .drop-zone-label { font-weight: 600; color: var(--text); }
+    .drop-zone-sub { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+
+    /* ── Preview strip ────────────────────────────────── */
+    .preview-strip { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .75rem; }
+    .preview-thumb {
+        position: relative; width: 70px; height: 70px;
+        border-radius: var(--radius-lg); overflow: hidden;
+        border: 1px solid var(--border); flex-shrink: 0;
+    }
+    .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-thumb .rm {
+        position: absolute; top: 2px; right: 2px;
+        background: rgba(0,0,0,.6); color: #fff;
+        border: none; border-radius: 50%;
+        width: 17px; height: 17px; font-size: .6rem;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; padding: 0; line-height: 1;
+    }
+
+    /* ── Progress bar ─────────────────────────────────── */
+    .upload-progress { margin-top: .75rem; font-size: .85rem; }
+    .pb-track {
+        height: 6px; background: var(--border);
+        border-radius: 999px; overflow: hidden; margin-top: .35rem;
+    }
+    .pb-fill { height: 100%; background: var(--primary); border-radius: 999px; transition: width .2s; }
+
+    /* ── Toolbar (search + bulk) ──────────────────────── */
+    .gallery-toolbar {
+        display: flex; align-items: center; gap: .65rem; flex-wrap: wrap;
+        margin-bottom: .9rem;
+    }
+    .search-box {
+        flex: 1; min-width: 160px;
+        display: flex; align-items: center; gap: .5rem;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); padding: .45rem .75rem;
+    }
+    .search-box i { color: var(--muted); font-size: .9rem; }
+    .search-box input {
+        border: none; outline: none; background: transparent;
+        color: var(--text); font-size: .9rem; width: 100%;
+    }
+    .bulk-bar {
+        display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+        background: color-mix(in srgb, var(--primary) 9%, var(--surface));
+        border: 1px solid var(--primary);
+        border-radius: var(--radius-lg); padding: .55rem .9rem;
+        margin-bottom: .9rem;
+    }
+    .bulk-bar .count { font-weight: 700; color: var(--primary); }
+
+    /* ── Gallery grid ─────────────────────────────────── */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+        gap: .9rem;
+    }
+    .gallery-card {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: border-color .15s, box-shadow .15s, transform .15s, opacity .15s;
+        position: relative;
+        user-select: none;
+    }
+    .gallery-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 4px 18px rgba(0,0,0,.11);
+        transform: translateY(-2px);
+    }
+    .gallery-card.selected {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+    }
+    .gallery-card.is-primary { border-color: #f59e0b; }
+    .gallery-card.dragging { opacity: .35; transform: scale(.96); }
+    .gallery-card.drag-target { border-color: var(--primary); border-style: dashed; }
+
+    .primary-badge {
+        position: absolute; top: .38rem; left: .38rem;
+        background: #f59e0b; color: #fff;
+        font-size: .68rem; font-weight: 700;
+        padding: .12rem .38rem; border-radius: 999px; z-index: 3;
+        letter-spacing: .03em;
+    }
+    .select-check {
+        position: absolute; top: .42rem; right: .42rem; z-index: 3;
+        width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;
+    }
+    .drag-handle {
+        position: absolute; top: .46rem; right: 1.95rem; z-index: 3;
+        color: rgba(255,255,255,.85); font-size: .82rem;
+        cursor: grab; text-shadow: 0 1px 3px rgba(0,0,0,.55);
+    }
+    .drag-handle:active { cursor: grabbing; }
+
+    .gallery-img-wrap {
+        aspect-ratio: 1/1; background: var(--bg);
+        display: flex; align-items: center; justify-content: center;
+        cursor: zoom-in; overflow: hidden;
+    }
+    .gallery-img-wrap img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform .2s; pointer-events: none;
+    }
+    .gallery-card:hover .gallery-img-wrap img { transform: scale(1.05); }
+
+    .gallery-meta { padding: .6rem .7rem .7rem; }
+    .gallery-filename {
+        font-size: .84rem; font-weight: 600;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .gallery-info {
+        font-size: .74rem; color: var(--muted);
+        margin-top: .18rem; display: flex; gap: .35rem; flex-wrap: wrap; align-items: center;
+    }
+    .info-badge {
+        background: var(--bg); border: 1px solid var(--border);
+        border-radius: 4px; padding: .08rem .28rem;
+        font-size: .7rem; font-weight: 500;
+    }
+    .gallery-actions { display: flex; gap: .35rem; margin-top: .5rem; }
+    .gallery-actions button { flex: 1; }
+
+    /* ── Lightbox ─────────────────────────────────────── */
+    .lb-backdrop {
+        position: fixed; inset: 0; background: rgba(0,0,0,.9);
+        z-index: 2000; display: flex; align-items: center; justify-content: center;
+        animation: lb-fade .15s ease;
+    }
+    @@keyframes lb-fade { from { opacity: 0; } to { opacity: 1; } }
+    .lb-inner {
+        position: relative; display: flex; flex-direction: column;
+        align-items: center; gap: .65rem; max-width: 90vw;
+    }
+    .lb-inner img {
+        max-width: 90vw; max-height: 80vh; object-fit: contain;
+        border-radius: var(--radius-lg); box-shadow: 0 8px 48px rgba(0,0,0,.7);
+    }
+    .lb-close {
+        position: absolute; top: -2.4rem; right: 0;
+        background: rgba(255,255,255,.15); color: #fff; border: none;
+        border-radius: 50%; width: 32px; height: 32px; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .lb-nav {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        background: rgba(255,255,255,.15); color: #fff; border: none;
+        border-radius: 50%; width: 40px; height: 40px; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: background .15s;
+    }
+    .lb-nav:hover { background: rgba(255,255,255,.28); }
+    .lb-nav.prev { right: calc(100% + .75rem); }
+    .lb-nav.next { left: calc(100% + .75rem); }
+    .lb-caption { color: rgba(255,255,255,.7); font-size: .88rem; text-align: center; }
+    .lb-counter { color: rgba(255,255,255,.45); font-size: .78rem; }
+
+    /* ── Empty / loading states ───────────────────────── */
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+    .empty-state i { font-size: 2.4rem; margin-bottom: .65rem; display: block; }
+</style>
+
+@* ═══ Header ═══ *@
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:1rem;">
+    <h2 style="font-size:1.5rem;font-weight:700;">
+        <i class="fas fa-photo-video" style="color:var(--primary);margin-right:.5rem;"></i>
+        Gallery Library
+    </h2>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" id="btnLibrary" onclick="Gallery.switchView('library')">
+            <i class="fas fa-images"></i> Library
+        </button>
+        <button class="btn btn-secondary btn-sm" id="btnEntity" onclick="Gallery.switchView('entity')">
+            <i class="fas fa-link"></i> Entity images
+        </button>
+    </div>
+</div>
+
+@* ═══ Upload card ═══ *@
+<div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.2rem;margin-bottom:1rem;">
+    <div class="drop-zone" id="dropZone">
+        <input type="file" class="dz-input" id="fileInput" multiple accept="image/*" />
+        <div class="drop-zone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <div class="drop-zone-label">Drag &amp; drop images here (Library)</div>
+        <div class="drop-zone-sub">or click to browse · PNG, JPG, WEBP, GIF · max 10 MB each</div>
+    </div>
+
+    <div id="previewArea" style="display:none;">
+        <div style="margin-top:.75rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
+            <span style="font-size:.88rem;font-weight:600;" id="queuedCount"></span>
+            <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" id="clearBtn" onclick="Gallery.clearPreviews()">Clear</button>
+                <button class="btn btn-primary btn-sm" id="uploadBtn" onclick="Gallery.upload()">
+                    <i class="fas fa-upload"></i> <span>Upload to library</span>
+                </button>
+            </div>
+        </div>
+        <div class="preview-strip" id="previewStrip"></div>
+        <div class="upload-progress" id="uploadProgress" style="display:none;">
+            <span id="uploadProgressText"></span>
+            <div class="pb-track"><div class="pb-fill" id="uploadProgressBar" style="width:0%;"></div></div>
+        </div>
+    </div>
+</div>
+
+@* ═══ Assign panel ═══ *@
+<div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.2rem;margin-bottom:1rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div style="font-weight:700;">
+            <i class="fas fa-tag" style="color:var(--primary);margin-right:.35rem;"></i>
+            Assign selected images
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+            <label style="display:flex;gap:.4rem;align-items:center;font-size:.83rem;color:var(--muted);cursor:pointer;">
+                <input type="checkbox" id="assignPrimaryCheck" checked onchange="Gallery.onAssignPrimaryChange(this.checked)" />
+                Make first assigned primary (products only)
+            </label>
+            <button class="btn btn-secondary btn-sm" id="deselectBtn" onclick="Gallery.deselectAll()" disabled>Deselect</button>
+        </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:1rem;align-items:end;margin-top:.9rem;">
+        <div class="form-group" style="margin:0;">
+            <label class="form-label">Target</label>
+            <select class="form-control" id="targetSelect" onchange="Gallery.onTargetChange(this.value)">
+                <option value="category">Category</option>
+                <option value="product">Product</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="margin:0;">
+            <label class="form-label" id="entityLabel">Category</label>
+            <select class="form-control" id="entitySelect" onchange="Gallery.onEntityChange(this.value)">
+                <option value="">Select category…</option>
+            </select>
+        </div>
+
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;">
+            <button class="btn btn-primary btn-sm" id="assignBtn" onclick="Gallery.assignSelected()" disabled>
+                <i class="fas fa-link"></i> Assign
+            </button>
+            <button class="btn btn-danger btn-sm" id="unassignBtn" onclick="Gallery.unassignSelected()" disabled>
+                <i class="fas fa-unlink"></i> Unassign
+            </button>
+        </div>
+    </div>
+
+    <div id="entityInfo" style="display:none;margin-top:.9rem;color:var(--muted);font-size:.85rem;"></div>
+</div>
+
+@* ═══ Search + Select all ═══ *@
+<div class="gallery-toolbar">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search by filename…" id="searchInput" oninput="Gallery.onSearch(this.value)" />
+        <button style="background:none;border:none;color:var(--muted);cursor:pointer;padding:0;display:none;"
+                id="clearSearchBtn" onclick="Gallery.clearSearch()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted);cursor:pointer;white-space:nowrap;">
+        <input type="checkbox" id="selectAllCheck" onchange="Gallery.toggleSelectAll(this.checked)" />
+        Select all
+    </label>
+</div>
+
+@* ═══ Bulk bar ═══ *@
+<div class="bulk-bar" id="bulkBar" style="display:none;">
+    <span class="count" id="bulkCount">0 selected</span>
+    <button class="btn btn-secondary btn-sm" onclick="Gallery.deselectAll()">Deselect all</button>
+    <button class="btn btn-danger btn-sm" onclick="Gallery.bulkDelete()">
+        <i class="fas fa-trash"></i> Delete selected (library)
+    </button>
+</div>
+
+@* ═══ Gallery grid ═══ *@
+<div id="galleryLoading" class="loading-spinner" style="display:none;"><div class="spinner"></div></div>
+<div id="galleryGrid" class="gallery-grid"></div>
+<div id="emptyState" style="display:none;">
+    <div class="card" style="background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius-lg);">
+        <div class="empty-state">
+            <i class="fas fa-images"></i>
+            No images match your search.
+        </div>
+    </div>
+</div>
+
+@* ═══ Lightbox ═══ *@
+<div id="lightbox" class="lb-backdrop" style="display:none;" onclick="Gallery.closeLightbox()">
+    <div class="lb-inner" onclick="event.stopPropagation()">
+        <button class="lb-close" onclick="Gallery.closeLightbox()"><i class="fas fa-times"></i></button>
+        <button class="lb-nav prev" onclick="event.stopPropagation();Gallery.prevLightbox()"><i class="fas fa-chevron-left"></i></button>
+        <img id="lbImage" src="" alt="" />
+        <button class="lb-nav next" onclick="event.stopPropagation();Gallery.nextLightbox()"><i class="fas fa-chevron-right"></i></button>
+        <div class="lb-caption" id="lbCaption"></div>
+        <div class="lb-counter" id="lbCounter"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__galleryData = {
+            images: @Html.Raw(imagesJson),
+            categories: @Html.Raw(categoriesJson),
+            products: @Html.Raw(productsJson)
+        };
+    </script>
+    <script src="~/js/gallery.js" asp-append-version="true"></script>
+}

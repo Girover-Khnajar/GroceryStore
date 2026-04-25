@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin</title>
+
+    @* Prevent theme flash *@
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body>
+    @* ═══ Sidebar Overlay (mobile) ═══ *@
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="admin-dashboard">
+        @* ═══ Sidebar ═══ *@
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-leaf"></i>
+                <h2>Admin Panel</h2>
+            </div>
+            <nav class="sidebar-menu">
+                <a asp-controller="Admin" asp-action="Dashboard" class="menu-item">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a asp-controller="Admin" asp-action="Products" class="menu-item">
+                    <i class="fas fa-box-open"></i> Products
+                </a>
+                <a asp-controller="Admin" asp-action="Categories" class="menu-item">
+                    <i class="fas fa-th-large"></i> Categories
+                </a>
+                <a asp-controller="Admin" asp-action="Gallery" class="menu-item">
+                    <i class="fas fa-images"></i> Gallery
+                </a>
+                <a asp-controller="Admin" asp-action="Settings" class="menu-item">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a asp-controller="Home" asp-action="Index" class="btn-view-site" style="width:100%; justify-content:center;">
+                    <i class="fas fa-external-link-alt"></i> View Store
+                </a>
+                <form asp-controller="Account" asp-action="Logout" method="post" style="width:100%;margin-top:.5rem;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-logout" style="width:100%;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        @* ═══ Main ═══ *@
+        <div class="admin-main">
+            <header class="admin-header">
+                <button class="menu-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>@ViewData["Title"]</h1>
+                <div class="admin-actions">
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                        <i class="fas fa-moon"></i>
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    <a asp-controller="Home" asp-action="Index" class="btn-view-site">
+                        <i class="fas fa-external-link-alt"></i> View Site
+                    </a>
+                </div>
+            </header>
+
+            @* Toast *@
+            @{
+                var toastMsg = TempData["Success"] as string ?? TempData["Error"] as string;
+                var toastType = TempData["Success"] != null ? "success" : (TempData["Error"] != null ? "error" : "");
+            }
+            <div class="toast" id="toast"
+                 data-message="@toastMsg"
+                 data-type="@toastType">
+                <i class="fas fa-check-circle"></i>
+                <span></span>
+            </div>
+
+            <div class="admin-content">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

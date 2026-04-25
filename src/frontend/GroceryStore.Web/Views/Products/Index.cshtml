@@ -1,0 +1,130 @@
+@model ProductListViewModel
+@{
+    ViewData["Title"] = "Products";
+}
+
+<section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
+    <div class="container">
+        <h1 class="section-title">Products</h1>
+
+        @* ═══ Filter Bar ═══ *@
+        <form asp-action="Index" method="get" class="filter-bar">
+            <input type="text" name="search" value="@Model.Search"
+                   placeholder="Search products..." />
+
+            <select name="categoryId">
+                <option value="">All Categories</option>
+                @foreach (var cat in Model.Categories)
+                {
+                    <option value="@cat.Id"
+                            selected="@(Model.CategoryId == cat.Id)">@cat.Name</option>
+                }
+            </select>
+
+            <select name="sort">
+                <option value="">Sort by</option>
+                <option value="name" selected="@(Model.Sort == "name")">Name A-Z</option>
+                <option value="name_desc" selected="@(Model.Sort == "name_desc")">Name Z-A</option>
+                <option value="price" selected="@(Model.Sort == "price")">Price Low → High</option>
+                <option value="price_desc" selected="@(Model.Sort == "price_desc")">Price High → Low</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Filter
+            </button>
+        </form>
+
+        @* ═══ Product Grid ═══ *@
+        @if (Model.Products.Items.Count == 0)
+        {
+            <div class="empty-state">
+                <i class="fas fa-box-open" style="font-size:3rem;color:var(--border);margin-bottom:1rem;"></i>
+                <h3>No products found</h3>
+                <p>Try a different search or filter.</p>
+            </div>
+        }
+        else
+        {
+            <div class="products-grid">
+                @foreach (var p in Model.Products.Items)
+                {
+                    var productImage = string.IsNullOrWhiteSpace(p.PrimaryImageId) ? null : p.PrimaryImageId;
+
+                    <a asp-action="Details" asp-route-slug="@p.Slug" class="product-card">
+                        <div class="product-image">
+                            @if (!string.IsNullOrWhiteSpace(productImage))
+                            {
+                                <img src="@productImage" alt="@p.Name" loading="lazy" />
+                            }
+                            else
+                            {
+                                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface-alt);color:var(--text-light);">
+                                    <i class="fas fa-box-open" style="font-size:2rem;"></i>
+                                </div>
+                            }
+                            @if (p.IsFeatured)
+                            {
+                                <span class="badge-featured"><i class="fas fa-star"></i> Featured</span>
+                            }
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name">@p.Name</div>
+                            @if (!string.IsNullOrWhiteSpace(p.Brand))
+                            {
+                                <div class="product-category">@p.Brand</div>
+                            }
+                            <div class="product-footer">
+                                <span class="product-price">@p.PriceAmount.ToString("N2") @p.PriceCurrency</span>
+                                <button class="btn-whatsapp" onclick="event.preventDefault();" title="Order via WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+
+            @* ═══ Pagination ═══ *@
+            @if (Model.Products.TotalPages > 1)
+            {
+                <div style="display:flex;justify-content:center;gap:.5rem;margin-top:2rem;flex-wrap:wrap;">
+                    @* Previous *@
+                    @if (Model.Page > 1)
+                    {
+                        <a asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-categoryId="@Model.CategoryId"
+                           asp-route-sort="@Model.Sort"
+                           asp-route-page="@(Model.Page - 1)"
+                           class="page-btn">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    }
+
+                    @for (int i = 1; i <= Model.Products.TotalPages; i++)
+                    {
+                        <a asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-categoryId="@Model.CategoryId"
+                           asp-route-sort="@Model.Sort"
+                           asp-route-page="@i"
+                           class="page-btn @(i == Model.Page ? "active" : "")">@i</a>
+                    }
+
+                    @* Next *@
+                    @if (Model.Page < Model.Products.TotalPages)
+                    {
+                        <a asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-categoryId="@Model.CategoryId"
+                           asp-route-sort="@Model.Sort"
+                           asp-route-page="@(Model.Page + 1)"
+                           class="page-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    }
+                </div>
+            }
+        }
+    </div>
+</section>

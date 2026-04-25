@@ -1,0 +1,95 @@
+@model GroceryStore.Application.Common.PagedResult<GroceryStore.Application.Products.Dtos.ProductListItemDto>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Manage Products";
+    var search = ViewBag.Search as string;
+}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+    <h2 style="font-size:1.25rem;font-weight:700;"><i class="fas fa-box-open" style="color:var(--primary);"></i> Products</h2>
+    <a asp-action="ProductCreate" class="btn btn-primary"><i class="fas fa-plus"></i> Add Product</a>
+</div>
+
+@* Search *@
+<form asp-action="Products" method="get" class="filter-bar" style="margin-bottom:1.5rem;">
+    <input type="text" name="search" value="@search" placeholder="Search products..." style="min-width:250px;" />
+    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+</form>
+
+<div class="table-wrapper">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width:60px;"></th>
+                <th>Name</th>
+                <th>SKU</th>
+                <th>Price</th>
+                <th style="text-align:center;">Active</th>
+                <th style="text-align:center;">Featured</th>
+                <th style="text-align:center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" style="text-align:center;padding:2rem;color:var(--text-light);">
+                        No products found.
+                    </td>
+                </tr>
+            }
+            @foreach (var p in Model.Items)
+            {
+                <tr>
+                    <td style="text-align:center;">
+                        @if (!string.IsNullOrWhiteSpace(p.PrimaryImageId))
+                        {
+                            <img src="@p.PrimaryImageId" alt="@p.Name"
+                                 style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border);" />
+                        }
+                        else
+                        {
+                            <div style="width:48px;height:48px;border-radius:6px;background:var(--bg-light);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-box-open" style="color:var(--text-light);font-size:.9rem;"></i>
+                            </div>
+                        }
+                    </td>
+                    <td><strong>@p.Name</strong></td>
+                    <td style="color:var(--text-light);font-size:.85rem;">@p.Slug</td>
+                    <td>@p.PriceAmount.ToString("N2") @p.PriceCurrency</td>
+                    <td style="text-align:center;">
+                        <i class="fas @(p.IsActive ? "fa-check-circle" : "fa-times-circle")"
+                           style="color:@(p.IsActive ? "#059669" : "#dc2626");"></i>
+                    </td>
+                    <td style="text-align:center;">
+                        <i class="fas fa-star" style="color:@(p.IsFeatured ? "#d97706" : "#d1d5db");"></i>
+                    </td>
+                    <td style="text-align:center;white-space:nowrap;">
+                        <a asp-action="ProductEdit" asp-route-id="@p.Id" class="btn-edit" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form asp-action="ProductDelete" asp-route-id="@p.Id" method="post"
+                              style="display:inline;"
+                              onsubmit="return confirm('Delete this product?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-delete" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <div style="display:flex;justify-content:center;gap:.5rem;margin-top:1.5rem;flex-wrap:wrap;">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <a asp-action="Products" asp-route-search="@search" asp-route-page="@i"
+               class="page-btn @(i == Model.Page ? "active" : "")">@i</a>
+        }
+    </div>
+}

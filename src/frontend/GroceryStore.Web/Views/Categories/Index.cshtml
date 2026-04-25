@@ -1,0 +1,44 @@
+@model IReadOnlyList<GroceryStore.Application.Categories.Dtos.CategoryDto>
+@{
+    ViewData["Title"] = "All Categories";
+}
+
+<section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
+    <div class="container">
+        <h1 class="section-title">All Categories</h1>
+
+        @if (Model.Count == 0)
+        {
+            <div class="empty-state">
+                <i class="fas fa-th-large" style="font-size:3rem;color:var(--border);margin-bottom:1rem;"></i>
+                <h3>No categories found</h3>
+                <p>Check back later for new categories.</p>
+            </div>
+        }
+        else
+        {
+            <div class="categories-grid">
+                @foreach (var cat in Model)
+                {
+                    <a asp-action="Details" asp-route-slug="@cat.Slug" class="category-card">
+                        <div class="category-image">
+                            @if (!string.IsNullOrWhiteSpace(cat.ImageUrl))
+                            {
+                                <img src="@cat.ImageUrl" alt="@cat.Name" />
+                            }
+                            else
+                            {
+                                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface-alt);">
+                                    <i class="fas @(string.IsNullOrWhiteSpace(cat.IconName) ? "fa-th-large" : cat.IconName)" style="font-size:2.5rem;color:var(--primary);"></i>
+                                </div>
+                            }
+                        </div>
+                        <div class="category-info">
+                            <h3>@cat.Name</h3>
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</section>

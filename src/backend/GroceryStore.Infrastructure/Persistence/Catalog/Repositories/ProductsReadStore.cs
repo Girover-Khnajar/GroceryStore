@@ -57,22 +57,62 @@ public sealed class ProductsReadStore : IProductsReadStore
         // ---- Paging
         query = query.Skip((page - 1) * pageSize).Take(pageSize);
 
-        var items = await query.Select(p => new
-        ProductListItemDto (
-            p.Id,
-            p.CategoryId,
-            p.Name,
-            p.Slug.Value,
-            p.Price.Amount,
-            p.Price.Currency,
-            p.Unit.ToString(),
-            p.IsActive,
-            p.IsFeatured,
-            p.SortOrder,
-            p.Brand,
-            string.Empty, // أو عدّل حسب هيكل الصور عندك
-            p.CreatedOnUtc
-        )).ToListAsync(ct);
+        var paged = await query
+            .Select(p => new
+            {
+                p.Id,
+                p.CategoryId,
+                p.Name,
+                Slug = p.Slug.Value,
+                PriceAmount = p.Price.Amount,
+                PriceCurrency = p.Price.Currency,
+                Unit = p.Unit.ToString(),
+                p.IsActive,
+                p.IsFeatured,
+                p.SortOrder,
+                p.Brand,
+                p.CreatedOnUtc,
+                PrimaryImageGuid = _db.Set<Domain.Entities.Catalog.ProductImageRef>()
+                    .Where(r => EF.Property<Guid>(r, "ProductId") == p.Id)
+                    .OrderByDescending(r => r.IsPrimary)
+                    .ThenBy(r => r.SortOrder)
+                    .Select(r => r.ImageId.Value)
+                    .FirstOrDefault()
+            })
+            .ToListAsync(ct);
+
+        var imageIds = paged
+            .Select(x => x.PrimaryImageGuid)
+            .Where(x => x != Guid.Empty)
+            .Distinct()
+            .ToList();
+
+        var imagePathById = imageIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : await _db.ImageAssets
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted && imageIds.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id, x => x.StoragePath, ct);
+
+        var items = paged.Select(x =>
+        {
+            imagePathById.TryGetValue(x.PrimaryImageGuid, out var primaryPath);
+
+            return new ProductListItemDto(
+                x.Id,
+                x.CategoryId,
+                x.Name,
+                x.Slug,
+                x.PriceAmount,
+                x.PriceCurrency,
+                x.Unit,
+                x.IsActive,
+                x.IsFeatured,
+                x.SortOrder,
+                x.Brand,
+                primaryPath ?? string.Empty,
+                x.CreatedOnUtc);
+        }).ToList();
         // ---- Projection إلى ProductDto (لو رجّعت ProductDto كامل للّست)
         // var items = await query.Select(p => new ProductDto(
         //     p.Id,
