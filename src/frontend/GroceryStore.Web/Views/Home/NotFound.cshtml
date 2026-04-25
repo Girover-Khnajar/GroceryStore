@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Page Not Found";
+
+    var originalPath = ViewData["OriginalPath"] as string;
+    var originalQueryString = ViewData["OriginalQueryString"] as string;
+    var missingUrl = string.IsNullOrWhiteSpace(originalPath)
+        ? null
+        : string.Concat(originalPath, originalQueryString);
+}
+
+<section class="section" style="padding-top: calc(var(--nav-height) + 3rem);">
+    <div class="container" style="max-width: 760px;">
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 2.5rem; text-align: center; box-shadow: var(--shadow-md);">
+            <div style="width: 88px; height: 88px; margin: 0 auto 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(249, 115, 22, .12); color: var(--secondary); font-size: 2rem;">
+                <i class="fas fa-map-signs"></i>
+            </div>
+
+            <div style="color: var(--secondary); font-size: .95rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .5rem;">404 Error</div>
+            <h1 style="font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin-bottom: 1rem;">Page not found</h1>
+            <p style="color: var(--text-light); font-size: 1.05rem; max-width: 540px; margin: 0 auto 1.5rem;">
+                The page you requested does not exist, may have been moved, or the link may be incorrect.
+            </p>
+
+            @if (!string.IsNullOrWhiteSpace(missingUrl))
+            {
+                <div style="margin: 0 auto 1.5rem; max-width: 100%; padding: .9rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-light); word-break: break-word;">
+                    <strong style="color: var(--text);">Requested URL:</strong>
+                    <div>@missingUrl</div>
+                </div>
+            }
+
+            <div style="display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+                <a asp-controller="Products" asp-action="Index" class="btn btn-outline">
+                    <i class="fas fa-box-open"></i> Browse Products
+                </a>
+                <a asp-controller="Categories" asp-action="Index" class="btn btn-outline">
+                    <i class="fas fa-th-large"></i> View Categories
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
