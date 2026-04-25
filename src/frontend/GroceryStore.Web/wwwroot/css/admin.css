@@ -186,6 +186,23 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .btn-delete { background: #fee2e2; color: #dc2626; }
 .btn-delete:hover { background: #dc2626; color: #fff; }
 
+.btn-qty-increment, .btn-qty-decrement {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-alt);
+    color: var(--text);
+    cursor: pointer;
+    font-size: .9rem;
+    transition: all var(--transition);
+}
+.btn-qty-increment:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-qty-decrement:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
 /* ── Modal ───────────────────────────────────────────────────────────────── */
 .modal {
     position: fixed;

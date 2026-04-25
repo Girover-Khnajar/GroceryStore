@@ -1,8 +1,6 @@
 @model ProductDetailViewModel
-@inject GroceryStore.Web.Services.IStoreSettingsService StoreSettingsService
 @{
     ViewData["Title"] = Model.Product.Name;
-    var settings = await StoreSettingsService.GetAsync();
 }
 
 <section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
@@ -131,11 +129,14 @@
                     }
                 </div>
 
-                @* WhatsApp Order *@
+                @* Add to Cart *@
                 <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;">
-                    <a href="https://wa.me/@(settings.WhatsappNumber)?text=I'd like to order: @Model.Product.Name"
-                       target="_blank" class="btn-whatsapp" style="padding:1rem 1.5rem;font-size:1rem;">
-                        <i class="fab fa-whatsapp"></i> Order via WhatsApp
+                    <button type="button" class="btn-whatsapp" style="padding:1rem 1.5rem;font-size:1rem;"
+                            onclick="addToCart(event, '@Model.Product.Id')">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                    <a asp-controller="Cart" asp-action="Index" class="btn-secondary" style="padding:1rem 1.5rem;font-size:1rem;">
+                        <i class="fas fa-shopping-cart"></i> View Cart
                     </a>
                 </div>
 

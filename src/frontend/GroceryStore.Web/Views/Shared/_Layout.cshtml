@@ -1,6 +1,8 @@
 @inject GroceryStore.Web.Services.IStoreSettingsService StoreSettingsService
+@inject GroceryStore.Web.Services.ICartService CartService
 @{
     var footerSettings = await StoreSettingsService.GetAsync();
+    var cartItemCount = CartService.GetCount();
     var footerHours = (footerSettings.OpeningHours ?? string.Empty)
         .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
         .Select(x => x.Trim())
@@ -53,6 +55,13 @@
                 </a>
                 <a asp-controller="Products" asp-action="Index" class="nav-link">
                     <i class="fas fa-box-open"></i> Products
+                </a>
+                <a asp-controller="Cart" asp-action="Index" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i> Cart
+                    @if (cartItemCount > 0)
+                    {
+                        <span class="cart-badge">@cartItemCount</span>
+                    }
                 </a>
                 <a asp-controller="Home" asp-action="Contact" class="nav-link">
                     <i class="fas fa-envelope"></i> Contact
@@ -127,6 +136,7 @@
                         <li><a asp-controller="Home" asp-action="Index">Home</a></li>
                         <li><a asp-controller="Categories" asp-action="Index">Categories</a></li>
                         <li><a asp-controller="Products" asp-action="Index">Products</a></li>
+                        <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
                         <li><a asp-controller="Home" asp-action="Contact">Contact Us</a></li>
                     </ul>
                 </div>
