@@ -77,6 +77,35 @@ function focusElement(selector) {
     if (el) el.focus();
 }
 
+// ── Cart helpers ─────────────────────────────────────────────────────────
+function addToCart(event, productId) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    var returnUrl = window.location.pathname + window.location.search;
+    window.location.href = '/Cart/Add/' + encodeURIComponent(productId) + '?returnUrl=' + encodeURIComponent(returnUrl);
+}
+
+function incrementQuantity(btn, productId) {
+    var form = btn.closest('form');
+    var input = form.querySelector('input[name="quantity"]');
+    var current = parseInt(input.value) || 1;
+    input.value = current + 1;
+    form.submit();
+}
+
+function decrementQuantity(btn, productId) {
+    var form = btn.closest('form');
+    var input = form.querySelector('input[name="quantity"]');
+    var current = parseInt(input.value) || 1;
+    if (current > 1) {
+        input.value = current - 1;
+        form.submit();
+    }
+}
+
 // ── On DOMContentLoaded ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
     // Show toast from TempData

@@ -8,6 +8,18 @@ var builder = WebApplication.CreateBuilder(args);
 // ── MVC + Razor Views ──────────────────────────────────────────────────
 builder.Services.AddControllersWithViews();
 
+// ── Session (guest shopping cart) ───────────────────────────────────────
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = "GroceryStore.Cart";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.IdleTimeout = TimeSpan.FromDays(7);
+});
+
 // ── Cookie Authentication ───────────────────────────────────────────────
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -30,6 +42,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddInfrastructure(connectionString);   // EF Core, repos, UoW
 builder.Services.AddApplication();                       // CQRS handlers, validation, logging
 builder.Services.AddScoped<IStoreSettingsService, StoreSettingsService>();
+builder.Services.AddScoped<ICartService, SessionCartService>();
 
 var app = builder.Build();
 
@@ -44,6 +57,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();

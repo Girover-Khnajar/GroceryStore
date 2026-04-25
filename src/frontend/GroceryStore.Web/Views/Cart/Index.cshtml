@@ -1,0 +1,120 @@
+@model GroceryStore.Web.ViewModels.Cart.CartPageViewModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
+    <div class="container">
+        <h1 class="section-title" style="text-align:left;">Shopping Cart</h1>
+
+        @if (Model.Items.Count == 0)
+        {
+            <div class="empty-state">
+                <i class="fas fa-shopping-cart" style="font-size:3rem;color:var(--border);margin-bottom:1rem;"></i>
+                <h3>Your cart is empty</h3>
+                <p>Add products to continue.</p>
+                <a asp-controller="Products" asp-action="Index" class="btn btn-primary" style="margin-top:1rem;">
+                    <i class="fas fa-box-open"></i> Browse Products
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper" style="margin-top:1rem;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th style="width:160px;">Quantity</th>
+                            <th>Subtotal</th>
+                            <th style="text-align:center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="Products" asp-action="Details" asp-route-slug="@item.Slug">
+                                        <strong>@item.Name</strong>
+                                    </a>
+                                    @if (!string.IsNullOrWhiteSpace(item.Brand))
+                                    {
+                                        <div style="color:var(--text-light);font-size:.85rem;">@item.Brand</div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(item.Sku))
+                                    {
+                                        <div style="color:var(--text-light);font-size:.85rem;">SKU: @item.Sku</div>
+                                    }
+                                </td>
+                                <td>@item.UnitPrice.ToString("N2") @item.Currency / @item.Unit</td>
+                                <td>
+                                    <form asp-action="Update" method="post" style="display:flex;gap:.4rem;align-items:center;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productId" value="@item.ProductId" />
+                                        <button type="button" class="btn-qty-decrement" onclick="decrementQuantity(this, '@item.ProductId')" title="Decrease quantity">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control qty-input" style="max-width:70px;text-align:center;" />
+                                        <button type="button" class="btn-qty-increment" onclick="incrementQuantity(this, '@item.ProductId')" title="Increase quantity">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                        <button type="submit" class="btn btn-primary" style="padding:.4rem .8rem;">Update</button>
+                                    </form>
+                                </td>
+                                <td>@item.LineTotal.ToString("N2") @item.Currency</td>
+                                <td style="text-align:center;">
+                                    <form asp-action="Remove" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productId" value="@item.ProductId" />
+                                        <button type="submit" class="btn-delete" title="Remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top:2rem;padding:1.5rem;background:var(--surface-alt);border-radius:var(--radius-md);max-width:400px;margin-left:auto;">
+                <h3 style="margin-bottom:1rem;font-size:1.1rem;font-weight:600;">Order Summary</h3>
+                
+                @{
+                    var groupedByCurrency = Model.Items.GroupBy(x => x.Currency).OrderBy(g => g.Key);
+                }
+                
+                @foreach (var currencyGroup in groupedByCurrency)
+                {
+                    var total = currencyGroup.Sum(x => x.LineTotal);
+                    <div style="display:flex;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid var(--border);">
+                        <span>Total (@currencyGroup.Key):</span>
+                        <strong>@total.ToString("N2") @currencyGroup.Key</strong>
+                    </div>
+                }
+                
+                @if (groupedByCurrency.Count() > 1)
+                {
+                    <div style="padding:.75rem 0;color:var(--text-light);font-size:.9rem;">
+                        <em>Note: Multiple currencies in cart. Please review each total before checkout.</em>
+                    </div>
+                }
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:1rem;">
+                <form asp-action="Clear" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-secondary" onclick="return confirm('Clear all items from cart?');">
+                        <i class="fas fa-times"></i> Clear Cart
+                    </button>
+                </form>
+
+                <a asp-action="Checkout" class="btn btn-primary">
+                    <i class="fab fa-whatsapp"></i> Checkout & Send to WhatsApp
+                </a>
+            </div>
+        }
+    </div>
+</section>
