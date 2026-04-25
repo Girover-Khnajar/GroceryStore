@@ -55,6 +55,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 app.UseRouting();
 app.UseSession();

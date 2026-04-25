@@ -6,6 +6,7 @@ using GroceryStore.Application.Products.Dtos;
 using GroceryStore.Application.Products.Queries.GetProducts;
 using GroceryStore.Web.Services;
 using GroceryStore.Web.ViewModels;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GroceryStore.Web.Controllers;
@@ -76,4 +77,21 @@ public class HomeController : Controller
     [Route("Error")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error() => View();
+
+    [Route("Error/{statusCode:int}")]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult StatusCodePage(int statusCode)
+    {
+        Response.StatusCode = statusCode;
+
+        if (statusCode == 404)
+        {
+            var reExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+            ViewData["OriginalPath"] = reExecuteFeature?.OriginalPath;
+            ViewData["OriginalQueryString"] = reExecuteFeature?.OriginalQueryString;
+            return View("NotFound");
+        }
+
+        return View("Error");
+    }
 }
