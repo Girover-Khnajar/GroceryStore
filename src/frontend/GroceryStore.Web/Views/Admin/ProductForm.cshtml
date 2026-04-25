@@ -1,3 +1,4 @@
+@using GroceryStore.Domain.Enums
 @model ProductFormViewModel
 @{
     Layout = "_AdminLayout";
@@ -45,12 +46,30 @@
             </div>
             <div class="form-group">
                 <label asp-for="PriceCurrency" class="form-label">Currency</label>
-                <input asp-for="PriceCurrency" class="form-control" />
+                <select asp-for="PriceCurrency" class="form-control">
+                    @foreach (var currency in Model.AvailableCurrencies)
+                    {
+                        <option value="@currency">@currency</option>
+                    }
+                </select>
+                <span asp-validation-for="PriceCurrency" class="validation-message"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Unit" class="form-label">Unit</label>
-                <input asp-for="Unit" class="form-control" placeholder="kg, ltr, pkt" />
+                <select asp-for="Unit" class="form-control">
+                    @foreach (var unit in Enum.GetValues<ProductUnit>())
+                    {
+                        <option value="@unit">@unit</option>
+                    }
+                </select>
+                <span asp-validation-for="Unit" class="validation-message"></span>
             </div>
+        </div>
+
+        <div class="form-group" style="margin-top:-.25rem;">
+            <small style="color:var(--text-light);">
+                Preview: <strong id="pricePreview">@Model.PriceAmount.ToString("0.00") @Model.PriceCurrency / @Model.Unit</strong>
+            </small>
         </div>
 
         <div class="form-row">
@@ -95,4 +114,27 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const amountInput = document.getElementById('PriceAmount');
+            const currencyInput = document.getElementById('PriceCurrency');
+            const unitInput = document.getElementById('Unit');
+            const preview = document.getElementById('pricePreview');
+
+            if (!amountInput || !currencyInput || !unitInput || !preview) return;
+
+            const updatePreview = () => {
+                const rawAmount = parseFloat(amountInput.value);
+                const amount = Number.isFinite(rawAmount) ? rawAmount.toFixed(2) : '0.00';
+                const currency = (currencyInput.value || '').trim().toUpperCase();
+                const unit = (unitInput.value || '').trim();
+                preview.textContent = `${amount} ${currency} / ${unit}`.trim();
+            };
+
+            amountInput.addEventListener('input', updatePreview);
+            currencyInput.addEventListener('change', updatePreview);
+            unitInput.addEventListener('change', updatePreview);
+            updatePreview();
+        })();
+    </script>
 }

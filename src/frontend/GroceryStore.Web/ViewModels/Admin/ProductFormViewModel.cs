@@ -19,7 +19,7 @@ public sealed class ProductFormViewModel
     [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
     public decimal PriceAmount { get; set; }
 
-    [Required, MaxLength(10)]
+    [Required, MaxLength(3)]
     public string PriceCurrency { get; set; } = "USD";
 
     [Required, MaxLength(20)]
@@ -42,4 +42,7 @@ public sealed class ProductFormViewModel
 
     /// <summary>Available categories for the dropdown.</summary>
     public IReadOnlyList<CategoryDto> AvailableCategories { get; set; } = [];
+
+    /// <summary>Available currencies for the dropdown.</summary>
+    public IReadOnlyList<string> AvailableCurrencies { get; set; } = [];
 }

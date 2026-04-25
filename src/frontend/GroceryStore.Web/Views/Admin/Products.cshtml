@@ -56,7 +56,13 @@
                     </td>
                     <td><strong>@p.Name</strong></td>
                     <td style="color:var(--text-light);font-size:.85rem;">@p.Slug</td>
-                    <td>@p.PriceAmount.ToString("N2") @p.PriceCurrency</td>
+                    <td>
+                        @p.PriceAmount.ToString("N2") @p.PriceCurrency
+                        @if (!string.IsNullOrWhiteSpace(p.Unit))
+                        {
+                            <span style="color:var(--text-light);font-size:.85rem;">/ @p.Unit</span>
+                        }
+                    </td>
                     <td style="text-align:center;">
                         <i class="fas @(p.IsActive ? "fa-check-circle" : "fa-times-circle")"
                            style="color:@(p.IsActive ? "#059669" : "#dc2626");"></i>
