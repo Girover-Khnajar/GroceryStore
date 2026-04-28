@@ -29,7 +29,6 @@ jobs:
   deploy:
     name: 🚀 Deploy GroceryStore.Web (FTP)
     needs: [backend, frontend]
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
