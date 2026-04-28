@@ -1,20 +1,24 @@
 @model HomeViewModel
+@using System.Globalization
+@using System.Resources
 @{
-    ViewData["Title"] = "Home";
+    var viewResourceManager = new ResourceManager("GroceryStore.Web.Resources.Views.Home_Index", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => viewResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    ViewData["Title"] = T("PageTitle");
 }
 
 @* ═══ Hero Section ═══ *@
 <section class="hero">
     <div class="container">
         <div class="hero-content">
-            <h1 class="hero-title">The Best Fresh Products <span class="highlight">for Your Family</span></h1>
-            <p class="hero-subtitle">Shop premium fresh and packaged products at competitive prices. Quality you can taste, prices you'll love.</p>
+            <h1 class="hero-title">@T("HeroTitlePrefix") <span class="highlight">@T("HeroTitleHighlight")</span></h1>
+            <p class="hero-subtitle">@T("HeroSubtitle")</p>
             <div class="hero-actions">
                 <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
-                    <i class="fas fa-shopping-cart"></i> Shop Now
+                    <i class="fas fa-shopping-cart"></i> @T("Btn_ShopNow")
                 </a>
                 <a asp-controller="Categories" asp-action="Index" class="btn btn-outline">
-                    <i class="fas fa-th-large"></i> Browse Categories
+                    <i class="fas fa-th-large"></i> @T("Btn_BrowseCategories")
                 </a>
             </div>
         </div>
@@ -26,7 +30,7 @@
 {
     <section class="section">
         <div class="container">
-            <h2 class="section-title">Shop by Category</h2>
+            <h2 class="section-title">@T("Section_ShopByCategory")</h2>
             <div class="categories-grid">
                 @foreach (var cat in Model.Categories.Take(5))
                 {
@@ -47,7 +51,7 @@
             </div>
             <div style="text-align:center; margin-top:2rem;">
                 <a asp-controller="Categories" asp-action="Index" class="btn btn-outline">
-                    All Categories <i class="fas fa-arrow-right"></i>
+                    @T("Btn_AllCategories") <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
@@ -59,7 +63,7 @@
 {
     <section class="section section-alt">
         <div class="container">
-            <h2 class="section-title">Featured Products</h2>
+            <h2 class="section-title">@T("Section_FeaturedProducts")</h2>
             <div class="products-grid">
                 @foreach (var p in Model.FeaturedProducts.Take(6))
                 {
@@ -71,7 +75,7 @@
                             <img src="@productImage" alt="@p.Name" loading="lazy" />
                             @if (p.IsFeatured)
                             {
-                                <span class="badge-featured"><i class="fas fa-star"></i> Featured</span>
+                                <span class="badge-featured"><i class="fas fa-star"></i> @T("Badge_Featured")</span>
                             }
                         </div>
                         <div class="product-info">
@@ -88,7 +92,7 @@
                                         <span style="color:var(--text-light);font-size:.85rem;">/ @p.Unit</span>
                                     }
                                 </span>
-                                <button type="button" class="btn-whatsapp" onclick="addToCart(event, '@p.Id')" title="Add to cart">
+                                <button type="button" class="btn-whatsapp" onclick="addToCart(event, '@p.Id')" title="@T("Title_AddToCart")">
                                     <i class="fas fa-cart-plus"></i>
                                 </button>
                             </div>
@@ -98,7 +102,7 @@
             </div>
             <div style="text-align:center; margin-top:2rem;">
                 <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
-                    <i class="fas fa-box-open"></i> All Products
+                    <i class="fas fa-box-open"></i> @T("Btn_AllProducts")
                 </a>
             </div>
         </div>

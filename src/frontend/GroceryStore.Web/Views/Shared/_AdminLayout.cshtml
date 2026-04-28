@@ -1,9 +1,18 @@
+@using GroceryStore.Web.Services.Localization
+@using System.Globalization
+@using System.Resources
+@{
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    var currentCulture = Context.GetCurrentCulture();
+    var isRtl = GroceryStore.Web.Services.Localization.CultureHelper.IsRtlCulture(currentCulture);
+}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@currentCulture" dir="@(isRtl ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Admin</title>
+    <title>@ViewData["Title"] - @T("Admin_Panel")</title>
 
     @* Prevent theme flash *@
     <script>
@@ -29,33 +38,33 @@
         <aside class="admin-sidebar" id="adminSidebar">
             <div class="sidebar-header">
                 <i class="fas fa-leaf"></i>
-                <h2>Admin Panel</h2>
+                <h2>@T("Admin_Panel")</h2>
             </div>
             <nav class="sidebar-menu">
                 <a asp-controller="Admin" asp-action="Dashboard" class="menu-item">
-                    <i class="fas fa-chart-line"></i> Dashboard
+                    <i class="fas fa-chart-line"></i> @T("Admin_Dashboard")
                 </a>
                 <a asp-controller="Admin" asp-action="Products" class="menu-item">
-                    <i class="fas fa-box-open"></i> Products
+                    <i class="fas fa-box-open"></i> @T("Nav_Products")
                 </a>
                 <a asp-controller="Admin" asp-action="Categories" class="menu-item">
-                    <i class="fas fa-th-large"></i> Categories
+                    <i class="fas fa-th-large"></i> @T("Nav_Categories")
                 </a>
                 <a asp-controller="Admin" asp-action="Gallery" class="menu-item">
-                    <i class="fas fa-images"></i> Gallery
+                    <i class="fas fa-images"></i> @T("Admin_Gallery")
                 </a>
                 <a asp-controller="Admin" asp-action="Settings" class="menu-item">
-                    <i class="fas fa-cog"></i> Settings
+                    <i class="fas fa-cog"></i> @T("Admin_Settings")
                 </a>
             </nav>
             <div class="sidebar-footer">
                 <a asp-controller="Home" asp-action="Index" class="btn-view-site" style="width:100%; justify-content:center;">
-                    <i class="fas fa-external-link-alt"></i> View Store
+                    <i class="fas fa-external-link-alt"></i> @T("Admin_ViewStore")
                 </a>
                 <form asp-controller="Account" asp-action="Logout" method="post" style="width:100%;margin-top:.5rem;">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn-logout" style="width:100%;">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+                        <i class="fas fa-sign-out-alt"></i> @T("Nav_Logout")
                     </button>
                 </form>
             </div>
@@ -64,17 +73,17 @@
         @* ═══ Main ═══ *@
         <div class="admin-main">
             <header class="admin-header">
-                <button class="menu-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+                <button class="menu-toggle" onclick="toggleSidebar()" title="@T("Admin_ToggleSidebar")">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1>@ViewData["Title"]</h1>
                 <div class="admin-actions">
-                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                    <button class="theme-toggle" onclick="toggleTheme()" title="@T("Ui_ToggleTheme")">
                         <i class="fas fa-moon"></i>
                         <i class="fas fa-sun"></i>
                     </button>
                     <a asp-controller="Home" asp-action="Index" class="btn-view-site">
-                        <i class="fas fa-external-link-alt"></i> View Site
+                        <i class="fas fa-external-link-alt"></i> @T("Admin_ViewSite")
                     </a>
                 </div>
             </header>

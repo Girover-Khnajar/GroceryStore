@@ -1,61 +1,65 @@
 @model GroceryStore.Web.ViewModels.Cart.CheckoutPageViewModel
+@using System.Globalization
+@using System.Resources
 @{
-    ViewData["Title"] = "Checkout";
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    ViewData["Title"] = T("Page_Checkout");
 }
 
 <section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
     <div class="container">
-        <h1 class="section-title" style="text-align:left;">Checkout</h1>
-        <p style="color:var(--text-light);margin-top:-.5rem;">No online payment. Your order will be sent to WhatsApp.</p>
+        <h1 class="section-title" style="text-align:left;">@T("Page_Checkout")</h1>
+        <p style="color:var(--text-light);margin-top:-.5rem;">@T("Checkout_Subtitle")</p>
 
         <div class="product-detail-grid" style="display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;margin-top:1rem;">
             <div>
-                <h3 style="margin-bottom:.75rem;">Your Details</h3>
+                <h3 style="margin-bottom:.75rem;">@T("Checkout_YourDetails")</h3>
                 <form asp-action="Checkout" method="post" class="form-card" style="max-width:none;">
                     @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" style="color:var(--danger);margin-bottom:1rem;"></div>
 
                     <div class="form-group">
-                        <label asp-for="Customer.Name" class="form-label">Name</label>
+                        <label asp-for="Customer.Name" class="form-label">@T("Lbl_Name")</label>
                         <input asp-for="Customer.Name" class="form-control" />
                         <span asp-validation-for="Customer.Name" class="validation-message"></span>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="Customer.PhoneNumber" class="form-label">Phone Number</label>
+                        <label asp-for="Customer.PhoneNumber" class="form-label">@T("Lbl_Phone")</label>
                         <input asp-for="Customer.PhoneNumber" class="form-control" />
                         <span asp-validation-for="Customer.PhoneNumber" class="validation-message"></span>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="Customer.Address" class="form-label">Address</label>
+                        <label asp-for="Customer.Address" class="form-label">@T("Lbl_Address")</label>
                         <textarea asp-for="Customer.Address" class="form-control" rows="3"></textarea>
                         <span asp-validation-for="Customer.Address" class="validation-message"></span>
                     </div>
 
                     <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1rem;">
-                        <a asp-action="Index" class="btn-secondary"><i class="fas fa-arrow-left"></i> Back to Cart</a>
+                        <a asp-action="Index" class="btn-secondary"><i class="fas fa-arrow-left"></i> @T("Btn_BackToCart")</a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fab fa-whatsapp"></i> Send Order to WhatsApp
+                            <i class="fab fa-whatsapp"></i> @T("Btn_SendOrderWhatsApp")
                         </button>
                     </div>
                 </form>
             </div>
 
             <div>
-                <h3 style="margin-bottom:.75rem;">Order Summary</h3>
+                <h3 style="margin-bottom:.75rem;">@T("Cart_OrderSummary")</h3>
                 <div class="form-card" style="max-width:none;">
                     @foreach (var item in Model.Items)
                     {
                         <div style="padding:.6rem 0;border-bottom:1px solid var(--border);">
                             <div style="font-weight:700;">@item.Name</div>
                             <div style="color:var(--text-light);font-size:.9rem;">@item.Quantity × @item.UnitPrice.ToString("N2") @item.Currency / @item.Unit</div>
-                            <div style="font-size:.9rem;">Subtotal: @item.LineTotal.ToString("N2") @item.Currency</div>
+                            <div style="font-size:.9rem;">@T("Cart_Subtotal"): @item.LineTotal.ToString("N2") @item.Currency</div>
                         </div>
                     }
 
                     <div style="margin-top:.9rem;">
-                        <strong>Total:</strong>
+                        <strong>@T("Lbl_Total"):</strong>
                         <ul style="margin:.5rem 0 0 1rem;">
                             @foreach (var g in Model.Items.GroupBy(x => x.Currency))
                             {

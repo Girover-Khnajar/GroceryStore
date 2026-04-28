@@ -1,8 +1,12 @@
 @model CategoryFormViewModel
+@using System.Globalization
+@using System.Resources
 @{
     Layout = "_AdminLayout";
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
     var isEdit = Model.Id.HasValue;
-    ViewData["Title"] = isEdit ? "Edit Category" : "Add Category";
+    ViewData["Title"] = isEdit ? T("Admin_EditCategory") : T("Admin_AddCategory");
 }
 
 <div class="form-card" style="max-width:640px;">
@@ -26,9 +30,9 @@
         </div>
 
         <div class="form-group">
-            <label asp-for="ParentCategoryId" class="form-label">Parent Category</label>
+            <label asp-for="ParentCategoryId" class="form-label">@T("Admin_ParentCategory")</label>
             <select asp-for="ParentCategoryId" class="form-control">
-                <option value="">— None (root) —</option>
+                <option value="">— @T("Admin_NoneRoot") —</option>
                 @foreach (var p in Model.AvailableParents.Where(c => c.Id != Model.Id))
                 {
                     <option value="@p.Id">@p.Name</option>
@@ -43,11 +47,11 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label asp-for="ImageUrl" class="form-label">Image URL</label>
+                <label asp-for="ImageUrl" class="form-label">@T("Admin_ImageUrl")</label>
                 <input asp-for="ImageUrl" class="form-control" placeholder="https://..." />
             </div>
             <div class="form-group">
-                <label asp-for="IconName" class="form-label">Icon (FontAwesome)</label>
+                <label asp-for="IconName" class="form-label">@T("Admin_Icon")</label>
                 <input asp-for="IconName" class="form-control" placeholder="fas fa-carrot" />
             </div>
         </div>
@@ -58,20 +62,20 @@
         </div>
 
         <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;" />
-        <h4 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">SEO</h4>
+        <h4 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">@T("Admin_SEO")</h4>
 
         <div class="form-group">
-            <label asp-for="SeoMetaTitle" class="form-label">Meta Title</label>
+            <label asp-for="SeoMetaTitle" class="form-label">@T("Admin_MetaTitle")</label>
             <input asp-for="SeoMetaTitle" class="form-control" />
         </div>
         <div class="form-group">
-            <label asp-for="SeoMetaDescription" class="form-label">Meta Description</label>
+            <label asp-for="SeoMetaDescription" class="form-label">@T("Admin_MetaDescription")</label>
             <textarea asp-for="SeoMetaDescription" class="form-control" rows="2"></textarea>
         </div>
 
         <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1.5rem;">
-            <a asp-action="Categories" class="btn-secondary"><i class="fas fa-times"></i> Cancel</a>
-            <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Save</button>
+            <a asp-action="Categories" class="btn-secondary"><i class="fas fa-times"></i> @T("Btn_Cancel")</a>
+            <button type="submit" class="btn-submit"><i class="fas fa-save"></i> @T("Btn_Save")</button>
         </div>
     </form>
 </div>

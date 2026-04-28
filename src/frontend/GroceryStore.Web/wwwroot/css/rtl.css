@@ -1,0 +1,243 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FRESH GROCERY STORE — RTL Support (Arabic)
+   Direction: right-to-left
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* Base RTL adjustments */
+html[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+html[dir="rtl"] body {
+    direction: rtl;
+}
+
+/* Navigation RTL */
+html[dir="rtl"] .nav-wrapper {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .nav-menu {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .logo {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .logo i {
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+html[dir="rtl"] .nav-actions {
+    flex-direction: row-reverse;
+}
+
+/* Language switcher RTL */
+html[dir="rtl"] .language-dropdown {
+    left: auto;
+    right: 0;
+}
+
+html[dir="rtl"] .language-item .lang-name {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+html[dir="rtl"] .language-item i {
+    margin-left: 0.5rem;
+    margin-right: 0;
+}
+
+/* Buttons and forms RTL */
+html[dir="rtl"] .btn,
+html[dir="rtl"] button {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .btn i,
+html[dir="rtl"] button i {
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+html[dir="rtl"] .form-row {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .form-group {
+    text-align: right;
+}
+
+html[dir="rtl"] .form-label {
+    text-align: right;
+}
+
+/* Lists RTL */
+html[dir="rtl"] ul {
+    padding-right: 1.5rem;
+    padding-left: 0;
+}
+
+html[dir="rtl"] ol {
+    padding-right: 1.5rem;
+    padding-left: 0;
+}
+
+/* Footer RTL */
+html[dir="rtl"] .footer-section h4 {
+    text-align: right;
+}
+
+html[dir="rtl"] .footer-section ul li {
+    text-align: right;
+}
+
+html[dir="rtl"] .footer-section ul li i {
+    margin-left: 0.5rem;
+    margin-right: 0;
+}
+
+/* Tables RTL */
+html[dir="rtl"] table {
+    text-align: right;
+}
+
+html[dir="rtl"] .admin-table th,
+html[dir="rtl"] .admin-table td {
+    text-align: right;
+}
+
+/* Alerts and badges RTL */
+html[dir="rtl"] .cart-badge {
+    left: auto;
+    right: -8px;
+}
+
+html[dir="rtl"] .badge-featured {
+    left: auto;
+    right: 10px;
+}
+
+/* Toast notification RTL */
+html[dir="rtl"] .toast {
+    left: auto;
+    right: 1rem;
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .toast i {
+    margin-left: 0.75rem;
+    margin-right: 0;
+}
+
+/* Search box RTL */
+html[dir="rtl"] .search-box {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .search-box i {
+    margin-left: 0;
+    margin-right: 1rem;
+}
+
+html[dir="rtl"] .search-input {
+    direction: rtl;
+    text-align: right;
+}
+
+html[dir="rtl"] .filter-bar .search-input i {
+    left: auto;
+    right: 14px;
+}
+
+/* Validation messages RTL */
+html[dir="rtl"] .validation-message {
+    text-align: right;
+}
+
+html[dir="rtl"] .input-validation-error {
+    direction: rtl;
+}
+
+/* Modal RTL */
+html[dir="rtl"] .modal-content {
+    direction: rtl;
+    text-align: right;
+}
+
+html[dir="rtl"] .modal-header {
+    flex-direction: row-reverse;
+}
+
+/* Cart page RTL */
+html[dir="rtl"] .cart-footer-actions {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .cart-summary {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+html[dir="rtl"] .cart-summary-row {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .product-card {
+    text-align: right;
+}
+
+html[dir="rtl"] .product-footer {
+    flex-direction: row-reverse;
+}
+
+/* Flexbox general reversals */
+html[dir="rtl"] .hero-actions,
+html[dir="rtl"] .breadcrumb {
+    flex-direction: row-reverse;
+}
+
+/* Padding and margin adjustments */
+html[dir="rtl"] .container {
+    direction: rtl;
+}
+
+/* Banner RTL */
+html[dir="rtl"] .banner-overlay {
+    background: linear-gradient(to left, rgba(0,0,0,.55) 0%, transparent 60%);
+}
+
+html[dir="rtl"] .banner-content {
+    text-align: right;
+}
+
+/* Ensure text input inherits RTL direction */
+html[dir="rtl"] input[type="text"],
+html[dir="rtl"] input[type="email"],
+html[dir="rtl"] input[type="search"],
+html[dir="rtl"] input[type="password"],
+html[dir="rtl"] textarea,
+html[dir="rtl"] select {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Responsive RTL adjustments */
+@media (max-width: 768px) {
+    html[dir="rtl"] .navbar {
+        padding-left: 0;
+        padding-right: 1rem;
+    }
+
+    html[dir="rtl"] .nav-menu.active {
+        padding-left: 0;
+        padding-right: 1rem;
+    }
+
+    html[dir="rtl"] .logo span {
+        text-align: right;
+    }
+}

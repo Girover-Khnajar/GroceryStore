@@ -1,8 +1,12 @@
 @model List<GroceryStore.Application.Images.Dtos.ImageAssetDto>
+@using System.Globalization
+@using System.Resources
 @using System.Text.Json
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Gallery";
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    ViewData["Title"] = T("Admin_Gallery");
     var images = Model.Where(i => !i.IsDeleted).ToList();
     var jsonOpts = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     var imagesJson = JsonSerializer.Serialize(images, jsonOpts);
@@ -201,14 +205,14 @@
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:1rem;">
     <h2 style="font-size:1.5rem;font-weight:700;">
         <i class="fas fa-photo-video" style="color:var(--primary);margin-right:.5rem;"></i>
-        Gallery Library
+        @T("Admin_GalleryLibrary")
     </h2>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
         <button class="btn btn-primary btn-sm" id="btnLibrary" onclick="Gallery.switchView('library')">
-            <i class="fas fa-images"></i> Library
+            <i class="fas fa-images"></i> @T("Admin_Library")
         </button>
         <button class="btn btn-secondary btn-sm" id="btnEntity" onclick="Gallery.switchView('entity')">
-            <i class="fas fa-link"></i> Entity images
+            <i class="fas fa-link"></i> @T("Admin_EntityImages")
         </button>
     </div>
 </div>
@@ -218,17 +222,17 @@
     <div class="drop-zone" id="dropZone">
         <input type="file" class="dz-input" id="fileInput" multiple accept="image/*" />
         <div class="drop-zone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-        <div class="drop-zone-label">Drag &amp; drop images here (Library)</div>
-        <div class="drop-zone-sub">or click to browse · PNG, JPG, WEBP, GIF · max 10 MB each</div>
+        <div class="drop-zone-label">@T("Admin_DragDropImages")</div>
+        <div class="drop-zone-sub">@T("Admin_DropZoneSub")</div>
     </div>
 
     <div id="previewArea" style="display:none;">
         <div style="margin-top:.75rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
             <span style="font-size:.88rem;font-weight:600;" id="queuedCount"></span>
             <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
-                <button class="btn btn-secondary btn-sm" id="clearBtn" onclick="Gallery.clearPreviews()">Clear</button>
+                <button class="btn btn-secondary btn-sm" id="clearBtn" onclick="Gallery.clearPreviews()">@T("Btn_Clear")</button>
                 <button class="btn btn-primary btn-sm" id="uploadBtn" onclick="Gallery.upload()">
-                    <i class="fas fa-upload"></i> <span>Upload to library</span>
+                    <i class="fas fa-upload"></i> <span>@T("Admin_UploadToLibrary")</span>
                 </button>
             </div>
         </div>
@@ -245,39 +249,39 @@
     <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
         <div style="font-weight:700;">
             <i class="fas fa-tag" style="color:var(--primary);margin-right:.35rem;"></i>
-            Assign selected images
+            @T("Admin_AssignSelectedImages")
         </div>
         <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
             <label style="display:flex;gap:.4rem;align-items:center;font-size:.83rem;color:var(--muted);cursor:pointer;">
                 <input type="checkbox" id="assignPrimaryCheck" checked onchange="Gallery.onAssignPrimaryChange(this.checked)" />
-                Make first assigned primary (products only)
+                @T("Admin_MakePrimaryHint")
             </label>
-            <button class="btn btn-secondary btn-sm" id="deselectBtn" onclick="Gallery.deselectAll()" disabled>Deselect</button>
+            <button class="btn btn-secondary btn-sm" id="deselectBtn" onclick="Gallery.deselectAll()" disabled>@T("Admin_Deselect")</button>
         </div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:1rem;align-items:end;margin-top:.9rem;">
         <div class="form-group" style="margin:0;">
-            <label class="form-label">Target</label>
+            <label class="form-label">@T("Admin_Target")</label>
             <select class="form-control" id="targetSelect" onchange="Gallery.onTargetChange(this.value)">
-                <option value="category">Category</option>
-                <option value="product">Product</option>
+                <option value="category">@T("Admin_Category")</option>
+                <option value="product">@T("Admin_Product")</option>
             </select>
         </div>
 
         <div class="form-group" style="margin:0;">
             <label class="form-label" id="entityLabel">Category</label>
             <select class="form-control" id="entitySelect" onchange="Gallery.onEntityChange(this.value)">
-                <option value="">Select category…</option>
+                <option value="">@T("Admin_SelectCategory")…</option>
             </select>
         </div>
 
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;">
             <button class="btn btn-primary btn-sm" id="assignBtn" onclick="Gallery.assignSelected()" disabled>
-                <i class="fas fa-link"></i> Assign
+                <i class="fas fa-link"></i> @T("Admin_Assign")
             </button>
             <button class="btn btn-danger btn-sm" id="unassignBtn" onclick="Gallery.unassignSelected()" disabled>
-                <i class="fas fa-unlink"></i> Unassign
+                <i class="fas fa-unlink"></i> @T("Admin_Unassign")
             </button>
         </div>
     </div>
@@ -289,7 +293,7 @@
 <div class="gallery-toolbar">
     <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" placeholder="Search by filename…" id="searchInput" oninput="Gallery.onSearch(this.value)" />
+        <input type="text" placeholder="@T("Admin_SearchByFilename")" id="searchInput" oninput="Gallery.onSearch(this.value)" />
         <button style="background:none;border:none;color:var(--muted);cursor:pointer;padding:0;display:none;"
                 id="clearSearchBtn" onclick="Gallery.clearSearch()">
             <i class="fas fa-times"></i>
@@ -297,16 +301,16 @@
     </div>
     <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted);cursor:pointer;white-space:nowrap;">
         <input type="checkbox" id="selectAllCheck" onchange="Gallery.toggleSelectAll(this.checked)" />
-        Select all
+        @T("Admin_SelectAll")
     </label>
 </div>
 
 @* ═══ Bulk bar ═══ *@
 <div class="bulk-bar" id="bulkBar" style="display:none;">
     <span class="count" id="bulkCount">0 selected</span>
-    <button class="btn btn-secondary btn-sm" onclick="Gallery.deselectAll()">Deselect all</button>
+    <button class="btn btn-secondary btn-sm" onclick="Gallery.deselectAll()">@T("Admin_DeselectAll")</button>
     <button class="btn btn-danger btn-sm" onclick="Gallery.bulkDelete()">
-        <i class="fas fa-trash"></i> Delete selected (library)
+        <i class="fas fa-trash"></i> @T("Admin_DeleteSelectedLibrary")
     </button>
 </div>
 
@@ -317,7 +321,7 @@
     <div class="card" style="background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius-lg);">
         <div class="empty-state">
             <i class="fas fa-images"></i>
-            No images match your search.
+            @T("Admin_NoImagesMatch")
         </div>
     </div>
 </div>

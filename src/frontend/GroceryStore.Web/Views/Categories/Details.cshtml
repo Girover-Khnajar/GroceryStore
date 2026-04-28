@@ -1,5 +1,9 @@
 @model CategoryDetailViewModel
+@using System.Globalization
+@using System.Resources
 @{
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
     ViewData["Title"] = Model.Category.Name;
 }
 
@@ -7,9 +11,9 @@
     <div class="container">
         @* Breadcrumb *@
         <nav class="breadcrumb">
-            <a asp-controller="Home" asp-action="Index">Home</a>
+            <a asp-controller="Home" asp-action="Index">@T("Nav_Home")</a>
             <span style="margin:0 .4rem;">/</span>
-            <a asp-controller="Categories" asp-action="Index">Categories</a>
+            <a asp-controller="Categories" asp-action="Index">@T("Nav_Categories")</a>
             <span style="margin:0 .4rem;">/</span>
             <span style="color:var(--text);">@Model.Category.Name</span>
         </nav>
@@ -36,17 +40,17 @@
         {
             <div class="empty-state">
                 <i class="fas fa-box-open" style="font-size:3rem;color:var(--border);margin-bottom:1rem;"></i>
-                <h3>No products in this category</h3>
-                <p>Check back later for new products.</p>
+                <h3>@T("Category_NoProductsTitle")</h3>
+                <p>@T("Category_NoProductsSubtitle")</p>
                 <a asp-controller="Products" asp-action="Index" class="btn btn-outline" style="margin-top:1rem;">
-                    Browse All Products
+                    @T("Btn_AllProducts")
                 </a>
             </div>
         }
         else
         {
             <p style="text-align:center;color:var(--text-light);margin-bottom:1.5rem;">
-                @Model.Products.Count product(s) found
+                @string.Format(T("Category_ProductsFound"), Model.Products.Count)
             </p>
             <div class="products-grid">
                 @foreach (var p in Model.Products)
@@ -59,7 +63,7 @@
                             <img src="@productImage" alt="@p.Name" loading="lazy" />
                             @if (p.IsFeatured)
                             {
-                                <span class="badge-featured"><i class="fas fa-star"></i> Featured</span>
+                                <span class="badge-featured"><i class="fas fa-star"></i> @T("Badge_Featured")</span>
                             }
                         </div>
                         <div class="product-info">
@@ -76,7 +80,7 @@
                                         <span style="color:var(--text-light);font-size:.85rem;">/ @p.Unit</span>
                                     }
                                 </span>
-                                <button type="button" class="btn-whatsapp" onclick="addToCart(event, '@p.Id')" title="Add to cart">
+                                <button type="button" class="btn-whatsapp" onclick="addToCart(event, '@p.Id')" title="@T("Title_AddToCart")">
                                     <i class="fas fa-cart-plus"></i>
                                 </button>
                             </div>

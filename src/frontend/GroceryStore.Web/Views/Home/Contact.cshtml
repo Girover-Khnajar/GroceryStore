@@ -1,14 +1,18 @@
 @model GroceryStore.Web.ViewModels.ContactViewModel
+@using System.Globalization
+@using System.Resources
 @{
-    ViewData["Title"] = "Contact Us";
+    var viewResourceManager = new ResourceManager("GroceryStore.Web.Resources.Views.Home_Contact", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => viewResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    ViewData["Title"] = T("PageTitle");
 }
 
 <section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
     <div class="container">
 
-        <h1 class="section-title">Contact Us</h1>
+        <h1 class="section-title">@T("SectionTitle")</h1>
         <p style="text-align:center;color:var(--text-light);max-width:600px;margin:0 auto 3rem;">
-            We are here to help. Reach out via any of the channels below.
+            @T("SectionSubtitle")
         </p>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-bottom:3rem;">
@@ -17,7 +21,7 @@
             {
                 <div class="contact-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:2rem;text-align:center;border:1px solid var(--border);">
                     <i class="fas fa-phone" style="font-size:2.5rem;color:var(--primary);margin-bottom:1rem;"></i>
-                    <h3 style="margin-bottom:.5rem;">Phone</h3>
+                    <h3 style="margin-bottom:.5rem;">@T("Card_Phone")</h3>
                     <a href="tel:@Model.Phone" style="color:var(--text-light);">@Model.Phone</a>
                 </div>
             }
@@ -26,8 +30,8 @@
             {
                 <div class="contact-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:2rem;text-align:center;border:1px solid var(--border);">
                     <i class="fab fa-whatsapp" style="font-size:2.5rem;color:#25d366;margin-bottom:1rem;"></i>
-                    <h3 style="margin-bottom:.5rem;">WhatsApp</h3>
-                    <a href="https://wa.me/@Model.WhatsappNumber" style="color:var(--text-light);" target="_blank" rel="noopener">Message Us</a>
+                    <h3 style="margin-bottom:.5rem;">@T("Card_WhatsApp")</h3>
+                    <a href="https://wa.me/@Model.WhatsappNumber" style="color:var(--text-light);" target="_blank" rel="noopener">@T("Link_MessageUs")</a>
                 </div>
             }
 
@@ -35,7 +39,7 @@
             {
                 <div class="contact-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:2rem;text-align:center;border:1px solid var(--border);">
                     <i class="fas fa-envelope" style="font-size:2.5rem;color:var(--primary);margin-bottom:1rem;"></i>
-                    <h3 style="margin-bottom:.5rem;">Email</h3>
+                    <h3 style="margin-bottom:.5rem;">@T("Card_Email")</h3>
                     <a href="mailto:@Model.Email" style="color:var(--text-light);">@Model.Email</a>
                 </div>
             }
@@ -44,7 +48,7 @@
             {
                 <div class="contact-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:2rem;text-align:center;border:1px solid var(--border);">
                     <i class="fas fa-map-marker-alt" style="font-size:2.5rem;color:var(--primary);margin-bottom:1rem;"></i>
-                    <h3 style="margin-bottom:.5rem;">Address</h3>
+                    <h3 style="margin-bottom:.5rem;">@T("Card_Address")</h3>
                     <p style="color:var(--text-light);">@Model.Address</p>
                 </div>
             }
@@ -53,7 +57,7 @@
             {
                 <div class="contact-card" style="background:var(--surface);border-radius:var(--radius-lg);padding:2rem;text-align:center;border:1px solid var(--border);">
                     <i class="fas fa-clock" style="font-size:2.5rem;color:var(--primary);margin-bottom:1rem;"></i>
-                    <h3 style="margin-bottom:.5rem;">Opening Hours</h3>
+                    <h3 style="margin-bottom:.5rem;">@T("Card_OpeningHours")</h3>
                     @foreach (var line in Model.OpeningHours.Split('\n', StringSplitOptions.RemoveEmptyEntries))
                     {
                         <p style="color:var(--text-light);font-size:.9rem;">@line</p>

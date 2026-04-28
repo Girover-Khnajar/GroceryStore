@@ -1,19 +1,23 @@
 @model ProductListViewModel
+@using System.Globalization
+@using System.Resources
 @{
-    ViewData["Title"] = "Products";
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    ViewData["Title"] = T("Page_Products");
 }
 
 <section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
     <div class="container">
-        <h1 class="section-title">Products</h1>
+        <h1 class="section-title">@T("Page_Products")</h1>
 
         @* ═══ Filter Bar ═══ *@
         <form asp-action="Index" method="get" class="filter-bar">
             <input type="text" name="search" value="@Model.Search"
-                   placeholder="Search products..." />
+                     placeholder="@T("Products_SearchPlaceholder")" />
 
             <select name="categoryId">
-                <option value="">All Categories</option>
+                <option value="">@T("Categories_All")</option>
                 @foreach (var cat in Model.Categories)
                 {
                     <option value="@cat.Id"
@@ -22,15 +26,15 @@
             </select>
 
             <select name="sort">
-                <option value="">Sort by</option>
-                <option value="name" selected="@(Model.Sort == "name")">Name A-Z</option>
-                <option value="name_desc" selected="@(Model.Sort == "name_desc")">Name Z-A</option>
-                <option value="price" selected="@(Model.Sort == "price")">Price Low → High</option>
-                <option value="price_desc" selected="@(Model.Sort == "price_desc")">Price High → Low</option>
+                <option value="">@T("Products_SortBy")</option>
+                <option value="name" selected="@(Model.Sort == "name")">@T("Products_SortNameAsc")</option>
+                <option value="name_desc" selected="@(Model.Sort == "name_desc")">@T("Products_SortNameDesc")</option>
+                <option value="price" selected="@(Model.Sort == "price")">@T("Products_SortPriceAsc")</option>
+                <option value="price_desc" selected="@(Model.Sort == "price_desc")">@T("Products_SortPriceDesc")</option>
             </select>
 
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-search"></i> Filter
+                <i class="fas fa-search"></i> @T("Btn_Filter")
             </button>
         </form>
 
@@ -39,8 +43,8 @@
         {
             <div class="empty-state">
                 <i class="fas fa-box-open" style="font-size:3rem;color:var(--border);margin-bottom:1rem;"></i>
-                <h3>No products found</h3>
-                <p>Try a different search or filter.</p>
+                <h3>@T("Products_EmptyTitle")</h3>
+                <p>@T("Products_EmptySubtitle")</p>
             </div>
         }
         else
@@ -64,7 +68,7 @@
                             }
                             @if (p.IsFeatured)
                             {
-                                <span class="badge-featured"><i class="fas fa-star"></i> Featured</span>
+                                <span class="badge-featured"><i class="fas fa-star"></i> @T("Badge_Featured")</span>
                             }
                         </div>
                         <div class="product-info">
@@ -81,7 +85,7 @@
                                         <span style="color:var(--text-light);font-size:.85rem;">/ @p.Unit</span>
                                     }
                                 </span>
-                                <button type="button" class="btn-whatsapp" onclick="addToCart(event, '@p.Id')" title="Add to cart">
+                                <button type="button" class="btn-whatsapp" onclick="addToCart(event, '@p.Id')" title="@T("Title_AddToCart")">
                                     <i class="fas fa-cart-plus"></i>
                                 </button>
                             </div>

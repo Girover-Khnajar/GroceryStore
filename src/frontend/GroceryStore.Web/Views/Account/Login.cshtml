@@ -1,7 +1,11 @@
 @model GroceryStore.Web.ViewModels.LoginViewModel
+@using System.Globalization
+@using System.Resources
 @{
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Admin Login";
+    ViewData["Title"] = T("Page_AdminLogin");
 }
 
 <style>
@@ -74,8 +78,8 @@
     <div class="login-card">
         <div class="login-header">
             <i class="fas fa-shopping-basket"></i>
-            <h1>Admin Login</h1>
-            <p>Sign in to manage your store</p>
+            <h1>@T("Page_AdminLogin")</h1>
+            <p>@T("Login_Subtitle")</p>
         </div>
 
         @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
@@ -91,22 +95,22 @@
             <input type="hidden" asp-for="ReturnUrl" />
 
             <div class="form-group">
-                <label asp-for="Username" class="form-label">Username</label>
+                <label asp-for="Username" class="form-label">@T("Login_Username")</label>
                 <div class="login-input-wrap">
                     <i class="fas fa-user"></i>
                     <input asp-for="Username" class="form-control"
-                           placeholder="Enter username"
+                           placeholder="@T("Login_EnterUsername")"
                            autocomplete="username" />
                 </div>
                 <span asp-validation-for="Username" class="text-danger small"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="Password" class="form-label">Password</label>
+                <label asp-for="Password" class="form-label">@T("Login_Password")</label>
                 <div class="login-input-wrap">
                     <i class="fas fa-lock"></i>
                     <input asp-for="Password" type="password" class="form-control"
-                           placeholder="Enter password"
+                           placeholder="@T("Login_EnterPassword")"
                            autocomplete="current-password" />
                 </div>
                 <span asp-validation-for="Password" class="text-danger small"></span>
@@ -114,13 +118,13 @@
 
             <button type="submit" class="btn btn-primary"
                     style="width:100%;padding:1rem;font-size:1.05rem;margin-top:.5rem;">
-                <i class="fas fa-sign-in-alt"></i> Sign In
+                <i class="fas fa-sign-in-alt"></i> @T("Btn_SignIn")
             </button>
         </form>
 
         <div class="login-hint">
-            <strong>Default credentials:</strong><br />
-            Username: <code>admin</code> &nbsp;|&nbsp; Password: <code>admin123</code>
+            <strong>@T("Login_DefaultCredentials"):</strong><br />
+            @T("Login_Username"): <code>admin</code> &nbsp;|&nbsp; @T("Login_Password"): <code>admin123</code>
         </div>
     </div>
 </div>
