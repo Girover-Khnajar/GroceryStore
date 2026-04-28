@@ -18,8 +18,17 @@ html[dir="rtl"] .nav-wrapper {
     flex-direction: row-reverse;
 }
 
-html[dir="rtl"] .nav-menu {
-    flex-direction: row-reverse;
+@media (min-width: 769px) {
+    html[dir="rtl"] .nav-menu {
+        flex-direction: row-reverse;
+    }
+}
+
+/* On mobile, RTL nav menu must stack vertically like LTR */
+@media (max-width: 768px) {
+    html[dir="rtl"] .nav-menu {
+        flex-direction: column;
+    }
 }
 
 html[dir="rtl"] .logo {
@@ -53,12 +62,12 @@ html[dir="rtl"] .language-item i {
 
 /* Buttons and forms RTL */
 html[dir="rtl"] .btn,
-html[dir="rtl"] button {
+html[dir="rtl"] button:not(.theme-toggle):not(.search-toggle):not(.menu-toggle):not(.language-toggle) {
     flex-direction: row-reverse;
 }
 
 html[dir="rtl"] .btn i,
-html[dir="rtl"] button i {
+html[dir="rtl"] button:not(.theme-toggle):not(.search-toggle):not(.menu-toggle):not(.language-toggle) i {
     margin-left: 0;
     margin-right: 0.5rem;
 }

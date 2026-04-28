@@ -121,6 +121,7 @@ button { cursor: pointer; font-family: var(--font); }
     white-space: nowrap;
 }
 .logo i { font-size: 1.5rem; }
+.logo-img { height: 36px; width: auto; object-fit: contain; display: block; }
 .nav-menu { display: flex; align-items: center; gap: .5rem; }
 .nav-link {
     display: flex;
@@ -134,6 +135,8 @@ button { cursor: pointer; font-family: var(--font); }
     transition: all var(--transition);
 }
 .nav-link:hover, .nav-link.active { background: var(--primary); color: #fff; }
+.nav-link-dashboard { border: 1px solid var(--primary); color: var(--primary); }
+.nav-link-dashboard:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 .nav-link { position: relative; }
 .cart-badge {
     display: inline-flex;
@@ -151,7 +154,10 @@ button { cursor: pointer; font-family: var(--font); }
     top: -8px;
     right: -8px;
 }
-.nav-actions { display: flex; align-items: center; gap: .75rem; }
+.nav-actions { display: flex; align-items: center; gap: .75rem; flex-shrink: 0; }
+
+/* Mobile-only extras inside nav-menu — hidden on desktop */
+.nav-menu-extras { display: none; }
 
 /* ── Language Switcher ────────────────────────────────────────────────── */
 .language-switcher {
@@ -166,6 +172,7 @@ button { cursor: pointer; font-family: var(--font); }
     border-radius: 50%;
     width: 40px;
     height: 40px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -173,6 +180,7 @@ button { cursor: pointer; font-family: var(--font); }
     cursor: pointer;
     transition: all var(--transition);
     font-size: .95rem;
+    line-height: 1;
     position: relative;
     flex-direction: column;
 }
@@ -248,10 +256,13 @@ button { cursor: pointer; font-family: var(--font); }
     border: 1px solid var(--border);
     border-radius: 50%;
     width: 40px; height: 40px;
+    padding: 0;
     display: flex; align-items: center; justify-content: center;
     color: var(--text);
+    cursor: pointer;
     transition: all var(--transition);
     font-size: .95rem;
+    line-height: 1;
 }
 .theme-toggle:hover, .search-toggle:hover, .menu-toggle:hover {
     background: var(--primary); color: #fff; border-color: var(--primary);
@@ -594,6 +605,75 @@ button { cursor: pointer; font-family: var(--font); }
     .menu-toggle  { display: flex; }
     .search-toggle { display: flex; }
 
+    /* ── Navbar: prevent overflow, ensure all buttons visible ── */
+    .nav-wrapper {
+        flex-wrap: nowrap;
+        overflow: visible;
+    }
+    .logo {
+        flex-shrink: 1;
+        min-width: 0;
+    }
+    /* Hide theme + language from navbar on mobile — they move into the menu */
+    .nav-actions .theme-toggle,
+    .nav-actions .language-switcher { display: none; }
+
+    /* Show mobile extras section inside nav-menu */
+    .nav-menu-extras {
+        display: flex;
+        flex-direction: column;
+        gap: .25rem;
+        padding-top: .5rem;
+        margin-top: .25rem;
+        border-top: 1px solid var(--border);
+    }
+    .menu-extra-btn {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        width: 100%;
+        padding: .75rem 1rem;
+        border-radius: var(--radius-md);
+        background: transparent;
+        border: none;
+        color: var(--text);
+        font-size: 1rem;
+        cursor: pointer;
+        text-align: start;
+        line-height: 1.4;
+    }
+    .menu-extra-btn:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+    .menu-language-dropdown {
+        position: static !important;
+        box-shadow: none;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-top: .25rem;
+        padding: .25rem 0;
+    }
+
+    .nav-actions {
+        flex-shrink: 0;
+        gap: .4rem;
+    }
+    /* Shrink icon buttons on mobile */
+    .theme-toggle, .search-toggle, .menu-toggle, .language-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: .85rem;
+    }
+    /* Hide lang code text on mobile — keep just the globe icon */
+    .language-toggle .lang-code {
+        display: none;
+    }
+    /* Keep language-toggle circular without text */
+    .language-toggle {
+        flex-direction: row;
+    }
+
     .nav-menu {
         position: fixed; top: var(--nav-height); left: 0; right: 0;
         background: var(--surface); border-bottom: 1px solid var(--border);
@@ -674,6 +754,20 @@ button { cursor: pointer; font-family: var(--font); }
         align-items: stretch;
     }
     .cart-footer-actions form { width: 100%; }
+}
+
+/* Extra small screens: hide theme toggle to save space */
+@media (max-width: 400px) {
+    .theme-toggle {
+        display: none;
+    }
+    .nav-actions {
+        gap: .3rem;
+    }
+    .theme-toggle, .search-toggle, .menu-toggle, .language-toggle {
+        width: 34px;
+        height: 34px;
+    }
 }
 
 @media (max-width: 480px) {

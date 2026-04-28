@@ -57,7 +57,7 @@
     <nav class="navbar" id="navbar">
         <div class="container nav-wrapper">
             <a asp-controller="Home" asp-action="Index" class="logo">
-                <i class="fas fa-leaf"></i>
+                <img src="~/images/logo-2.png" alt="@footerSettings.StoreName" class="logo-img" />
                 <span>@footerSettings.StoreName</span>
             </a>
 
@@ -81,6 +81,42 @@
                 <a asp-controller="Home" asp-action="Contact" class="nav-link">
                     <i class="fas fa-envelope"></i> @T("Nav_Contact")
                 </a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Admin" asp-action="Dashboard" class="nav-link nav-link-dashboard">
+                        <i class="fas fa-tachometer-alt"></i> @T("Nav_Admin")
+                    </a>
+                }
+
+                @* ── Mobile-only extras (theme + language) ─────────────────── *@
+                <div class="nav-menu-extras">
+                    <button class="menu-extra-btn menu-theme-btn" id="menuThemeToggle" onclick="toggleTheme()" title="@T("Ui_ToggleTheme")">
+                        <i class="fas fa-moon menu-icon-moon"></i>
+                        <i class="fas fa-sun menu-icon-sun" style="display:none"></i>
+                        <span>@T("Ui_ToggleTheme")</span>
+                    </button>
+                    <div class="menu-lang-switcher">
+                        <button class="menu-extra-btn" id="menuLanguageToggle" title="@T("Lbl_Language")">
+                            <i class="fas fa-globe"></i>
+                            <span>@currentCulture.ToUpper()</span>
+                        </button>
+                        <div class="language-dropdown menu-language-dropdown" id="menuLanguageDropdown" style="display:none;">
+                            @foreach (var (code, displayName, isRtl) in GroceryStore.Web.Services.Localization.CultureHelper.GetAvailableCultures())
+                            {
+                                var isActive = code == currentCulture;
+                                <a href="@Url.Action("SetCulture", "Culture", new { culture = code, returnUrl = Context.Request.Path + Context.Request.QueryString })"
+                                   class="language-item @(isActive ? "active" : "")"
+                                   data-culture="@code">
+                                    <span class="lang-name">@displayName</span>
+                                    @if (isActive)
+                                    {
+                                        <i class="fas fa-check"></i>
+                                    }
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="nav-actions">
@@ -156,7 +192,7 @@
             <div class="footer-content">
                 @* Brand *@
                 <div class="footer-section">
-                    <h3><i class="fas fa-leaf" style="color:var(--primary);"></i> @footerSettings.StoreName</h3>
+                    <h3><img src="~/images/logo-2.png" alt="@footerSettings.StoreName" class="logo-img" /> @footerSettings.StoreName</h3>
                     <p>@T("Footer_Description")</p>
                     <div class="social-links">
                         <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -220,28 +256,43 @@
     @* ── Language Switcher ────────────────────────────────────────────────── *@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const toggleBtn = document.getElementById('languageToggle');
-            const dropdown = document.getElementById('languageDropdown');
-
-            if (toggleBtn && dropdown) {
-                toggleBtn.addEventListener('click', function (e) {
+            function wireLanguageDropdown(toggleId, dropdownId, closeSelectorFn) {
+                const btn = document.getElementById(toggleId);
+                const dd  = document.getElementById(dropdownId);
+                if (!btn || !dd) return;
+                btn.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                    dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
                 });
-
-                // Close dropdown when clicking outside
                 document.addEventListener('click', function (e) {
-                    if (!e.target.closest('.language-switcher')) {
-                        dropdown.style.display = 'none';
-                    }
+                    if (!closeSelectorFn(e.target)) dd.style.display = 'none';
                 });
+                dd.querySelectorAll('.language-item').forEach(function (item) {
+                    item.addEventListener('click', function () { dd.style.display = 'none'; });
+                });
+            }
 
-                // Close dropdown when selecting a language
-                const langItems = dropdown.querySelectorAll('.language-item');
-                langItems.forEach(item => {
-                    item.addEventListener('click', function () {
-                        dropdown.style.display = 'none';
-                    });
+            // Navbar language dropdown (desktop)
+            wireLanguageDropdown('languageToggle', 'languageDropdown',
+                function (t) { return t.closest('.language-switcher'); });
+
+            // Menu language dropdown (mobile)
+            wireLanguageDropdown('menuLanguageToggle', 'menuLanguageDropdown',
+                function (t) { return t.closest('.menu-lang-switcher'); });
+
+            // Sync moon/sun icons in the menu theme button with current theme
+            function syncMenuThemeIcons() {
+                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                var moon = document.querySelector('.menu-icon-moon');
+                var sun  = document.querySelector('.menu-icon-sun');
+                if (moon) moon.style.display = isDark ? 'none' : '';
+                if (sun)  sun.style.display  = isDark ? '' : 'none';
+            }
+            syncMenuThemeIcons();
+            var menuThemeBtn = document.getElementById('menuThemeToggle');
+            if (menuThemeBtn) {
+                menuThemeBtn.addEventListener('click', function () {
+                    setTimeout(syncMenuThemeIcons, 0);
                 });
             }
         });
