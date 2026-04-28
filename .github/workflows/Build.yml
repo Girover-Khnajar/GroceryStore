@@ -41,7 +41,7 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Publish GroceryStore.Web
-        run: dotnet publish src/frontend/GroceryStore.Web/GroceryStore.Web.csproj -c Release -o /publish
+        run: dotnet publish src/frontend/GroceryStore.Web/GroceryStore.Web.csproj -c Release -o ./publish
 
       - name: Deploy via Web Deploy
         uses: talunzhang/auto-web-deploy@v1.0.1
