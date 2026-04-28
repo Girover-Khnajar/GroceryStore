@@ -47,8 +47,9 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: win6215.site4now.net
-          protocol: ftp
+          protocol: ftps
           port: 21
+          security: loose
           username: girover-001
           password: ${{ secrets.SITE1_FTP_PASSWORD }}
           local-dir: ./artifacts/web-publish/
