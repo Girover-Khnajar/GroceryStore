@@ -45,10 +45,8 @@ jobs:
 
       - name: Deploy via MSDeploy (Web Deploy)
         run: |
-          & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
-            -verb:sync `
-            -source:contentPath="${{ github.workspace }}\artifacts\web-publish" `
-            -dest:contentPath="girover-001-site1",computerName="https://win6215.site4now.net:8172/msdeploy.axd?site=girover-001-site1",userName="girover-001",password="${{ secrets.MSDEPLOY_PASSWORD }}",authType="Basic" `
-            -allowUntrusted `
-            -enableRule:AppOffline
+          $msdeploy = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          $source = "-source:contentPath=${{ github.workspace }}\artifacts\web-publish"
+          $dest = '-dest:contentPath="girover-001-site1",computerName="https://win6215.site4now.net:8172/msdeploy.axd?site=girover-001-site1",userName="girover-001",password="${{ secrets.MSDEPLOY_PASSWORD }}",authType="Basic"'
+          & $msdeploy -verb:sync $source $dest -allowUntrusted -enableRule:AppOffline
         shell: pwsh
