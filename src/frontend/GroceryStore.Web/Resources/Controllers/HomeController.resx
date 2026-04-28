@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Microsoft ResX File, format version 2.0 -->
+  <!-- HomeController Resources - English (default) -->
+  
+  <resheader name="runtimeVersion">
+    <value>4.0.30319.42000</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <data name="PageTitle_Index" xml:space="preserve">
+    <value>Welcome to Fresh Grocery Store</value>
+  </data>
+  <data name="PageTitle_Contact" xml:space="preserve">
+    <value>Contact Us</value>
+  </data>
+  <data name="PageTitle_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="PageTitle_NotFound" xml:space="preserve">
+    <value>Page Not Found</value>
+  </data>
+  <data name="FeaturedProducts" xml:space="preserve">
+    <value>Featured Products</value>
+  </data>
+  <data name="ContactInfo" xml:space="preserve">
+    <value>Get in touch with us</value>
+  </data>
+  <data name="ErrorOccurred" xml:space="preserve">
+    <value>Oops! Something went wrong.</value>
+  </data>
+  <data name="PageNotFound" xml:space="preserve">
+    <value>Page not found</value>
+  </data>
+</root>

@@ -1,12 +1,16 @@
 @model IReadOnlyList<GroceryStore.Application.Categories.Dtos.CategoryDto>
+@using System.Globalization
+@using System.Resources
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Manage Categories";
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    ViewData["Title"] = T("Admin_ManageCategories");
 }
 
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
-    <h2 style="font-size:1.25rem;font-weight:700;"><i class="fas fa-th-large" style="color:var(--primary);"></i> Categories</h2>
-    <a asp-action="CategoryCreate" class="btn btn-primary"><i class="fas fa-plus"></i> Add Category</a>
+    <h2 style="font-size:1.25rem;font-weight:700;"><i class="fas fa-th-large" style="color:var(--primary);"></i> @T("Nav_Categories")</h2>
+    <a asp-action="CategoryCreate" class="btn btn-primary"><i class="fas fa-plus"></i> @T("Admin_AddCategory")</a>
 </div>
 
 <div class="table-wrapper">
@@ -14,11 +18,11 @@
         <thead>
             <tr>
                 <th style="width:60px;">Image</th>
-                <th>Name</th>
+                <th>@T("Lbl_Name")</th>
                 <th>Slug</th>
-                <th style="text-align:center;">Order</th>
-                <th style="text-align:center;">Active</th>
-                <th style="text-align:center;">Actions</th>
+                <th style="text-align:center;">@T("Admin_Order")</th>
+                <th style="text-align:center;">@T("Admin_Active")</th>
+                <th style="text-align:center;">@T("Admin_Actions")</th>
             </tr>
         </thead>
         <tbody>
@@ -26,7 +30,7 @@
             {
                 <tr>
                     <td colspan="6" style="text-align:center;padding:2rem;color:var(--text-light);">
-                        No categories yet. Click "Add Category" to get started.
+                        @T("Admin_NoCategoriesYet")
                     </td>
                 </tr>
             }
@@ -60,14 +64,14 @@
                         }
                     </td>
                     <td style="text-align:center;white-space:nowrap;">
-                        <a asp-action="CategoryEdit" asp-route-id="@c.Id" class="btn-edit" title="Edit">
+                        <a asp-action="CategoryEdit" asp-route-id="@c.Id" class="btn-edit" title="@T("Btn_Edit")">
                             <i class="fas fa-edit"></i>
                         </a>
                         <form asp-action="CategoryDelete" asp-route-id="@c.Id" method="post"
                               style="display:inline;"
-                              onsubmit="return confirm('Delete this category?');">
+                              onsubmit="return confirm('@T("Admin_DeleteCategoryConfirm")');">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn-delete" title="Delete">
+                            <button type="submit" class="btn-delete" title="@T("Btn_Delete")">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>

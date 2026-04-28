@@ -1,5 +1,9 @@
 @model ProductDetailViewModel
+@using System.Globalization
+@using System.Resources
 @{
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
     ViewData["Title"] = Model.Product.Name;
 }
 
@@ -7,9 +11,9 @@
     <div class="container">
         @* Breadcrumb *@
         <nav class="breadcrumb">
-            <a asp-controller="Home" asp-action="Index">Home</a>
+            <a asp-controller="Home" asp-action="Index">@T("Nav_Home")</a>
             <span style="margin:0 .4rem;">/</span>
-            <a asp-controller="Products" asp-action="Index">Products</a>
+            <a asp-controller="Products" asp-action="Index">@T("Nav_Products")</a>
             @if (Model.CategoryName is not null)
             {
                 <span style="margin:0 .4rem;">/</span>
@@ -62,7 +66,7 @@
                 @if (Model.Product.IsFeatured)
                 {
                     <span class="badge-featured" style="position:static;margin-bottom:1rem;display:inline-flex;">
-                        <i class="fas fa-star"></i> Featured
+                        <i class="fas fa-star"></i> @T("Badge_Featured")
                     </span>
                 }
 
@@ -112,19 +116,19 @@
                     @if (Model.Product.IsOrganic == true)
                     {
                         <span style="display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .8rem;background:#dcfce7;color:#15803d;border-radius:20px;font-size:.8rem;font-weight:600;">
-                            <i class="fas fa-leaf"></i> Organic
+                            <i class="fas fa-leaf"></i> @T("Badge_Organic")
                         </span>
                     }
                     @if (Model.Product.IsVegan == true)
                     {
                         <span style="display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .8rem;background:#d1fae5;color:#047857;border-radius:20px;font-size:.8rem;font-weight:600;">
-                            <i class="fas fa-seedling"></i> Vegan
+                            <i class="fas fa-seedling"></i> @T("Badge_Vegan")
                         </span>
                     }
                     @if (Model.Product.IsHalal == true)
                     {
                         <span style="display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .8rem;background:#dbeafe;color:#2563eb;border-radius:20px;font-size:.8rem;font-weight:600;">
-                            <i class="fas fa-check-circle"></i> Halal
+                            <i class="fas fa-check-circle"></i> @T("Badge_Halal")
                         </span>
                     }
                 </div>
@@ -133,10 +137,10 @@
                 <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;">
                     <button type="button" class="btn-whatsapp" style="padding:1rem 1.5rem;font-size:1rem;"
                             onclick="addToCart(event, '@Model.Product.Id')">
-                        <i class="fas fa-cart-plus"></i> Add to Cart
+                        <i class="fas fa-cart-plus"></i> @T("Btn_AddToCart")
                     </button>
                     <a asp-controller="Cart" asp-action="Index" class="btn-secondary" style="padding:1rem 1.5rem;font-size:1rem;">
-                        <i class="fas fa-shopping-cart"></i> View Cart
+                        <i class="fas fa-shopping-cart"></i> @T("Btn_ViewCart")
                     </a>
                 </div>
 
@@ -144,7 +148,7 @@
                 @if (!string.IsNullOrWhiteSpace(Model.Product.LongDescription))
                 {
                     <div style="border-top:1px solid var(--border);padding-top:1.5rem;">
-                        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem;">Description</h3>
+                        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem;">@T("Lbl_Description")</h3>
                         <p style="color:var(--text-light);line-height:1.8;">@Model.Product.LongDescription</p>
                     </div>
                 }
@@ -166,7 +170,7 @@
                 @if (Model.Product.Allergens.Count > 0)
                 {
                     <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
-                        <span style="font-size:.85rem;font-weight:600;color:var(--danger);">Allergens:</span>
+                        <span style="font-size:.85rem;font-weight:600;color:var(--danger);">@T("Products_Allergens"):</span>
                         @foreach (var a in Model.Product.Allergens)
                         {
                             <span style="padding:.3rem .8rem;background:#fef2f2;color:var(--danger);border-radius:20px;font-size:.8rem;">

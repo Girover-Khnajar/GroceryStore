@@ -1,20 +1,24 @@
 @model GroceryStore.Web.ViewModels.Cart.CartPageViewModel
+@using System.Globalization
+@using System.Resources
 @{
-    ViewData["Title"] = "Shopping Cart";
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    ViewData["Title"] = T("Page_Cart");
 }
 
 <section class="section cart-page" style="padding-top: calc(var(--nav-height) + 2rem);">
     <div class="container">
-        <h1 class="section-title cart-page-title" style="text-align:left;">Shopping Cart</h1>
+        <h1 class="section-title cart-page-title" style="text-align:left;">@T("Page_Cart")</h1>
 
         @if (Model.Items.Count == 0)
         {
             <div class="empty-state">
                 <i class="fas fa-shopping-cart" style="font-size:3rem;color:var(--border);margin-bottom:1rem;"></i>
-                <h3>Your cart is empty</h3>
-                <p>Add products to continue.</p>
+                <h3>@T("Cart_EmptyTitle")</h3>
+                <p>@T("Cart_EmptySubtitle")</p>
                 <a asp-controller="Products" asp-action="Index" class="btn btn-primary" style="margin-top:1rem;">
-                    <i class="fas fa-box-open"></i> Browse Products
+                    <i class="fas fa-box-open"></i> @T("Btn_Browse")
                 </a>
             </div>
         }
@@ -24,18 +28,18 @@
                 <table class="admin-table cart-table">
                     <thead>
                         <tr>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th style="width:160px;">Quantity</th>
-                            <th>Subtotal</th>
-                            <th style="text-align:center;">Actions</th>
+                            <th>@T("Cart_Product")</th>
+                            <th>@T("Lbl_Price")</th>
+                            <th style="width:160px;">@T("Lbl_Quantity")</th>
+                            <th>@T("Cart_Subtotal")</th>
+                            <th style="text-align:center;">@T("Admin_Actions")</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.Items)
                         {
                             <tr>
-                                <td data-label="Product" class="cart-product-cell">
+                                <td data-label="@T("Cart_Product")" class="cart-product-cell">
                                     <a asp-controller="Products" asp-action="Details" asp-route-slug="@item.Slug">
                                         <strong>@item.Name</strong>
                                     </a>
@@ -45,30 +49,30 @@
                                     }
                                     @if (!string.IsNullOrWhiteSpace(item.Sku))
                                     {
-                                        <div class="cart-product-meta">SKU: @item.Sku</div>
+                                        <div class="cart-product-meta">@T("Cart_SKU"): @item.Sku</div>
                                     }
                                 </td>
-                                <td data-label="Price">@item.UnitPrice.ToString("N2") @item.Currency / @item.Unit</td>
-                                <td data-label="Quantity">
+                                <td data-label="@T("Lbl_Price")">@item.UnitPrice.ToString("N2") @item.Currency / @item.Unit</td>
+                                <td data-label="@T("Lbl_Quantity")">
                                     <form asp-action="Update" method="post" class="cart-qty-form">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="productId" value="@item.ProductId" />
-                                        <button type="button" class="btn-qty-decrement" onclick="decrementQuantity(this, '@item.ProductId')" title="Decrease quantity">
+                                        <button type="button" class="btn-qty-decrement" onclick="decrementQuantity(this, '@item.ProductId')" title="@T("Cart_DecreaseQty")">
                                             <i class="fas fa-minus"></i>
                                         </button>
                                         <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control qty-input cart-qty-input" />
-                                        <button type="button" class="btn-qty-increment" onclick="incrementQuantity(this, '@item.ProductId')" title="Increase quantity">
+                                        <button type="button" class="btn-qty-increment" onclick="incrementQuantity(this, '@item.ProductId')" title="@T("Cart_IncreaseQty")">
                                             <i class="fas fa-plus"></i>
                                         </button>
-                                        <button type="submit" class="btn btn-primary btn-sm cart-update-btn">Update</button>
+                                        <button type="submit" class="btn btn-primary btn-sm cart-update-btn">@T("Btn_Update")</button>
                                     </form>
                                 </td>
-                                <td data-label="Subtotal" class="cart-subtotal-cell">@item.LineTotal.ToString("N2") @item.Currency</td>
-                                <td data-label="Actions" class="cart-actions-cell">
+                                <td data-label="@T("Cart_Subtotal")" class="cart-subtotal-cell">@item.LineTotal.ToString("N2") @item.Currency</td>
+                                <td data-label="@T("Admin_Actions")" class="cart-actions-cell">
                                     <form asp-action="Remove" method="post" style="display:inline;">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="productId" value="@item.ProductId" />
-                                        <button type="submit" class="btn-delete" title="Remove">
+                                        <button type="submit" class="btn-delete" title="@T("Btn_Delete")">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -80,7 +84,7 @@
             </div>
 
             <div class="cart-summary">
-                <h3 class="cart-summary-title">Order Summary</h3>
+                <h3 class="cart-summary-title">@T("Cart_OrderSummary")</h3>
                 
                 @{
                     var groupedByCurrency = Model.Items.GroupBy(x => x.Currency).OrderBy(g => g.Key);
@@ -90,7 +94,7 @@
                 {
                     var total = currencyGroup.Sum(x => x.LineTotal);
                     <div class="cart-summary-row">
-                        <span>Total (@currencyGroup.Key):</span>
+                        <span>@string.Format(T("Cart_TotalCurrency"), currencyGroup.Key)</span>
                         <strong>@total.ToString("N2") @currencyGroup.Key</strong>
                     </div>
                 }
@@ -98,7 +102,7 @@
                 @if (groupedByCurrency.Count() > 1)
                 {
                     <div class="cart-summary-note">
-                        <em>Note: Multiple currencies in cart. Please review each total before checkout.</em>
+                        <em>@T("Cart_MultiCurrencyNote")</em>
                     </div>
                 }
             </div>
@@ -106,13 +110,13 @@
             <div class="cart-footer-actions">
                 <form asp-action="Clear" method="post">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="btn-secondary cart-clear-btn" onclick="return confirm('Clear all items from cart?');">
-                        <i class="fas fa-times"></i> Clear Cart
+                    <button type="submit" class="btn-secondary cart-clear-btn" onclick="return confirm('@T("Cart_ClearConfirm")');">
+                        <i class="fas fa-times"></i> @T("Btn_ClearCart")
                     </button>
                 </form>
 
                 <a asp-action="Checkout" class="btn btn-primary cart-checkout-btn">
-                    <i class="fab fa-whatsapp"></i> Checkout & Send to WhatsApp
+                    <i class="fab fa-whatsapp"></i> @T("Btn_CheckoutWhatsApp")
                 </a>
             </div>
         }

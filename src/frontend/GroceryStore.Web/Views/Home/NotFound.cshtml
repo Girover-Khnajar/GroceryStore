@@ -1,5 +1,10 @@
+@using System.Globalization
+@using System.Resources
 @{
-    ViewData["Title"] = "Page Not Found";
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+
+    ViewData["Title"] = T("Page_NotFound");
 
     var originalPath = ViewData["OriginalPath"] as string;
     var originalQueryString = ViewData["OriginalQueryString"] as string;
@@ -15,29 +20,29 @@
                 <i class="fas fa-map-signs"></i>
             </div>
 
-            <div style="color: var(--secondary); font-size: .95rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .5rem;">404 Error</div>
-            <h1 style="font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin-bottom: 1rem;">Page not found</h1>
+            <div style="color: var(--secondary); font-size: .95rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .5rem;">@T("Error_404")</div>
+            <h1 style="font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin-bottom: 1rem;">@T("Error_PageNotFoundTitle")</h1>
             <p style="color: var(--text-light); font-size: 1.05rem; max-width: 540px; margin: 0 auto 1.5rem;">
-                The page you requested does not exist, may have been moved, or the link may be incorrect.
+                @T("Error_PageNotFoundSubtitle")
             </p>
 
             @if (!string.IsNullOrWhiteSpace(missingUrl))
             {
                 <div style="margin: 0 auto 1.5rem; max-width: 100%; padding: .9rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-light); word-break: break-word;">
-                    <strong style="color: var(--text);">Requested URL:</strong>
+                    <strong style="color: var(--text);">@T("Error_RequestedUrl"):</strong>
                     <div>@missingUrl</div>
                 </div>
             }
 
             <div style="display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
                 <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
-                    <i class="fas fa-home"></i> Back to Home
+                    <i class="fas fa-home"></i> @T("Btn_Home")
                 </a>
                 <a asp-controller="Products" asp-action="Index" class="btn btn-outline">
-                    <i class="fas fa-box-open"></i> Browse Products
+                    <i class="fas fa-box-open"></i> @T("Btn_Browse")
                 </a>
                 <a asp-controller="Categories" asp-action="Index" class="btn btn-outline">
-                    <i class="fas fa-th-large"></i> View Categories
+                    <i class="fas fa-th-large"></i> @T("Btn_BrowseCategories")
                 </a>
             </div>
         </div>

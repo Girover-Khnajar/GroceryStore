@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Microsoft ResX File, format version 2.0 -->
+  <!-- Version: 2.0 -->
+  <!-- Culture: en (English - default) -->
+  
+  <resheader name="runtimeVersion">
+    <value>4.0.30319.42000</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="assembly">
+    <value>System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="mimetype">
+    <value>application/x-microsoft.net.object.binary.serialized</value>
+  </resheader>
+  
+  <!-- Navigation -->
+  <data name="Nav_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Nav_Products" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Nav_Categories" xml:space="preserve">
+    <value>Categories</value>
+  </data>
+  <data name="Nav_Cart" xml:space="preserve">
+    <value>Cart</value>
+  </data>
+  <data name="Nav_Contact" xml:space="preserve">
+    <value>Contact</value>
+  </data>
+  <data name="Nav_Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Nav_Admin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="Nav_Logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  
+  <!-- Common buttons -->
+  <data name="Btn_Home" xml:space="preserve">
+    <value>Back to Home</value>
+  </data>
+  <data name="Btn_Browse" xml:space="preserve">
+    <value>Browse Products</value>
+  </data>
+  <data name="Btn_BrowseCategories" xml:space="preserve">
+    <value>View Categories</value>
+  </data>
+  <data name="Btn_Submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="Btn_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Btn_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Btn_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Btn_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Btn_Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="Btn_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Btn_AddToCart" xml:space="preserve">
+    <value>Add to Cart</value>
+  </data>
+  <data name="Btn_ViewCart" xml:space="preserve">
+    <value>View Cart</value>
+  </data>
+  <data name="Btn_Checkout" xml:space="preserve">
+    <value>Checkout</value>
+  </data>
+  
+  <!-- Common labels -->
+  <data name="Lbl_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Lbl_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Lbl_Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Lbl_Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="Lbl_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Lbl_Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="Lbl_Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="Lbl_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Lbl_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="Msg_Success" xml:space="preserve">
+    <value>Operation completed successfully.</value>
+  </data>
+  <data name="Msg_Error" xml:space="preserve">
+    <value>An error occurred. Please try again.</value>
+  </data>
+  <data name="Msg_Delete_Confirm" xml:space="preserve">
+    <value>Are you sure you want to delete this item?</value>
+  </data>
+  <data name="Msg_NotFound" xml:space="preserve">
+    <value>Item not found.</value>
+  </data>
+
+  <!-- UI -->
+  <data name="Ui_ToggleTheme" xml:space="preserve">
+    <value>Toggle theme</value>
+  </data>
+  <data name="Ui_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Ui_Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+
+  <!-- Search -->
+  <data name="Search_Placeholder" xml:space="preserve">
+    <value>Search products, categories...</value>
+  </data>
+
+  <!-- Footer -->
+  <data name="Footer_Description" xml:space="preserve">
+    <value>Your trusted neighborhood grocery store offering premium fresh and packaged products at competitive prices.</value>
+  </data>
+  <data name="Footer_QuickLinks" xml:space="preserve">
+    <value>Quick Links</value>
+  </data>
+  <data name="Footer_ContactUs" xml:space="preserve">
+    <value>Contact Us</value>
+  </data>
+  <data name="Footer_OpeningHours" xml:space="preserve">
+    <value>Opening Hours</value>
+  </data>
+  <data name="Footer_OpeningHoursNotSet" xml:space="preserve">
+    <value>Opening hours not set</value>
+  </data>
+  <data name="Footer_AllRightsReserved" xml:space="preserve">
+    <value>All rights reserved.</value>
+  </data>
+  <data name="Footer_BuiltWith" xml:space="preserve">
+    <value>Built with</value>
+  </data>
+  <data name="Footer_ByTeam" xml:space="preserve">
+    <value>by Juan &amp; Majed</value>
+  </data>
+
+  <!-- Products/Categories -->
+  <data name="Page_Products" xml:space="preserve"><value>Products</value></data>
+  <data name="Products_SearchPlaceholder" xml:space="preserve"><value>Search products...</value></data>
+  <data name="Products_SortBy" xml:space="preserve"><value>Sort by</value></data>
+  <data name="Products_SortNameAsc" xml:space="preserve"><value>Name A-Z</value></data>
+  <data name="Products_SortNameDesc" xml:space="preserve"><value>Name Z-A</value></data>
+  <data name="Products_SortPriceAsc" xml:space="preserve"><value>Price Low → High</value></data>
+  <data name="Products_SortPriceDesc" xml:space="preserve"><value>Price High → Low</value></data>
+  <data name="Btn_Filter" xml:space="preserve"><value>Filter</value></data>
+  <data name="Products_EmptyTitle" xml:space="preserve"><value>No products found</value></data>
+  <data name="Products_EmptySubtitle" xml:space="preserve"><value>Try a different search or filter.</value></data>
+  <data name="Badge_Organic" xml:space="preserve"><value>Organic</value></data>
+  <data name="Badge_Vegan" xml:space="preserve"><value>Vegan</value></data>
+  <data name="Badge_Halal" xml:space="preserve"><value>Halal</value></data>
+  <data name="Products_Allergens" xml:space="preserve"><value>Allergens</value></data>
+  <data name="Categories_EmptyTitle" xml:space="preserve"><value>No categories found</value></data>
+  <data name="Categories_EmptySubtitle" xml:space="preserve"><value>Check back later for new categories.</value></data>
+    <data name="Categories_All" xml:space="preserve"><value>All Categories</value></data>
+  <data name="Category_NoProductsTitle" xml:space="preserve"><value>No products in this category</value></data>
+  <data name="Category_NoProductsSubtitle" xml:space="preserve"><value>Check back later for new products.</value></data>
+  <data name="Category_ProductsFound" xml:space="preserve"><value>{0} product(s) found</value></data>
+
+  <!-- Admin -->
+  <data name="Admin_Panel" xml:space="preserve"><value>Admin Panel</value></data>
+  <data name="Admin_Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Admin_TotalProducts" xml:space="preserve"><value>Total Products</value></data>
+  <data name="Admin_ActiveProducts" xml:space="preserve"><value>Active Products</value></data>
+  <data name="Admin_QuickActions" xml:space="preserve"><value>Quick Actions</value></data>
+  <data name="Admin_AddCategory" xml:space="preserve"><value>Add Category</value></data>
+  <data name="Admin_AddProduct" xml:space="preserve"><value>Add Product</value></data>
+  <data name="Admin_ViewStore" xml:space="preserve"><value>View Store</value></data>
+  <data name="Admin_ManageProducts" xml:space="preserve"><value>Manage Products</value></data>
+  <data name="Admin_Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Admin_Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Admin_DeleteProductConfirm" xml:space="preserve"><value>Delete this product?</value></data>
+  <data name="Admin_ManageCategories" xml:space="preserve"><value>Manage Categories</value></data>
+  <data name="Admin_Order" xml:space="preserve"><value>Order</value></data>
+  <data name="Admin_NoCategoriesYet" xml:space="preserve"><value>No categories yet. Click "Add Category" to get started.</value></data>
+  <data name="Admin_DeleteCategoryConfirm" xml:space="preserve"><value>Delete this category?</value></data>
+  <data name="Admin_EditProduct" xml:space="preserve"><value>Edit Product</value></data>
+  <data name="Admin_Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Admin_SelectCategory" xml:space="preserve"><value>Select Category</value></data>
+  <data name="Admin_Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="Admin_Unit" xml:space="preserve"><value>Unit</value></data>
+  <data name="Admin_SEO" xml:space="preserve"><value>SEO</value></data>
+  <data name="Admin_MetaTitle" xml:space="preserve"><value>Meta Title</value></data>
+  <data name="Admin_MetaDescription" xml:space="preserve"><value>Meta Description</value></data>
+  <data name="Admin_EditCategory" xml:space="preserve"><value>Edit Category</value></data>
+  <data name="Admin_ParentCategory" xml:space="preserve"><value>Parent Category</value></data>
+  <data name="Admin_NoneRoot" xml:space="preserve"><value>None (root)</value></data>
+  <data name="Admin_ImageUrl" xml:space="preserve"><value>Image URL</value></data>
+  <data name="Admin_Icon" xml:space="preserve"><value>Icon (FontAwesome)</value></data>
+  <data name="Admin_StoreSettings" xml:space="preserve"><value>Store Settings</value></data>
+  <data name="Admin_SaveSettings" xml:space="preserve"><value>Save Settings</value></data>
+  <data name="Admin_Settings_StoreName" xml:space="preserve"><value>Store Name</value></data>
+  <data name="Admin_Settings_StoreNamePlaceholder" xml:space="preserve"><value>e.g. Fresh Grocery Store</value></data>
+  <data name="Admin_Settings_Phone" xml:space="preserve"><value>Phone</value></data>
+  <data name="Admin_Settings_PhonePlaceholder" xml:space="preserve"><value>+964 750 ...</value></data>
+  <data name="Admin_Settings_Whatsapp" xml:space="preserve"><value>WhatsApp Number</value></data>
+  <data name="Admin_Settings_WhatsappPlaceholder" xml:space="preserve"><value>+9647501234567</value></data>
+  <data name="Admin_Settings_Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Admin_Settings_EmailPlaceholder" xml:space="preserve"><value>info@store.com</value></data>
+  <data name="Admin_Settings_Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="Admin_Settings_CurrencyPlaceholder" xml:space="preserve"><value>USD</value></data>
+  <data name="Admin_Settings_Address" xml:space="preserve"><value>Address</value></data>
+  <data name="Admin_Settings_AddressPlaceholder" xml:space="preserve"><value>City, Country</value></data>
+  <data name="Admin_Settings_OpeningHours" xml:space="preserve"><value>Opening Hours</value></data>
+  <data name="Admin_Settings_OpeningHoursPlaceholder" xml:space="preserve"><value>Sat – Thu: 8:00 AM – 10:00 PM&#10;Fri: 9:00 AM – 11:00 PM</value></data>
+  <data name="Admin_Settings_GoogleMapsUrl" xml:space="preserve"><value>Google Maps Embed URL</value></data>
+  <data name="Admin_Settings_GoogleMapsUrlPlaceholder" xml:space="preserve"><value>https://www.google.com/maps/embed?...</value></data>
+  <data name="Admin_Gallery" xml:space="preserve"><value>Gallery</value></data>
+  <data name="Admin_Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Admin_ToggleSidebar" xml:space="preserve"><value>Toggle sidebar</value></data>
+  <data name="Admin_ViewSite" xml:space="preserve"><value>View Site</value></data>
+  <data name="Admin_GalleryLibrary" xml:space="preserve"><value>Gallery Library</value></data>
+  <data name="Admin_Library" xml:space="preserve"><value>Library</value></data>
+  <data name="Admin_EntityImages" xml:space="preserve"><value>Entity images</value></data>
+  <data name="Admin_DragDropImages" xml:space="preserve"><value>Drag &amp; drop images here (Library)</value></data>
+  <data name="Admin_DropZoneSub" xml:space="preserve"><value>or click to browse · PNG, JPG, WEBP, GIF · max 10 MB each</value></data>
+  <data name="Admin_UploadToLibrary" xml:space="preserve"><value>Upload to library</value></data>
+  <data name="Admin_AssignSelectedImages" xml:space="preserve"><value>Assign selected images</value></data>
+  <data name="Admin_MakePrimaryHint" xml:space="preserve"><value>Make first assigned primary (products only)</value></data>
+  <data name="Admin_Deselect" xml:space="preserve"><value>Deselect</value></data>
+  <data name="Admin_Target" xml:space="preserve"><value>Target</value></data>
+  <data name="Admin_Product" xml:space="preserve"><value>Product</value></data>
+  <data name="Admin_Assign" xml:space="preserve"><value>Assign</value></data>
+  <data name="Admin_Unassign" xml:space="preserve"><value>Unassign</value></data>
+  <data name="Admin_SearchByFilename" xml:space="preserve"><value>Search by filename…</value></data>
+  <data name="Admin_SelectAll" xml:space="preserve"><value>Select all</value></data>
+  <data name="Admin_DeselectAll" xml:space="preserve"><value>Deselect all</value></data>
+  <data name="Admin_DeleteSelectedLibrary" xml:space="preserve"><value>Delete selected (library)</value></data>
+  <data name="Admin_NoImagesMatch" xml:space="preserve"><value>No images match your search.</value></data>
+
+  <!-- Cart / Checkout / Auth / Errors -->
+  <data name="Page_Cart" xml:space="preserve"><value>Shopping Cart</value></data>
+  <data name="Cart_EmptyTitle" xml:space="preserve"><value>Your cart is empty</value></data>
+  <data name="Cart_EmptySubtitle" xml:space="preserve"><value>Add some products to start your order.</value></data>
+  <data name="Cart_Product" xml:space="preserve"><value>Product</value></data>
+  <data name="Cart_Subtotal" xml:space="preserve"><value>Subtotal</value></data>
+  <data name="Cart_DecreaseQty" xml:space="preserve"><value>Decrease quantity</value></data>
+  <data name="Cart_IncreaseQty" xml:space="preserve"><value>Increase quantity</value></data>
+  <data name="Cart_OrderSummary" xml:space="preserve"><value>Order Summary</value></data>
+  <data name="Cart_TotalCurrency" xml:space="preserve"><value>Total ({0})</value></data>
+  <data name="Cart_MultiCurrencyNote" xml:space="preserve"><value>Items are grouped by currency.</value></data>
+  <data name="Cart_ClearConfirm" xml:space="preserve"><value>Clear all items from cart?</value></data>
+  <data name="Btn_ClearCart" xml:space="preserve"><value>Clear Cart</value></data>
+  <data name="Btn_CheckoutWhatsApp" xml:space="preserve"><value>Checkout via WhatsApp</value></data>
+  <data name="Cart_SKU" xml:space="preserve"><value>SKU</value></data>
+
+  <data name="Page_Checkout" xml:space="preserve"><value>Checkout</value></data>
+  <data name="Checkout_Subtitle" xml:space="preserve"><value>Complete your details to send your order via WhatsApp.</value></data>
+  <data name="Checkout_YourDetails" xml:space="preserve"><value>Your Details</value></data>
+  <data name="Btn_BackToCart" xml:space="preserve"><value>Back to Cart</value></data>
+  <data name="Btn_SendOrderWhatsApp" xml:space="preserve"><value>Send Order via WhatsApp</value></data>
+
+  <data name="Page_AdminLogin" xml:space="preserve"><value>Admin Login</value></data>
+  <data name="Login_Subtitle" xml:space="preserve"><value>Sign in to manage your grocery store</value></data>
+  <data name="Login_Username" xml:space="preserve"><value>Username</value></data>
+  <data name="Login_Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Login_EnterUsername" xml:space="preserve"><value>Enter username</value></data>
+  <data name="Login_EnterPassword" xml:space="preserve"><value>Enter password</value></data>
+  <data name="Btn_SignIn" xml:space="preserve"><value>Sign In</value></data>
+  <data name="Login_DefaultCredentials" xml:space="preserve"><value>Default credentials</value></data>
+
+  <data name="Page_NotFound" xml:space="preserve"><value>Page Not Found</value></data>
+  <data name="Error_404" xml:space="preserve"><value>404 Error</value></data>
+  <data name="Error_PageNotFoundTitle" xml:space="preserve"><value>Page not found</value></data>
+  <data name="Error_PageNotFoundSubtitle" xml:space="preserve"><value>The page you requested does not exist, may have been moved, or the link may be incorrect.</value></data>
+  <data name="Error_RequestedUrl" xml:space="preserve"><value>Requested URL</value></data>
+
+  <data name="Page_Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Error_Oops" xml:space="preserve"><value>Oops!</value></data>
+  <data name="Error_GenericMessage" xml:space="preserve"><value>Something went wrong. Please try again later.</value></data>
+</root>

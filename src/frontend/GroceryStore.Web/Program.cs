@@ -1,12 +1,18 @@
 using GroceryStore.Application;
 using GroceryStore.Infrastructure;
 using GroceryStore.Web.Services;
+using GroceryStore.Web.Services.Localization;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ── MVC + Razor Views ──────────────────────────────────────────────────
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    // Localization services for IStringLocalizer and IViewLocalizer
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization();
 
 // ── Session (guest shopping cart) ───────────────────────────────────────
 builder.Services.AddDistributedMemoryCache();
@@ -44,6 +50,15 @@ builder.Services.AddApplication();                       // CQRS handlers, valid
 builder.Services.AddScoped<IStoreSettingsService, StoreSettingsService>();
 builder.Services.AddScoped<ICartService, SessionCartService>();
 
+// ── Localization Services ──────────────────────────────────────────────
+// Support for multilingual application with English, Arabic, French, German
+builder.Services.AddLocalization(options => 
+    options.ResourcesPath = "Resources");
+
+// Configure localization options: cultures, default culture, providers
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+    options.ConfigureLocalization());
+
 var app = builder.Build();
 
 // ── Pipeline ───────────────────────────────────────────────────────────
@@ -56,6 +71,11 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
+// ── Localization Middleware ────────────────────────────────────────────
+// Must be before routing. Detects culture from query string, cookie, or Accept-Language header
+var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
+app.UseRequestLocalization(localizationOptions);
 
 app.UseRouting();
 app.UseSession();

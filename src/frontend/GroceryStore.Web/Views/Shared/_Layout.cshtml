@@ -1,6 +1,11 @@
+@using GroceryStore.Web.Services.Localization
+@using System.Globalization
+@using System.Resources
 @inject GroceryStore.Web.Services.IStoreSettingsService StoreSettingsService
 @inject GroceryStore.Web.Services.ICartService CartService
 @{
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
     var footerSettings = await StoreSettingsService.GetAsync();
     var cartItemCount = CartService.GetCount();
     var footerHours = (footerSettings.OpeningHours ?? string.Empty)
@@ -8,10 +13,14 @@
         .Select(x => x.Trim())
         .Where(x => !string.IsNullOrWhiteSpace(x))
         .ToList();
+    
+    // Localization: Get current culture and check if RTL
+    var currentCulture = Context.GetCurrentCulture();
+    var isRtl = GroceryStore.Web.Services.Localization.CultureHelper.IsRtlCulture(currentCulture);
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@currentCulture" dir="@(isRtl ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,6 +45,12 @@
     @* App styles *@
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    
+    @* RTL Support for Arabic *@
+    @if (isRtl)
+    {
+        <link rel="stylesheet" href="~/css/rtl.css" asp-append-version="true" />
+    }
 </head>
 <body>
     @* ═══ Navbar ═══ *@
@@ -48,35 +63,57 @@
 
             <div class="nav-menu" id="navMenu">
                 <a asp-controller="Home" asp-action="Index" class="nav-link">
-                    <i class="fas fa-home"></i> Home
+                    <i class="fas fa-home"></i> @T("Nav_Home")
                 </a>
                 <a asp-controller="Categories" asp-action="Index" class="nav-link">
-                    <i class="fas fa-th-large"></i> Categories
+                    <i class="fas fa-th-large"></i> @T("Nav_Categories")
                 </a>
                 <a asp-controller="Products" asp-action="Index" class="nav-link">
-                    <i class="fas fa-box-open"></i> Products
+                    <i class="fas fa-box-open"></i> @T("Nav_Products")
                 </a>
                 <a asp-controller="Cart" asp-action="Index" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> Cart
+                    <i class="fas fa-shopping-cart"></i> @T("Nav_Cart")
                     @if (cartItemCount > 0)
                     {
                         <span class="cart-badge">@cartItemCount</span>
                     }
                 </a>
                 <a asp-controller="Home" asp-action="Contact" class="nav-link">
-                    <i class="fas fa-envelope"></i> Contact
+                    <i class="fas fa-envelope"></i> @T("Nav_Contact")
                 </a>
             </div>
 
             <div class="nav-actions">
-                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                <div class="language-switcher">
+                    <button class="language-toggle" id="languageToggle" title="@T("Lbl_Language")">
+                        <i class="fas fa-globe"></i>
+                        <span class="lang-code">@currentCulture.ToUpper()</span>
+                    </button>
+                    <div class="language-dropdown" id="languageDropdown" style="display:none;">
+                        @foreach (var (code, displayName, isRtl) in GroceryStore.Web.Services.Localization.CultureHelper.GetAvailableCultures())
+                        {
+                            var isActive = code == currentCulture;
+                            <a href="@Url.Action("SetCulture", "Culture", new { culture = code, returnUrl = Context.Request.Path + Context.Request.QueryString })"
+                               class="language-item @(isActive ? "active" : "")"
+                               data-culture="@code">
+                                <span class="lang-name">@displayName</span>
+                                @if (isActive)
+                                {
+                                    <i class="fas fa-check"></i>
+                                }
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <button class="theme-toggle" onclick="toggleTheme()" title="@T("Ui_ToggleTheme")">
                     <i class="fas fa-moon"></i>
                     <i class="fas fa-sun"></i>
                 </button>
-                <button class="search-toggle" onclick="openSearch()" title="Search">
+                <button class="search-toggle" onclick="openSearch()" title="@T("Ui_Search")">
                     <i class="fas fa-search"></i>
                 </button>
-                <button class="menu-toggle" onclick="toggleMenu()" title="Menu">
+                <button class="menu-toggle" onclick="toggleMenu()" title="@T("Ui_Menu")">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -91,7 +128,7 @@
             </button>
             <form asp-controller="Products" asp-action="Index" method="get" class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="Search products, categories..." autocomplete="off" />
+                <input type="text" name="search" placeholder="@T("Search_Placeholder")" autocomplete="off" />
             </form>
         </div>
     </div>
@@ -120,7 +157,7 @@
                 @* Brand *@
                 <div class="footer-section">
                     <h3><i class="fas fa-leaf" style="color:var(--primary);"></i> @footerSettings.StoreName</h3>
-                    <p>Your trusted neighborhood grocery store offering premium fresh and packaged products at competitive prices.</p>
+                    <p>@T("Footer_Description")</p>
                     <div class="social-links">
                         <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
                         <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
@@ -131,19 +168,19 @@
 
                 @* Quick Links *@
                 <div class="footer-section">
-                    <h4>Quick Links</h4>
+                    <h4>@T("Footer_QuickLinks")</h4>
                     <ul>
-                        <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-                        <li><a asp-controller="Categories" asp-action="Index">Categories</a></li>
-                        <li><a asp-controller="Products" asp-action="Index">Products</a></li>
-                        <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
-                        <li><a asp-controller="Home" asp-action="Contact">Contact Us</a></li>
+                        <li><a asp-controller="Home" asp-action="Index">@T("Nav_Home")</a></li>
+                        <li><a asp-controller="Categories" asp-action="Index">@T("Nav_Categories")</a></li>
+                        <li><a asp-controller="Products" asp-action="Index">@T("Nav_Products")</a></li>
+                        <li><a asp-controller="Cart" asp-action="Index">@T("Nav_Cart")</a></li>
+                        <li><a asp-controller="Home" asp-action="Contact">@T("Footer_ContactUs")</a></li>
                     </ul>
                 </div>
 
                 @* Contact Info *@
                 <div class="footer-section">
-                    <h4>Contact Us</h4>
+                    <h4>@T("Footer_ContactUs")</h4>
                     <ul class="contact-info">
                         <li><i class="fas fa-phone"></i> <span>@footerSettings.Phone</span></li>
                         <li><i class="fab fa-whatsapp"></i> <span>@footerSettings.WhatsappNumber</span></li>
@@ -154,11 +191,11 @@
 
                 @* Opening Hours *@
                 <div class="footer-section">
-                    <h4>Opening Hours</h4>
+                    <h4>@T("Footer_OpeningHours")</h4>
                     <ul>
                         @if (footerHours.Count == 0)
                         {
-                            <li>Opening hours not set</li>
+                            <li>@T("Footer_OpeningHoursNotSet")</li>
                         }
                         else
                         {
@@ -172,13 +209,43 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; @DateTime.UtcNow.Year Fresh Grocery Store. All rights reserved.</p>
-                <p>Built with <i class="fas fa-heart" style="color:var(--danger);"></i> by Juan &amp; Majed</p>
+                <p>&copy; @DateTime.UtcNow.Year @footerSettings.StoreName. @T("Footer_AllRightsReserved")</p>
+                <p>@T("Footer_BuiltWith") <i class="fas fa-heart" style="color:var(--danger);"></i> @T("Footer_ByTeam")</p>
             </div>
         </div>
     </footer>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    @* ── Language Switcher ────────────────────────────────────────────────── *@
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('languageToggle');
+            const dropdown = document.getElementById('languageDropdown');
+
+            if (toggleBtn && dropdown) {
+                toggleBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!e.target.closest('.language-switcher')) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                // Close dropdown when selecting a language
+                const langItems = dropdown.querySelectorAll('.language-item');
+                langItems.forEach(item => {
+                    item.addEventListener('click', function () {
+                        dropdown.style.display = 'none';
+                    });
+                });
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
