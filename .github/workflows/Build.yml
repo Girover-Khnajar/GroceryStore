@@ -27,9 +27,9 @@ jobs:
     uses: ./.github/workflows/frontend-ci.yml
 
   deploy:
-    name: 🚀 Deploy GroceryStore.Web (FTP)
+    name: 🚀 Deploy GroceryStore.Web (MSDeploy)
     needs: [backend, frontend]
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read
     steps:
@@ -43,15 +43,12 @@ jobs:
       - name: Publish GroceryStore.Web
         run: dotnet publish src/frontend/GroceryStore.Web/GroceryStore.Web.csproj -c Release -o ./artifacts/web-publish
 
-      - name: Deploy to hosting via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: win6215.site4now.net
-          protocol: ftps
-          port: 21
-          security: loose
-          username: girover-001
-          password: ${{ secrets.SITE1_FTP_PASSWORD }}
-          local-dir: ./artifacts/web-publish/
-          server-dir: /naem/
-          dangerous-clean-slate: false
+      - name: Deploy via MSDeploy (Web Deploy)
+        run: |
+          & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
+            -verb:sync `
+            -source:contentPath="${{ github.workspace }}\artifacts\web-publish" `
+            -dest:contentPath="girover-001-site1",computerName="https://win6215.site4now.net:8172/msdeploy.axd?site=girover-001-site1",userName="girover-001",password="${{ secrets.MSDEPLOY_PASSWORD }}",authType="Basic" `
+            -allowUntrusted `
+            -enableRule:AppOffline
+        shell: pwsh
