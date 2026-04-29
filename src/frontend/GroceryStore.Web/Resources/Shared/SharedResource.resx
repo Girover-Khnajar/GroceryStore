@@ -45,6 +45,9 @@
   <data name="Nav_Logout" xml:space="preserve">
     <value>Logout</value>
   </data>
+  <data name="Nav_Login" xml:space="preserve">
+    <value>Admin Login</value>
+  </data>
   
   <!-- Common buttons -->
   <data name="Btn_Home" xml:space="preserve">
@@ -244,6 +247,14 @@
   <data name="Admin_Settings_GoogleMapsUrlPlaceholder" xml:space="preserve"><value>https://www.google.com/maps/embed?...</value></data>
   <data name="Admin_Gallery" xml:space="preserve"><value>Gallery</value></data>
   <data name="Admin_Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Admin_ChangePassword" xml:space="preserve"><value>Change Password</value></data>
+  <data name="Admin_CurrentPassword" xml:space="preserve"><value>Current Password</value></data>
+  <data name="Admin_CurrentPasswordPlaceholder" xml:space="preserve"><value>Enter current password</value></data>
+  <data name="Admin_NewPassword" xml:space="preserve"><value>New Password</value></data>
+  <data name="Admin_NewPasswordPlaceholder" xml:space="preserve"><value>Enter new password</value></data>
+  <data name="Admin_ConfirmPassword" xml:space="preserve"><value>Confirm New Password</value></data>
+  <data name="Admin_ConfirmPasswordPlaceholder" xml:space="preserve"><value>Repeat new password</value></data>
+  <data name="Admin_SavePassword" xml:space="preserve"><value>Save Password</value></data>
   <data name="Admin_ToggleSidebar" xml:space="preserve"><value>Toggle sidebar</value></data>
   <data name="Admin_ViewSite" xml:space="preserve"><value>View Site</value></data>
   <data name="Admin_GalleryLibrary" xml:space="preserve"><value>Gallery Library</value></data>

@@ -1,8 +1,11 @@
 using System.Security.Claims;
+using GroceryStore.Domain.Entities;
+using GroceryStore.Domain.Interfaces;
 using GroceryStore.Web.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GroceryStore.Web.Controllers;
@@ -10,9 +13,14 @@ namespace GroceryStore.Web.Controllers;
 [Route("Account")]
 public class AccountController : Controller
 {
-    private readonly IConfiguration _config;
+    private readonly IUserRepository _users;
+    private readonly IPasswordHasher<User> _hasher;
 
-    public AccountController(IConfiguration config) => _config = config;
+    public AccountController(IUserRepository users, IPasswordHasher<User> hasher)
+    {
+        _users = users;
+        _hasher = hasher;
+    }
 
     // ── GET /Account/Login ─────────────────────────────────────────────
     [HttpGet("Login")]
@@ -34,10 +42,10 @@ public class AccountController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        var adminUser = _config["AdminCredentials:Username"] ?? "admin";
-        var adminPass = _config["AdminCredentials:Password"] ?? "admin123";
-
-        if (model.Username != adminUser || model.Password != adminPass)
+        var user = await _users.FindByUsernameAsync(model.Username, ct);
+        if (user is null ||
+            _hasher.VerifyHashedPassword(user, user.PasswordHash, model.Password)
+                == PasswordVerificationResult.Failed)
         {
             ModelState.AddModelError(string.Empty, "Invalid username or password.");
             return View(model);
@@ -45,8 +53,9 @@ public class AccountController : Controller
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name,  model.Username),
+            new Claim(ClaimTypes.Name, user.Username),
             new Claim(ClaimTypes.Role, "Admin"),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
 
         var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

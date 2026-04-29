@@ -14,10 +14,13 @@ using GroceryStore.Application.Products.Commands.SetPrimaryProductImage;
 using GroceryStore.Application.Products.Dtos;
 using GroceryStore.Application.Products.Queries;
 using GroceryStore.Application.Products.Queries.GetProducts;
+using GroceryStore.Domain.Entities;
+using GroceryStore.Domain.Interfaces;
 using GroceryStore.Web.Extensions;
 using GroceryStore.Web.Services;
 using GroceryStore.Web.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GroceryStore.Web.Controllers;
@@ -29,15 +32,21 @@ public class AdminController : Controller
     private readonly IMessageDispatcher _dispatcher;
     private readonly IWebHostEnvironment _env;
     private readonly IStoreSettingsService _settingsService;
+    private readonly IUserRepository _users;
+    private readonly IPasswordHasher<User> _hasher;
 
     public AdminController(
         IMessageDispatcher dispatcher,
         IWebHostEnvironment env,
-        IStoreSettingsService settingsService)
+        IStoreSettingsService settingsService,
+        IUserRepository users,
+        IPasswordHasher<User> hasher)
     {
         _dispatcher = dispatcher;
         _env = env;
         _settingsService = settingsService;
+        _users = users;
+        _hasher = hasher;
     }
 
     // ── Dashboard ──────────────────────────────────────────────────────
@@ -88,6 +97,41 @@ public class AdminController : Controller
         await _settingsService.SaveAsync(vm, ct);
         TempData["Success"] = "Settings saved successfully.";
         return RedirectToAction(nameof(Settings));
+    }
+
+    // ── Change Password ────────────────────────────────────────────────
+
+    [HttpGet("ChangePassword")]
+    public IActionResult ChangePassword() => View(new ChangePasswordViewModel());
+
+    [HttpPost("ChangePassword")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel vm, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+            return View(vm);
+
+        var username = User.Identity?.Name;
+        var user = username is null ? null : await _users.FindByUsernameAsync(username, ct);
+
+        if (user is null)
+        {
+            ModelState.AddModelError(string.Empty, "User not found.");
+            return View(vm);
+        }
+
+        var verification = _hasher.VerifyHashedPassword(user, user.PasswordHash, vm.CurrentPassword);
+        if (verification == PasswordVerificationResult.Failed)
+        {
+            ModelState.AddModelError(nameof(vm.CurrentPassword), "Current password is incorrect.");
+            return View(vm);
+        }
+
+        var newHash = _hasher.HashPassword(user, vm.NewPassword);
+        await _users.UpdatePasswordAsync(user, newHash, ct);
+
+        TempData["Success"] = "Password changed successfully.";
+        return RedirectToAction(nameof(ChangePassword));
     }
 
     // ── Categories CRUD ────────────────────────────────────────────────
