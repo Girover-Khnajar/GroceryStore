@@ -18,12 +18,12 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label asp-for="Name" class="form-label"></label>
+                <label asp-for="Name" class="form-label">@T("Lbl_Name")</label>
                 <input asp-for="Name" class="form-control" placeholder="e.g. Fresh Vegetables" />
                 <span asp-validation-for="Name" class="validation-message"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Slug" class="form-label"></label>
+                <label asp-for="Slug" class="form-label">@T("Admin_Slug")</label>
                 <input asp-for="Slug" class="form-control" placeholder="fresh-vegetables" />
                 <span asp-validation-for="Slug" class="validation-message"></span>
             </div>
@@ -41,7 +41,7 @@
         </div>
 
         <div class="form-group">
-            <label asp-for="Description" class="form-label"></label>
+            <label asp-for="Description" class="form-label">@T("Lbl_Description")</label>
             <textarea asp-for="Description" class="form-control" rows="3"></textarea>
         </div>
 
@@ -57,7 +57,7 @@
         </div>
 
         <div class="form-group" style="max-width:200px;">
-            <label asp-for="SortOrder" class="form-label"></label>
+            <label asp-for="SortOrder" class="form-label">@T("Admin_SortOrder")</label>
             <input asp-for="SortOrder" type="number" class="form-control" />
         </div>
 

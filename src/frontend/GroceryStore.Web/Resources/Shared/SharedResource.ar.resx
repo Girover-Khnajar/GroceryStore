@@ -212,6 +212,12 @@
   <data name="Admin_SelectCategory" xml:space="preserve"><value>اختر فئة</value></data>
   <data name="Admin_Currency" xml:space="preserve"><value>العملة</value></data>
   <data name="Admin_Unit" xml:space="preserve"><value>الوحدة</value></data>
+  <data name="Admin_Slug" xml:space="preserve"><value>الرابط</value></data>
+  <data name="Admin_SortOrder" xml:space="preserve"><value>ترتيب العرض</value></data>
+  <data name="Admin_ShortDescription" xml:space="preserve"><value>وصف قصير</value></data>
+  <data name="Admin_LongDescription" xml:space="preserve"><value>وصف كامل</value></data>
+  <data name="Admin_PricePreview" xml:space="preserve"><value>معاينة:</value></data>
+  <data name="Badge_Featured" xml:space="preserve"><value>مميز</value></data>
   <data name="Admin_SEO" xml:space="preserve"><value>تهيئة محركات البحث</value></data>
   <data name="Admin_MetaTitle" xml:space="preserve"><value>عنوان الميتا</value></data>
   <data name="Admin_MetaDescription" xml:space="preserve"><value>وصف الميتا</value></data>
