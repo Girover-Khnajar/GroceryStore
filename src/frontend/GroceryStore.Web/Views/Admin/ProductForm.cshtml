@@ -140,5 +140,35 @@
             unitInput.addEventListener('change', updatePreview);
             updatePreview();
         })();
+
+        // ── Slug auto-generation ──────────────────────────────────────────
+        (function () {
+            const nameInput = document.getElementById('Name');
+            const slugInput = document.getElementById('Slug');
+
+            if (!nameInput || !slugInput) return;
+
+            const toSlug = (text) =>
+                text
+                    .toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // strip accents
+                    .replace(/[^a-z0-9\s-]/g, '')                       // keep alphanumeric
+                    .trim()
+                    .replace(/\s+/g, '-')                               // spaces → hyphens
+                    .replace(/-{2,}/g, '-');                            // collapse multiple hyphens
+
+            // Only auto-fill when the slug hasn't been manually edited
+            let userEditedSlug = slugInput.value.length > 0 && slugInput.value !== toSlug(nameInput.value);
+
+            slugInput.addEventListener('input', () => {
+                userEditedSlug = true;
+            });
+
+            nameInput.addEventListener('input', () => {
+                if (!userEditedSlug) {
+                    slugInput.value = toSlug(nameInput.value);
+                }
+            });
+        })();
     </script>
 }
