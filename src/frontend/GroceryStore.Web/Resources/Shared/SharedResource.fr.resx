@@ -212,6 +212,12 @@
   <data name="Admin_SelectCategory" xml:space="preserve"><value>Sélectionner une catégorie</value></data>
   <data name="Admin_Currency" xml:space="preserve"><value>Devise</value></data>
   <data name="Admin_Unit" xml:space="preserve"><value>Unité</value></data>
+  <data name="Admin_Slug" xml:space="preserve"><value>Slug</value></data>
+  <data name="Admin_SortOrder" xml:space="preserve"><value>Ordre d'affichage</value></data>
+  <data name="Admin_ShortDescription" xml:space="preserve"><value>Description courte</value></data>
+  <data name="Admin_LongDescription" xml:space="preserve"><value>Description complète</value></data>
+  <data name="Admin_PricePreview" xml:space="preserve"><value>Aperçu :</value></data>
+  <data name="Badge_Featured" xml:space="preserve"><value>En vedette</value></data>
   <data name="Admin_SEO" xml:space="preserve"><value>SEO</value></data>
   <data name="Admin_MetaTitle" xml:space="preserve"><value>Méta titre</value></data>
   <data name="Admin_MetaDescription" xml:space="preserve"><value>Méta description</value></data>
