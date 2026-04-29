@@ -82,4 +82,33 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const nameInput = document.getElementById('Name');
+            const slugInput = document.getElementById('Slug');
+
+            if (!nameInput || !slugInput) return;
+
+            const toSlug = (text) =>
+                text
+                    .toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .trim()
+                    .replace(/\s+/g, '-')
+                    .replace(/-{2,}/g, '-');
+
+            let userEditedSlug = slugInput.value.length > 0 && slugInput.value !== toSlug(nameInput.value);
+
+            slugInput.addEventListener('input', () => {
+                userEditedSlug = true;
+            });
+
+            nameInput.addEventListener('input', () => {
+                if (!userEditedSlug) {
+                    slugInput.value = toSlug(nameInput.value);
+                }
+            });
+        })();
+    </script>
 }
