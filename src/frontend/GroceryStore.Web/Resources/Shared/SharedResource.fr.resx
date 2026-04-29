@@ -38,6 +38,9 @@
   <data name="Nav_Logout" xml:space="preserve">
     <value>Déconnexion</value>
   </data>
+  <data name="Nav_Login" xml:space="preserve">
+    <value>Connexion admin</value>
+  </data>
   
   <!-- Common buttons -->
   <data name="Btn_Home" xml:space="preserve">
@@ -237,6 +240,14 @@
   <data name="Admin_Settings_GoogleMapsUrlPlaceholder" xml:space="preserve"><value>https://www.google.com/maps/embed?...</value></data>
   <data name="Admin_Gallery" xml:space="preserve"><value>Galerie</value></data>
   <data name="Admin_Settings" xml:space="preserve"><value>Paramètres</value></data>
+  <data name="Admin_ChangePassword" xml:space="preserve"><value>Changer le mot de passe</value></data>
+  <data name="Admin_CurrentPassword" xml:space="preserve"><value>Mot de passe actuel</value></data>
+  <data name="Admin_CurrentPasswordPlaceholder" xml:space="preserve"><value>Saisir le mot de passe actuel</value></data>
+  <data name="Admin_NewPassword" xml:space="preserve"><value>Nouveau mot de passe</value></data>
+  <data name="Admin_NewPasswordPlaceholder" xml:space="preserve"><value>Saisir le nouveau mot de passe</value></data>
+  <data name="Admin_ConfirmPassword" xml:space="preserve"><value>Confirmer le nouveau mot de passe</value></data>
+  <data name="Admin_ConfirmPasswordPlaceholder" xml:space="preserve"><value>Répéter le nouveau mot de passe</value></data>
+  <data name="Admin_SavePassword" xml:space="preserve"><value>Enregistrer le mot de passe</value></data>
   <data name="Admin_ToggleSidebar" xml:space="preserve"><value>Basculer la barre latérale</value></data>
   <data name="Admin_ViewSite" xml:space="preserve"><value>Voir le site</value></data>
   <data name="Admin_GalleryLibrary" xml:space="preserve"><value>Bibliothèque de la galerie</value></data>

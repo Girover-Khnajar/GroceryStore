@@ -1,9 +1,14 @@
 using GroceryStore.Application;
+using GroceryStore.Domain.Entities;
+using GroceryStore.Domain.Interfaces;
 using GroceryStore.Infrastructure;
+using GroceryStore.Infrastructure.Persistence;
 using GroceryStore.Web.Services;
 using GroceryStore.Web.Services.Localization;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +54,7 @@ builder.Services.AddInfrastructure(connectionString);   // EF Core, repos, UoW
 builder.Services.AddApplication();                       // CQRS handlers, validation, logging
 builder.Services.AddScoped<IStoreSettingsService, StoreSettingsService>();
 builder.Services.AddScoped<ICartService, SessionCartService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 // ── Localization Services ──────────────────────────────────────────────
 // Support for multilingual application with English, Arabic, French, German
@@ -92,5 +98,25 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// ── Seed admin user ────────────────────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var db       = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var users    = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+    var hasher   = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+
+    await db.Database.MigrateAsync();
+
+    if (!await users.AnyAsync())
+    {
+        var adminUsername = builder.Configuration["AdminCredentials:Username"] ?? "admin";
+        var adminPassword = builder.Configuration["AdminCredentials:Password"] ?? "Admin@1234";
+
+        var admin = new User { Username = adminUsername };
+        admin.PasswordHash = hasher.HashPassword(admin, adminPassword);
+        await users.AddAsync(admin);
+    }
+}
 
 app.Run();

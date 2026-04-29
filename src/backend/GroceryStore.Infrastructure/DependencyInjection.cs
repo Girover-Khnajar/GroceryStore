@@ -1,6 +1,7 @@
 using GroceryStore.Application.Products;
 using GroceryStore.Domain.Interfaces;
 using GroceryStore.Infrastructure.Persistence;
+using GroceryStore.Infrastructure.Persistence.Auth;
 using GroceryStore.Infrastructure.Persistence.Catalog.Repositories;
 using GroceryStore.Infrastructure.Persistence.Media.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IImageAssetRepository, ImageAssetRepository>();
         services.AddScoped<IProductsReadStore, ProductsReadStore>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }

@@ -211,6 +211,10 @@
                         <li><a asp-controller="Products" asp-action="Index">@T("Nav_Products")</a></li>
                         <li><a asp-controller="Cart" asp-action="Index">@T("Nav_Cart")</a></li>
                         <li><a asp-controller="Home" asp-action="Contact">@T("Footer_ContactUs")</a></li>
+                        @if (User.Identity?.IsAuthenticated != true)
+                        {
+                            <li><a asp-controller="Account" asp-action="Login">@T("Nav_Login")</a></li>
+                        }
                     </ul>
                 </div>
 

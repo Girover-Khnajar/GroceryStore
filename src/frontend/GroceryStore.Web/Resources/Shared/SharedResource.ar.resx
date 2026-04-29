@@ -38,6 +38,9 @@
   <data name="Nav_Logout" xml:space="preserve">
     <value>تسجيل الخروج</value>
   </data>
+  <data name="Nav_Login" xml:space="preserve">
+    <value>تسجيل دخول الإدارة</value>
+  </data>
   
   <!-- Common buttons -->
   <data name="Btn_Home" xml:space="preserve">
@@ -237,6 +240,14 @@
   <data name="Admin_Settings_GoogleMapsUrlPlaceholder" xml:space="preserve"><value>https://www.google.com/maps/embed?...</value></data>
   <data name="Admin_Gallery" xml:space="preserve"><value>المعرض</value></data>
   <data name="Admin_Settings" xml:space="preserve"><value>الإعدادات</value></data>
+  <data name="Admin_ChangePassword" xml:space="preserve"><value>تغيير كلمة المرور</value></data>
+  <data name="Admin_CurrentPassword" xml:space="preserve"><value>كلمة المرور الحالية</value></data>
+  <data name="Admin_CurrentPasswordPlaceholder" xml:space="preserve"><value>أدخل كلمة المرور الحالية</value></data>
+  <data name="Admin_NewPassword" xml:space="preserve"><value>كلمة المرور الجديدة</value></data>
+  <data name="Admin_NewPasswordPlaceholder" xml:space="preserve"><value>أدخل كلمة المرور الجديدة</value></data>
+  <data name="Admin_ConfirmPassword" xml:space="preserve"><value>تأكيد كلمة المرور الجديدة</value></data>
+  <data name="Admin_ConfirmPasswordPlaceholder" xml:space="preserve"><value>أعد إدخال كلمة المرور الجديدة</value></data>
+  <data name="Admin_SavePassword" xml:space="preserve"><value>حفظ كلمة المرور</value></data>
   <data name="Admin_ToggleSidebar" xml:space="preserve"><value>تبديل الشريط الجانبي</value></data>
   <data name="Admin_ViewSite" xml:space="preserve"><value>عرض الموقع</value></data>
   <data name="Admin_GalleryLibrary" xml:space="preserve"><value>مكتبة المعرض</value></data>
