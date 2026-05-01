@@ -158,6 +158,11 @@
   <data name="Footer_OpeningHoursNotSet" xml:space="preserve">
     <value>لم يتم تحديد ساعات العمل</value>
   </data>
+  <data name="Cookie_Message" xml:space="preserve"><value>نستخدم ملفات تعريف الارتباط لتحسين تجربتك على موقعنا. بمتابعة التصفح، فأنت توافق على استخدامنا لملفات تعريف الارتباط.</value></data>
+  <data name="Cookie_AcceptAll" xml:space="preserve"><value>قبول جميع ملفات تعريف الارتباط</value></data>
+  <data name="Cookie_AcceptEssential" xml:space="preserve"><value>قبول الضروريات فقط</value></data>
+  <data name="Cookie_Decline" xml:space="preserve"><value>رفض</value></data>
+  <data name="Cookie_PrivacyNotes" xml:space="preserve"><value>ملاحظات الخصوصية</value></data>
   <data name="Footer_AllRightsReserved" xml:space="preserve">
     <value>جميع الحقوق محفوظة.</value>
   </data>

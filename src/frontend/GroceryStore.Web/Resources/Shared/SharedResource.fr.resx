@@ -158,6 +158,11 @@
   <data name="Footer_OpeningHoursNotSet" xml:space="preserve">
     <value>Heures d'ouverture non définies</value>
   </data>
+  <data name="Cookie_Message" xml:space="preserve"><value>Nous utilisons des cookies pour améliorer votre expérience sur notre site. En continuant à naviguer, vous acceptez notre utilisation des cookies.</value></data>
+  <data name="Cookie_AcceptAll" xml:space="preserve"><value>Accepter tous les cookies</value></data>
+  <data name="Cookie_AcceptEssential" xml:space="preserve"><value>Accepter uniquement les cookies essentiels</value></data>
+  <data name="Cookie_Decline" xml:space="preserve"><value>Refuser</value></data>
+  <data name="Cookie_PrivacyNotes" xml:space="preserve"><value>Notes de confidentialité</value></data>
   <data name="Footer_AllRightsReserved" xml:space="preserve">
     <value>Tous droits réservés.</value>
   </data>

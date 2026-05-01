@@ -302,5 +302,50 @@
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    @* ── Cookie Consent Banner ──────────────────────────────────────────── *@
+    <div id="cookieBanner" class="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookie consent" style="display:none;">
+        <div class="cookie-banner-inner">
+            <div class="cookie-banner-top">
+                <i class="fas fa-cookie-bite"></i>
+                <p>
+                    @T("Cookie_Message")
+                    <a href="/privacy" class="cookie-learn-more">@T("Cookie_PrivacyNotes")</a>
+                </p>
+            </div>
+            <div class="cookie-banner-actions">
+                <button id="cookieDecline"   class="cookie-btn cookie-btn-decline">@T("Cookie_Decline")</button>
+                <button id="cookieEssential" class="cookie-btn cookie-btn-essential">@T("Cookie_AcceptEssential")</button>
+                <button id="cookieAcceptAll" class="cookie-btn cookie-btn-accept">@T("Cookie_AcceptAll")</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function () {
+            var KEY = 'cookie_consent';
+            var banner = document.getElementById('cookieBanner');
+            if (!banner) return;
+            if (!localStorage.getItem(KEY)) {
+                banner.style.display = 'block';
+                setTimeout(function () { banner.classList.add('cookie-banner--visible'); }, 100);
+            }
+            document.getElementById('cookieAcceptAll').addEventListener('click', function () {
+                localStorage.setItem(KEY, 'all');
+                hideBanner();
+            });
+            document.getElementById('cookieEssential').addEventListener('click', function () {
+                localStorage.setItem(KEY, 'essential');
+                hideBanner();
+            });
+            document.getElementById('cookieDecline').addEventListener('click', function () {
+                localStorage.setItem(KEY, 'declined');
+                hideBanner();
+            });
+            function hideBanner() {
+                banner.classList.remove('cookie-banner--visible');
+                setTimeout(function () { banner.style.display = 'none'; }, 350);
+            }
+        })();
+    </script>
 </body>
 </html>
