@@ -22,10 +22,34 @@ window.addEventListener('scroll', function () {
 });
 
 // ── Mobile menu toggle ───────────────────────────────────────────────────
+function closeMenu() {
+    var menu = document.getElementById('navMenu');
+    if (!menu) return;
+    menu.classList.remove('active');
+    var btn = document.querySelector('.menu-toggle');
+    if (btn) {
+        btn.querySelector('.fa-bars').style.display = '';
+        btn.querySelector('.fa-times').style.display = 'none';
+    }
+}
+
 function toggleMenu() {
     var menu = document.getElementById('navMenu');
-    if (menu) menu.classList.toggle('active');
+    if (!menu) return;
+    var isOpen = menu.classList.toggle('active');
+    var btn = document.querySelector('.menu-toggle');
+    if (btn) {
+        btn.querySelector('.fa-bars').style.display = isOpen ? 'none' : '';
+        btn.querySelector('.fa-times').style.display = isOpen ? '' : 'none';
+    }
 }
+
+document.addEventListener('click', function (e) {
+    var menu = document.getElementById('navMenu');
+    if (!menu || !menu.classList.contains('active')) return;
+    var btn = document.querySelector('.menu-toggle');
+    if (!menu.contains(e.target) && (!btn || !btn.contains(e.target))) closeMenu();
+});
 
 // ── Search overlay ───────────────────────────────────────────────────────
 function openSearch() {
