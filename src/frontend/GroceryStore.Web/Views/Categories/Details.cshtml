@@ -55,12 +55,12 @@
             <div class="products-grid">
                 @foreach (var p in Model.Products)
                 {
-                    var productImage = $"https://picsum.photos/seed/{Uri.EscapeDataString(p.Slug)}/900/900";
-
                     <a asp-controller="Products" asp-action="Details" asp-route-slug="@p.Slug"
                        class="product-card">
                         <div class="product-image">
-                            <img src="@productImage" alt="@p.Name" loading="lazy" />
+                            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface-alt);color:var(--text-light);">
+                                <i class="fas fa-box-open" style="font-size:2rem;"></i>
+                            </div>
                             @if (p.IsFeatured)
                             {
                                 <span class="badge-featured"><i class="fas fa-star"></i> @T("Badge_Featured")</span>
