@@ -146,28 +146,28 @@
                     <i class="fas fa-moon"></i>
                     <i class="fas fa-sun"></i>
                 </button>
-                <button class="search-toggle" onclick="openSearch()" title="@T("Ui_Search")">
-                    <i class="fas fa-search"></i>
-                </button>
+                <a asp-controller="Cart" asp-action="Index" class="nav-cart-btn" title="@T("Nav_Cart")">
+                    <i class="fas fa-shopping-cart"></i>
+                    @if (cartItemCount > 0)
+                    {
+                        <span class="cart-badge">@cartItemCount</span>
+                    }
+                </a>
                 <button class="menu-toggle" onclick="toggleMenu()" title="@T("Ui_Menu")">
                     <i class="fas fa-bars"></i>
+                    <i class="fas fa-times" style="display:none"></i>
                 </button>
             </div>
-        </div>
-    </nav>
 
-    @* ═══ Search Overlay ═══ *@
-    <div class="search-overlay" id="searchOverlay">
-        <div class="search-container">
-            <button class="search-close" onclick="closeSearch()">
-                <i class="fas fa-times"></i>
-            </button>
-            <form asp-controller="Products" asp-action="Index" method="get" class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="@T("Search_Placeholder")" autocomplete="off" />
+            @* ── Second row: always-visible search bar ── *@
+            <form asp-controller="Products" asp-action="Index" method="get" class="header-search-bar">
+                <input type="text" name="search" placeholder="@T("Search_Placeholder")" autocomplete="off" class="header-search-input" />
+                <button type="submit" class="header-search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
             </form>
         </div>
-    </div>
+    </nav>
 
     @* ═══ Toast ═══ *@
     @{
