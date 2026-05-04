@@ -703,6 +703,29 @@ button { cursor: pointer; font-family: var(--font); }
     color: var(--text-light); pointer-events: none;
 }
 
+/* ── Checkout ───────────────────────────────────────────────────────────── */
+.checkout-delivery-options {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: .4rem;
+    flex-wrap: wrap;
+}
+
+.checkout-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.checkout-actions .btn,
+.checkout-actions .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* ── Breadcrumb ──────────────────────────────────────────────────────────── */
 .breadcrumb { margin-bottom: 1.5rem; color: var(--text-light); font-size: .9rem; }
 .breadcrumb a { color: var(--text-light); transition: color var(--transition); }
@@ -811,6 +834,23 @@ button { cursor: pointer; font-family: var(--font); }
         align-items: stretch;
     }
     .cart-footer-actions form { width: 100%; }
+
+    .checkout-form {
+        width: 100%;
+        min-width: 0;
+    }
+    .checkout-delivery-options {
+        flex-direction: column;
+        gap: .65rem;
+    }
+    .checkout-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+    .checkout-actions .btn,
+    .checkout-actions .btn-secondary {
+        width: 100%;
+    }
 
     /* Products filter: search spans full width, two selects share one row */
     .filter-bar {

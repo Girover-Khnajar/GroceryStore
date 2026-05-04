@@ -12,10 +12,10 @@
         <h1 class="section-title" style="text-align:left;">@T("Page_Checkout")</h1>
         <p style="color:var(--text-light);margin-top:-.5rem;">@T("Checkout_Subtitle")</p>
 
-        <div class="product-detail-grid" style="display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;margin-top:1rem;">
+        <div class="product-detail-grid checkout-grid" style="display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;margin-top:1rem;">
             <div>
                 <h3 style="margin-bottom:.75rem;">@T("Checkout_YourDetails")</h3>
-                <form asp-action="Checkout" method="post" class="form-card" style="max-width:none;">
+            <form asp-action="Checkout" method="post" class="form-card checkout-form" style="max-width:none;">
                     @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" style="color:var(--danger);margin-bottom:1rem;"></div>
 
@@ -39,7 +39,7 @@
 
                     <div class="form-group">
                         <label class="form-label">@T("Lbl_DeliveryMethod")</label>
-                        <div style="display:flex;gap:1.5rem;margin-top:.4rem;">
+                        <div class="checkout-delivery-options">
                             <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;">
                                 <input type="radio" asp-for="Customer.DeliveryMethod" value="pickup" />
                                 🏪 @T("Delivery_Pickup")
@@ -51,7 +51,7 @@
                         </div>
                     </div>
 
-                    <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1rem;">
+                    <div class="checkout-actions">
                         <a asp-action="Index" class="btn-secondary"><i class="fas fa-arrow-left"></i> @T("Btn_BackToCart")</a>
                         <button type="submit" class="btn btn-primary">
                             <i class="fab fa-whatsapp"></i> @T("Btn_SendOrderWhatsApp")
