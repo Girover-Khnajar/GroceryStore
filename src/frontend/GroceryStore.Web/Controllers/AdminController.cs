@@ -539,6 +539,157 @@ public class AdminController : Controller
         return Json(result.IsSuccess ? result.Value! : new List<ImageAssetDto>());
     }
 
+    [HttpGet("Gallery/ThumbnailStats")]
+    public IActionResult GalleryThumbnailStats()
+    {
+        var uploadsRoot = Path.Combine(_env.WebRootPath, "images", "uploads");
+        if (!Directory.Exists(uploadsRoot))
+        {
+            return Ok(new
+            {
+                total = 0,
+                existing = 0,
+                missing = 0,
+                unsupported = 0,
+                message = "Uploads folder not found."
+            });
+        }
+
+        var allowedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"
+        };
+
+        var files = Directory
+            .EnumerateFiles(uploadsRoot, "*.*", SearchOption.AllDirectories)
+            .Where(path => allowedExtensions.Contains(Path.GetExtension(path)))
+            .ToList();
+
+        var existing = 0;
+        var missing = 0;
+        var unsupported = 0;
+
+        foreach (var originalFilePath in files)
+        {
+            var originalRelativePath = "/" + Path
+                .GetRelativePath(_env.WebRootPath, originalFilePath)
+                .Replace('\\', '/');
+
+            var thumbnailRelativePath = _imageProcessor.GetThumbnailPath(originalRelativePath);
+            if (string.IsNullOrWhiteSpace(thumbnailRelativePath))
+            {
+                unsupported++;
+                continue;
+            }
+
+            var thumbnailPhysicalPath = Path.Combine(
+                _env.WebRootPath,
+                thumbnailRelativePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+
+            if (System.IO.File.Exists(thumbnailPhysicalPath))
+                existing++;
+            else
+                missing++;
+        }
+
+        return Ok(new
+        {
+            total = files.Count,
+            existing,
+            missing,
+            unsupported
+        });
+    }
+
+    [HttpPost("Gallery/GenerateMissingThumbnails")]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> GalleryGenerateMissingThumbnails(CancellationToken ct)
+    {
+        var uploadsRoot = Path.Combine(_env.WebRootPath, "images", "uploads");
+        if (!Directory.Exists(uploadsRoot))
+        {
+            return Ok(new
+            {
+                total = 0,
+                generated = 0,
+                skippedExisting = 0,
+                skippedUnsupported = 0,
+                failed = 0,
+                message = "Uploads folder not found."
+            });
+        }
+
+        var allowedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"
+        };
+
+        var files = Directory
+            .EnumerateFiles(uploadsRoot, "*.*", SearchOption.AllDirectories)
+            .Where(path => allowedExtensions.Contains(Path.GetExtension(path)))
+            .ToList();
+
+        var generated = 0;
+        var skippedExisting = 0;
+        var skippedUnsupported = 0;
+        var failed = 0;
+
+        foreach (var originalFilePath in files)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var originalRelativePath = "/" + Path
+                .GetRelativePath(_env.WebRootPath, originalFilePath)
+                .Replace('\\', '/');
+
+            var thumbnailRelativePath = _imageProcessor.GetThumbnailPath(originalRelativePath);
+            if (string.IsNullOrWhiteSpace(thumbnailRelativePath))
+            {
+                skippedUnsupported++;
+                continue;
+            }
+
+            var thumbnailPhysicalPath = Path.Combine(
+                _env.WebRootPath,
+                thumbnailRelativePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+
+            if (System.IO.File.Exists(thumbnailPhysicalPath))
+            {
+                skippedExisting++;
+                continue;
+            }
+
+            try
+            {
+                await using var sourceStream = System.IO.File.OpenRead(originalFilePath);
+                var generatedPath = await _imageProcessor.GenerateThumbnailAsync(
+                    sourceStream,
+                    originalFilePath,
+                    Path.GetFileName(originalFilePath),
+                    GetImageContentType(originalFilePath),
+                    ct);
+
+                if (string.IsNullOrWhiteSpace(generatedPath))
+                    skippedUnsupported++;
+                else
+                    generated++;
+            }
+            catch
+            {
+                failed++;
+            }
+        }
+
+        return Ok(new
+        {
+            total = files.Count,
+            generated,
+            skippedExisting,
+            skippedUnsupported,
+            failed
+        });
+    }
+
     // ── Gallery Assign / Unassign / SetPrimary ──────────────────────────
 
     public sealed record GalleryAssignRequest(
@@ -706,6 +857,19 @@ public class AdminController : Controller
             .QueryAsync<GetAllActiveCategoriesQuery, IReadOnlyList<CategoryDto>>(
                 new GetAllActiveCategoriesQuery(), ct);
         return result.IsSuccess ? result.Value! : [];
+    }
+
+    private static string GetImageContentType(string filePath)
+    {
+        return Path.GetExtension(filePath).ToLowerInvariant() switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            ".gif" => "image/gif",
+            ".svg" => "image/svg+xml",
+            _ => "application/octet-stream"
+        };
     }
 
     private async Task<IReadOnlyList<string>> GetAvailableCurrenciesAsync(string? selectedCurrency = null)
