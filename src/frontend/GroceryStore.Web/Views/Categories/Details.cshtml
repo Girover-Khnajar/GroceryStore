@@ -60,8 +60,9 @@
             <div class="products-grid">
                 @foreach (var p in Model.Products)
                 {
-                    var primaryImage = p.ImageRefs.FirstOrDefault(x => x.IsPrimary);
-                    var primaryImageUrl = primaryImage?.ImageId.ToString();
+                    var primaryImageUrl = Model.ProductPrimaryImageUrls.TryGetValue(p.Id, out var resolvedImageUrl)
+                        ? resolvedImageUrl
+                        : null;
                     var thumbnailUrl = ImageHelper.GetThumbnailUrl(primaryImageUrl);
                     var featuredOverlay = p.IsFeatured ? $"<span class=\"badge-featured\"><i class=\"fas fa-star\"></i> {T("Badge_Featured")}</span>" : null;
                     
