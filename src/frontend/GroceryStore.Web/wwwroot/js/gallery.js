@@ -23,7 +23,8 @@ window.Gallery = (function () {
         lightboxIndex: -1,
         draggingId:    null,
         dragTargetId:  null,
-        busyAssign:    false
+        busyAssign:    false,
+        busyGenerateThumbs: false
     };
 
     // ── DOM cache ────────────────────────────────────────────────────
@@ -33,7 +34,7 @@ window.Gallery = (function () {
         $uploadBtn, $clearBtn, $lightbox, $lbImage, $lbCaption, $lbCounter,
         $btnLibrary, $btnEntity, $entitySelect, $entityLabel, $entityInfo,
         $targetSelect, $deselectBtn, $assignBtn, $unassignBtn,
-        $assignPrimaryCheck, $dropZone, $fileInput, $loading;
+        $assignPrimaryCheck, $dropZone, $fileInput, $loading, $thumbStatsBadge;
 
     // ── Helpers ──────────────────────────────────────────────────────
     function esc(s) {
@@ -113,11 +114,13 @@ window.Gallery = (function () {
         $dropZone           = document.getElementById('dropZone');
         $fileInput          = document.getElementById('fileInput');
         $loading            = document.getElementById('galleryLoading');
+        $thumbStatsBadge    = document.getElementById('thumbStatsBadge');
 
         bindEvents();
         populateEntitySelect();
         renderGrid();
         updateBulkBar();
+        loadThumbnailStats();
     }
 
     function bindEvents() {
@@ -506,6 +509,83 @@ window.Gallery = (function () {
         }
     }
 
+    async function generateMissingThumbnails() {
+        if (S.busyGenerateThumbs) return;
+
+        if (!confirm('Generate thumbnails for original images that do not have thumbnails yet?'))
+            return;
+
+        var btn = document.getElementById('generateThumbsBtn');
+        var previousHtml = btn ? btn.innerHTML : '';
+
+        S.busyGenerateThumbs = true;
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        }
+
+        try {
+            var resp = await fetch('/Admin/Gallery/GenerateMissingThumbnails', {
+                method: 'POST'
+            });
+
+            var data = await resp.json();
+            if (!resp.ok) {
+                toast(data.error || 'Thumbnail generation failed.', 'error');
+                return;
+            }
+
+            toast(
+                'Done. Generated: ' + (data.generated || 0)
+                + ', Existing: ' + (data.skippedExisting || 0)
+                + ', Unsupported: ' + (data.skippedUnsupported || 0)
+                + ', Failed: ' + (data.failed || 0),
+                'success'
+            );
+
+            await reloadLibrary();
+            await loadThumbnailStats();
+            if (S.viewMode === 'entity') await reloadEntityImages();
+        } catch (ex) {
+            toast('Generate thumbnails error: ' + ex.message, 'error');
+        } finally {
+            S.busyGenerateThumbs = false;
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = previousHtml;
+            }
+        }
+    }
+
+    async function loadThumbnailStats() {
+        if (!$thumbStatsBadge) return;
+
+        try {
+            var resp = await fetch('/Admin/Gallery/ThumbnailStats');
+            if (!resp.ok) {
+                $thumbStatsBadge.style.display = 'none';
+                return;
+            }
+
+            var data = await resp.json();
+            var missing = data.missing || 0;
+
+            if (missing > 0) {
+                $thumbStatsBadge.style.display = '';
+                $thumbStatsBadge.textContent = 'Missing: ' + missing;
+                $thumbStatsBadge.style.background = '#fee2e2';
+                $thumbStatsBadge.style.color = '#b91c1c';
+            } else {
+                $thumbStatsBadge.style.display = '';
+                $thumbStatsBadge.textContent = 'All thumbnails ready';
+                $thumbStatsBadge.style.background = '#dcfce7';
+                $thumbStatsBadge.style.color = '#166534';
+            }
+        } catch (_) {
+            $thumbStatsBadge.style.display = 'none';
+        }
+    }
+
     // ── Assign / Unassign ────────────────────────────────────────────
     async function assignSelected() {
         if (S.selected.size === 0 || !S.entityId || S.busyAssign) return;
@@ -690,7 +770,8 @@ window.Gallery = (function () {
         assignSelected:      assignSelected,
         unassignSelected:    unassignSelected,
         setPrimary:          setPrimary,
-        onAssignPrimaryChange: onAssignPrimaryChange
+        onAssignPrimaryChange: onAssignPrimaryChange,
+        generateMissingThumbnails: generateMissingThumbnails
     };
 })();
 
