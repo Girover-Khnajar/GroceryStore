@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
+  <title id="title">Thumbnail not available</title>
+  <desc id="desc">Placeholder shown when no thumbnail exists for an uploaded image.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f4f6f8"/>
+      <stop offset="1" stop-color="#e8edf2"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <g fill="none" stroke="#94a3b8" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" transform="translate(220 140)">
+    <rect x="0" y="0" width="360" height="240" rx="18"/>
+    <circle cx="100" cy="88" r="28"/>
+    <path d="M34 194l86-72 62 54 70-82 74 100"/>
+  </g>
+  <g fill="#475569" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">
+    <text x="400" y="450" font-size="34" font-weight="700">No thumbnail</text>
+    <text x="400" y="488" font-size="20" opacity="0.85">Original image is intentionally not used here</text>
+  </g>
+</svg>

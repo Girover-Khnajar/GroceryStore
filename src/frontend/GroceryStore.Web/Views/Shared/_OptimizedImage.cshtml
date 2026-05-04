@@ -1,0 +1,51 @@
+@*
+    Reusable partial view for optimized images with:
+    - Lazy loading
+    - Loading placeholder/skeleton
+    - Error fallback
+    - Aspect ratio preservation
+    
+    Usage:
+    @await Html.PartialAsync("_OptimizedImage", new OptimizedImageModel {
+        Src = "/path/to/image.jpg",
+        Alt = "Product name",
+        CssClass = "product-image",
+        AspectRatio = "1/1",
+        Eager = false
+    })
+*@
+
+@model GroceryStore.Web.ViewModels.OptimizedImageModel
+
+@{
+    const string noThumbnailSvg = "/images/ui/no-thumbnail.svg";
+
+    // Non-eager cards should show thumbnail only; if absent, show explicit no-thumbnail placeholder.
+    var displaySrc = !Model.Eager
+        ? (!string.IsNullOrWhiteSpace(Model.ThumbnailSrc) ? Model.ThumbnailSrc : noThumbnailSvg)
+        : Model.Src;
+    
+    var src = displaySrc ?? Model.Fallback ?? "/images/ui/placeholder.svg";
+    var eager = Model.Eager ? "eager" : "lazy";
+    var containerClass = $"optimized-img-container {Model.ContainerClass}";
+    var imgClass = $"optimized-img {Model.CssClass}";
+    var aspectStyle = !string.IsNullOrWhiteSpace(Model.AspectRatio) ? $"aspect-ratio: {Model.AspectRatio};" : "";
+    var containerStyle = $"{aspectStyle} {Model.ContainerStyle}";
+}
+
+<div class="@containerClass" style="@containerStyle" data-image-container>
+    <div class="img-skeleton" data-skeleton></div>
+    <img 
+        data-src="@src"
+        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
+        alt="@Model.Alt" 
+        class="@imgClass"
+        loading="@eager"
+        decoding="async"
+        onerror="this.onerror=null; this.src='@(Model.Fallback ?? "/images/ui/product-placeholder.svg")'; this.classList.add('error');"
+        data-optimized-image />
+    @if (Model.ShowOverlay && !string.IsNullOrWhiteSpace(Model.OverlayContent))
+    {
+        <div class="img-overlay">@Html.Raw(Model.OverlayContent)</div>
+    }
+</div>

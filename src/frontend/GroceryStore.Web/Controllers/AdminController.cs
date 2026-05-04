@@ -34,19 +34,22 @@ public class AdminController : Controller
     private readonly IStoreSettingsService _settingsService;
     private readonly IUserRepository _users;
     private readonly IPasswordHasher<User> _hasher;
+    private readonly IImageProcessor _imageProcessor;
 
     public AdminController(
         IMessageDispatcher dispatcher,
         IWebHostEnvironment env,
         IStoreSettingsService settingsService,
         IUserRepository users,
-        IPasswordHasher<User> hasher)
+        IPasswordHasher<User> hasher,
+        IImageProcessor imageProcessor)
     {
         _dispatcher = dispatcher;
         _env = env;
         _settingsService = settingsService;
         _users = users;
         _hasher = hasher;
+        _imageProcessor = imageProcessor;
     }
 
     // ── Dashboard ──────────────────────────────────────────────────────
@@ -454,11 +457,33 @@ public class AdminController : Controller
 
         Directory.CreateDirectory(Path.GetDirectoryName(physPath)!);
 
+        // Save original file
         await using (var fs = System.IO.File.Create(physPath))
             await file.CopyToAsync(fs, ct);
 
+        // Generate thumbnail
+        string? thumbnailPath = null;
+        try
+        {
+            await using var thumbnailStream = file.OpenReadStream();
+            thumbnailPath = await _imageProcessor.GenerateThumbnailAsync(
+                thumbnailStream,
+                physPath,
+                file.FileName,
+                file.ContentType,
+                ct);
+        }
+        catch
+        {
+            // If thumbnail generation fails, continue without it
+        }
+
         var urlPath = "/" + relPath.Replace('\\', '/');
         var fullUrl = $"{Request.Scheme}://{Request.Host}{urlPath}";
+
+        var thumbnailUrl = !string.IsNullOrWhiteSpace(thumbnailPath)
+            ? $"{Request.Scheme}://{Request.Host}{thumbnailPath}"
+            : null;
 
         var cmd = new CreateImageAssetCommand(
             urlPath, fullUrl,
@@ -473,7 +498,9 @@ public class AdminController : Controller
         {
             imageId = result.Value,
             url = fullUrl,
+            thumbnailUrl,
             storagePath = urlPath,
+            thumbnailPath,
             originalFileName = Path.GetFileName(file.FileName),
             contentType = file.ContentType,
             fileSizeBytes = file.Length,

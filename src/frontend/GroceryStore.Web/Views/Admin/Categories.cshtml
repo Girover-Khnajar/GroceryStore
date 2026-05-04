@@ -40,8 +40,8 @@
                     <td>
                         @if (!string.IsNullOrWhiteSpace(c.ImageUrl))
                         {
-                            <img src="@c.ImageUrl" alt="@c.Name"
-                                 style="width:40px;height:40px;border-radius:var(--radius-sm);object-fit:cover;" />
+                               <img src="@c.ImageUrl" alt="@c.Name"
+                                   style="width:40px;height:40px;border-radius:var(--radius-sm);object-fit:contain;" />
                         }
                         else
                         {

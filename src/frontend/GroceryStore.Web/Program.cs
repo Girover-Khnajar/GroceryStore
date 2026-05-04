@@ -55,6 +55,7 @@ builder.Services.AddApplication();                       // CQRS handlers, valid
 builder.Services.AddScoped<IStoreSettingsService, StoreSettingsService>();
 builder.Services.AddScoped<ICartService, SessionCartService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<ImageUrlHelper>();
 
 // ── Localization Services ──────────────────────────────────────────────
 // Support for multilingual application with English, Arabic, French, German

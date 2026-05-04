@@ -1,6 +1,7 @@
 @model IReadOnlyList<GroceryStore.Application.Categories.Dtos.CategoryDto>
 @using System.Globalization
 @using System.Resources
+@inject GroceryStore.Web.Services.ImageUrlHelper ImageHelper
 @{
     var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
     string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
@@ -24,19 +25,17 @@
             <div class="categories-grid">
                 @foreach (var cat in Model)
                 {
+                    var thumbnailUrl = ImageHelper.GetThumbnailUrl(cat.ImageUrl);
                     <a asp-action="Details" asp-route-slug="@cat.Slug" class="category-card">
-                        <div class="category-image">
-                            @if (!string.IsNullOrWhiteSpace(cat.ImageUrl))
-                            {
-                                <img src="@cat.ImageUrl" alt="@cat.Name" />
-                            }
-                            else
-                            {
-                                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--surface-alt);">
-                                    <i class="fas @(string.IsNullOrWhiteSpace(cat.IconName) ? "fa-th-large" : cat.IconName)" style="font-size:2.5rem;color:var(--primary);"></i>
-                                </div>
-                            }
-                        </div>
+                        @await Html.PartialAsync("_OptimizedImage", new OptimizedImageModel {
+                            Src = cat.ImageUrl,
+                            ThumbnailSrc = thumbnailUrl,
+                            Alt = cat.Name,
+                            ContainerClass = "category-image",
+                            AspectRatio = "4/3",
+                            Eager = false,
+                            Fallback = "/images/ui/category-placeholder.svg"
+                        })
                         <div class="category-info">
                             <h3>@cat.Name</h3>
                         </div>

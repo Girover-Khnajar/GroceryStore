@@ -1,0 +1,128 @@
+/* ═══════════════════════════════════════════════════════════
+   Optimized Image Component Styles
+   - Lazy loading with skeleton placeholders
+   - Smooth fade-in transitions
+   - Error state handling
+   - Aspect ratio preservation
+   ═══════════════════════════════════════════════════════════ */
+
+.optimized-img-container {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--border, #e5e7eb);
+    border-radius: inherit;
+}
+
+/* Skeleton Loading Animation */
+.img-skeleton {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(240, 240, 240, 1) 0%,
+        rgba(224, 224, 224, 1) 20%,
+        rgba(240, 240, 240, 1) 40%,
+        rgba(240, 240, 240, 1) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 1;
+}
+
+.optimized-img-container[data-loaded] .img-skeleton {
+    opacity: 0;
+    pointer-events: none;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Image Styles */
+.optimized-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    position: relative;
+    z-index: 2;
+}
+
+.optimized-img.loaded {
+    opacity: 1;
+}
+
+.optimized-img.error {
+    opacity: 0.6;
+    object-fit: contain;
+    padding: 1rem;
+}
+
+/* Overlay Support */
+.img-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 0.5rem;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.img-overlay > * {
+    pointer-events: auto;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .optimized-img-container {
+        background-color: #374151;
+    }
+    
+    .img-skeleton {
+        background: linear-gradient(
+            90deg,
+            rgba(55, 65, 81, 1) 0%,
+            rgba(75, 85, 99, 1) 20%,
+            rgba(55, 65, 81, 1) 40%,
+            rgba(55, 65, 81, 1) 100%
+        );
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .img-skeleton {
+        animation: none;
+        background: #f0f0f0;
+    }
+    
+    .optimized-img {
+        transition: none;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .img-skeleton {
+            background: #374151;
+        }
+    }
+}
+
+/* Performance: GPU Acceleration */
+.optimized-img-container,
+.img-skeleton,
+.optimized-img {
+    will-change: opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
