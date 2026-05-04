@@ -7,4 +7,5 @@ public sealed class CategoryDetailViewModel
 {
     public required CategoryDto Category { get; init; }
     public IReadOnlyList<ProductDto> Products { get; init; } = [];
+    public IReadOnlyDictionary<Guid, string?> ProductPrimaryImageUrls { get; init; } = new Dictionary<Guid, string?>();
 }

@@ -1,6 +1,8 @@
 using CQRS.Abstractions.Messaging;
 using GroceryStore.Application.Categories.Dtos;
 using GroceryStore.Application.Categories.Queries;
+using GroceryStore.Application.Images.Dtos;
+using GroceryStore.Application.Images.Queries;
 using GroceryStore.Application.Products.Dtos;
 using GroceryStore.Application.Products.Queries;
 using GroceryStore.Web.Extensions;
@@ -48,10 +50,56 @@ public class CategoriesController : Controller
             .QueryAsync<GetProductsByCategoryIdQuery, IReadOnlyList<ProductDto>>(
                 new GetProductsByCategoryIdQuery(category.Id), ct);
 
+        var products = productsResult.IsSuccess ? productsResult.Value! : [];
+
+        var imageRefs = products
+            .SelectMany(p => p.ImageRefs)
+            .ToList();
+
+        var orderedImageIds = imageRefs
+            .OrderByDescending(r => r.IsPrimary)
+            .ThenBy(r => r.SortOrder)
+            .Select(r => r.ImageId)
+            .Distinct()
+            .ToList();
+
+        var imageMap = new Dictionary<Guid, string>();
+        if (orderedImageIds.Count > 0)
+        {
+            var imagesResult = await _dispatcher
+                .QueryAsync<GetImagesByIdsQuery, IReadOnlyList<ImageAssetDto>>(
+                    new GetImagesByIdsQuery(orderedImageIds), ct);
+
+            if (imagesResult.IsSuccess)
+            {
+                imageMap = imagesResult.Value!
+                    .Where(x => !x.IsDeleted && !string.IsNullOrWhiteSpace(x.StoragePath))
+                    .ToDictionary(x => x.ImageId, x => x.StoragePath);
+            }
+        }
+
+        var productPrimaryImageUrls = new Dictionary<Guid, string?>();
+        foreach (var product in products)
+        {
+            var primaryRef = product.ImageRefs
+                .OrderByDescending(r => r.IsPrimary)
+                .ThenBy(r => r.SortOrder)
+                .FirstOrDefault();
+
+            if (primaryRef is null || !imageMap.TryGetValue(primaryRef.ImageId, out var storagePath))
+            {
+                productPrimaryImageUrls[product.Id] = null;
+                continue;
+            }
+
+            productPrimaryImageUrls[product.Id] = storagePath;
+        }
+
         var vm = new CategoryDetailViewModel
         {
             Category = category,
-            Products = productsResult.IsSuccess ? productsResult.Value! : []
+            Products = products,
+            ProductPrimaryImageUrls = productPrimaryImageUrls
         };
 
         return View(vm);
