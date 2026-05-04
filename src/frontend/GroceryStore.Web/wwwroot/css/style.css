@@ -811,6 +811,27 @@ button { cursor: pointer; font-family: var(--font); }
         align-items: stretch;
     }
     .cart-footer-actions form { width: 100%; }
+
+    /* Products filter: search spans full width, two selects share one row */
+    .filter-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .75rem;
+        align-items: stretch;
+    }
+    .filter-bar input[name="search"] {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+    .filter-bar select {
+        width: 100%;
+        min-width: 0;
+    }
+    .filter-bar button {
+        grid-column: 1 / -1;
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Extra small screens: hide theme toggle to save space */
