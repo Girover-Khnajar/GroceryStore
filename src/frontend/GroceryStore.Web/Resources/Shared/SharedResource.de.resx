@@ -96,6 +96,15 @@
   <data name="Lbl_Address" xml:space="preserve">
     <value>Adresse</value>
   </data>
+  <data name="Lbl_DeliveryMethod" xml:space="preserve">
+    <value>Liefermethode</value>
+  </data>
+  <data name="Delivery_Pickup" xml:space="preserve">
+    <value>Abholung im Laden</value>
+  </data>
+  <data name="Delivery_Home" xml:space="preserve">
+    <value>Heimlieferung</value>
+  </data>
   <data name="Lbl_Description" xml:space="preserve">
     <value>Beschreibung</value>
   </data>
