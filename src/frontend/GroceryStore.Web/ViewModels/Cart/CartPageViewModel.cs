@@ -20,6 +20,8 @@ public sealed class CheckoutInputViewModel
     [System.ComponentModel.DataAnnotations.Required]
     [System.ComponentModel.DataAnnotations.MaxLength(300)]
     public string Address { get; set; } = string.Empty;
+
+    public string DeliveryMethod { get; set; } = "pickup";
 }
 
 public sealed class CheckoutPageViewModel

@@ -145,40 +145,56 @@ public sealed class CartController : Controller
         CheckoutInputViewModel customer,
         IReadOnlyList<CartItem> items)
     {
+        const string nl = "\n";
         var sb = new StringBuilder();
+        var orderNumber = new Random().Next(1000, 9999);
+        var store = storeName ?? "Épicerie";
 
-        sb.AppendLine($"New Order - {storeName}");
-        sb.AppendLine();
-        sb.AppendLine("Customer Information:");
-        sb.AppendLine($"Name: {customer.Name}");
-        sb.AppendLine($"Phone: {customer.PhoneNumber}");
-        sb.AppendLine($"Address: {customer.Address}");
-        sb.AppendLine();
-        sb.AppendLine("Order Items:");
+        var deliveryLabel = customer.DeliveryMethod == "delivery"
+            ? "Livraison à domicile"
+            : "Retrait en magasin";
 
-        var index = 1;
+        const string tableLine = "+------------------------+";
+        const string dottedLine = "........................";
+
+        sb.Append("COMMANDE" + nl);
+        sb.Append(tableLine + nl);
+        sb.Append($"| Magasin : {store}" + nl);
+        sb.Append($"| Numero  : #{orderNumber}" + nl);
+        sb.Append(dottedLine + nl);
+        sb.Append($"| Client  : {customer.Name}" + nl);
+        sb.Append($"| Tel     : {customer.PhoneNumber}" + nl);
+        sb.Append($"| Adresse : {customer.Address}" + nl);
+        sb.Append($"| Methode : {deliveryLabel}" + nl);
+        sb.Append(tableLine + nl);
+        sb.Append("ARTICLES" + nl);
+        sb.Append(tableLine + nl);
+
         foreach (var item in items)
         {
-            sb.AppendLine($"{index}. {item.Name}");
-            if (!string.IsNullOrWhiteSpace(item.Brand))
-                sb.AppendLine($"   Brand: {item.Brand}");
-            if (!string.IsNullOrWhiteSpace(item.Sku))
-                sb.AppendLine($"   SKU: {item.Sku}");
-            sb.AppendLine($"   Quantity: {item.Quantity}");
-            sb.AppendLine($"   Unit Price: {item.UnitPrice:N2} {item.Currency} / {item.Unit}");
-            sb.AppendLine($"   Line Total: {item.LineTotal:N2} {item.Currency}");
-            sb.AppendLine();
-            index++;
+            var currency = item.Currency;
+            sb.Append($"| {item.Name}" + nl);
+            sb.Append($"| {item.Quantity} {item.Unit} x {item.UnitPrice:N2} {currency}" + nl);
+            sb.Append($"| Total : {item.LineTotal:N2} {currency}" + nl);
+            sb.Append(dottedLine + nl);
         }
 
-        var totalsByCurrency = items
-            .GroupBy(x => x.Currency)
-            .Select(g => new { Currency = g.Key, Total = g.Sum(x => x.LineTotal) })
-            .ToList();
+        sb.Append(tableLine + nl);
+        sb.Append("TOTAUX" + nl);
+        sb.Append(tableLine + nl);
 
-        sb.AppendLine("Totals:");
-        foreach (var total in totalsByCurrency)
-            sb.AppendLine($"- {total.Total:N2} {total.Currency}");
+        // Totals per currency
+        foreach (var g in items.GroupBy(x => x.Currency))
+        {
+            var subtotal = g.Sum(x => x.LineTotal);
+            sb.Append($"| Devise      : {g.Key}" + nl);
+            sb.Append($"| Sous-total  : {subtotal:N2} {g.Key}" + nl);
+            sb.Append($"| Total final : {subtotal:N2} {g.Key}" + nl);
+            sb.Append(dottedLine + nl);
+        }
+
+        sb.Append(tableLine + nl);
+        sb.Append($"Merci de votre confiance en {store}");
 
         return sb.ToString().Trim();
     }
