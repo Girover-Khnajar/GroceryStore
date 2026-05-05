@@ -14,10 +14,9 @@ jobs:
     strategy:
       matrix:
         project: [
-          GroceryStore.Api.Tests, 
+          GroceryStore.Domain.Tests,
           GroceryStore.Application.Tests, 
-          GroceryStore.Infrastructure.Tests, 
-          GroceryStore.Domain.Tests
+          GroceryStore.Infrastructure.Tests
         ]
     defaults:
       run:
