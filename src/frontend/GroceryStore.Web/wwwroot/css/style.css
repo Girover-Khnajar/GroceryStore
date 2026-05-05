@@ -704,6 +704,13 @@ button { cursor: pointer; font-family: var(--font); }
 }
 
 /* ── Checkout ───────────────────────────────────────────────────────────── */
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
 .checkout-delivery-options {
     display: flex;
     gap: 1.5rem;
@@ -835,9 +842,16 @@ button { cursor: pointer; font-family: var(--font); }
     }
     .cart-footer-actions form { width: 100%; }
 
+    .checkout-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
     .checkout-form {
         width: 100%;
         min-width: 0;
+    }
+    .form-card {
+        padding: 1.25rem;
     }
     .checkout-delivery-options {
         flex-direction: column;
