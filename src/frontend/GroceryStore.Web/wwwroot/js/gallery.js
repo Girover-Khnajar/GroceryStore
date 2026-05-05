@@ -210,7 +210,13 @@ window.Gallery = (function () {
                  + '<input class="select-check" type="checkbox"' + (sel ? ' checked' : '')
                  + ' onclick="event.stopPropagation();Gallery.toggleSelect(\'' + img.imageId + '\')" />'
                  + '<div class="gallery-img-wrap" onclick="Gallery.openLightbox(' + idx + ')">'
-                 + '<img src="' + esc(img.url) + '" alt="' + name + '" loading="lazy" />'
+                 + (function() {
+                       var thumbUrl = img.url ? img.url.replace('/uploads/', '/thumbnails/') : img.url;
+                       var hasThumbnail = thumbUrl && thumbUrl !== img.url;
+                       var src = hasThumbnail ? esc(thumbUrl) : esc(img.url);
+                       var fallback = hasThumbnail ? ' onerror="this.onerror=null;this.src=\'' + esc(img.url) + '\';"' : '';
+                       return '<img src="' + src + '" alt="' + name + '" loading="lazy"' + fallback + ' />';
+                   })()
                  + '</div>'
                  + '<div class="gallery-meta">'
                  + '<div class="gallery-filename" title="' + name + '">' + name + '</div>'
