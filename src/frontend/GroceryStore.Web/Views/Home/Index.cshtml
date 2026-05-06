@@ -6,6 +6,9 @@
     var viewResourceManager = new ResourceManager("GroceryStore.Web.Resources.Views.Home_Index", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
     string T(string key) => viewResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
     ViewData["Title"] = T("PageTitle");
+    ViewData["MetaDescription"] = T("Home_MetaDescription");
+    ViewData["OgImage"] = Url.Content("~/images/ui/hero-1.jpeg");
+    var seoBaseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
 
     // Hero carousel slides — swap src for your 3 real images when ready
     var heroSlides = new[]
@@ -222,3 +225,21 @@ var HeroCarousel = (function () {
 </script>
 }
 
+@section JsonLd {
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "WebSite",
+  "name": @Json.Serialize(ViewData["Title"]?.ToString() ?? ""),
+  "url": @Json.Serialize(seoBaseUrl),
+  "potentialAction": {
+    "@@type": "SearchAction",
+    "target": {
+      "@@type": "EntryPoint",
+      "urlTemplate": @Json.Serialize(seoBaseUrl + "/Products?search={search_term_string}")
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+}

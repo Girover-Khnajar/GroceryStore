@@ -329,4 +329,8 @@
   <data name="Page_Error" xml:space="preserve"><value>Erreur</value></data>
   <data name="Error_Oops" xml:space="preserve"><value>Oups !</value></data>
   <data name="Error_GenericMessage" xml:space="preserve"><value>Une erreur s'est produite. Veuillez réessayer plus tard.</value></data>
+
+  <!-- SEO meta descriptions -->
+  <data name="Products_MetaDescription" xml:space="preserve"><value>Parcourez notre sélection complète de produits frais et d'épicerie. Filtrez par catégorie, prix et plus encore.</value></data>
+  <data name="Categories_MetaDescription" xml:space="preserve"><value>Explorez toutes les catégories de produits de notre boutique. Trouvez des produits frais, laitiers, boulangerie, boissons et plus encore.</value></data>
 </root>

@@ -5,7 +5,12 @@
 @{
     var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
     string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
-    ViewData["Title"] = Model.Product.Name;
+    ViewData["Title"] = Model.Product.SeoMetaTitle ?? Model.Product.Name;
+    ViewData["MetaDescription"] = Model.Product.SeoMetaDescription ?? Model.Product.ShortDescription;
+    ViewData["OgType"] = "product";
+    if (Model.PrimaryImageUrl is not null)
+        ViewData["OgImage"] = Model.PrimaryImageUrl;
+    var seoBaseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
 }
 
 <section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
@@ -208,5 +213,41 @@
             }, { once: true });
         }
     }
+</script>
+}
+
+@section JsonLd {
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "Product",
+  "name": @Json.Serialize(Model.Product.Name),
+  "description": @Json.Serialize(Model.Product.ShortDescription ?? Model.Product.LongDescription ?? ""),
+  "sku": @Json.Serialize(Model.Product.Sku ?? ""),
+  "url": @Json.Serialize($"{seoBaseUrl}/Products/{Model.Product.Slug}")@if (Model.PrimaryImageUrl is not null){<text>,
+  "image": @Json.Serialize(Model.PrimaryImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? Model.PrimaryImageUrl : seoBaseUrl + Model.PrimaryImageUrl)</text>}@if (!string.IsNullOrWhiteSpace(Model.Product.Brand)){<text>,
+  "brand": { "@@type": "Brand", "name": @Json.Serialize(Model.Product.Brand) }</text>},
+  "offers": {
+    "@@type": "Offer",
+    "price": @Json.Serialize(Model.Product.PriceAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)),
+    "priceCurrency": @Json.Serialize(Model.Product.PriceCurrency),
+    "availability": "https://schema.org/@(Model.Product.IsActive ? "InStock" : "OutOfStock")",
+    "url": @Json.Serialize($"{seoBaseUrl}/Products/{Model.Product.Slug}")
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@@type": "ListItem", "position": 1, "name": "Home",     "item": @Json.Serialize(seoBaseUrl + "/") },
+    { "@@type": "ListItem", "position": 2, "name": "Products", "item": @Json.Serialize(seoBaseUrl + "/Products") }@if (Model.CategoryName is not null){<text>,
+    { "@@type": "ListItem", "position": 3, "name": @Json.Serialize(Model.CategoryName) },
+    { "@@type": "ListItem", "position": 4, "name": @Json.Serialize(Model.Product.Name) }</text>}else{<text>,
+    { "@@type": "ListItem", "position": 3, "name": @Json.Serialize(Model.Product.Name) }</text>}
+  ]
+}
 </script>
 }

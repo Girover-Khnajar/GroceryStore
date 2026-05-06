@@ -329,4 +329,8 @@
   <data name="Page_Error" xml:space="preserve"><value>Fehler</value></data>
   <data name="Error_Oops" xml:space="preserve"><value>Hoppla!</value></data>
   <data name="Error_GenericMessage" xml:space="preserve"><value>Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.</value></data>
+
+  <!-- SEO meta descriptions -->
+  <data name="Products_MetaDescription" xml:space="preserve"><value>Durchsuchen Sie unser vollständiges Sortiment an frischen und verpackten Lebensmitteln. Nach Kategorie, Preis und mehr filtern.</value></data>
+  <data name="Categories_MetaDescription" xml:space="preserve"><value>Erkunden Sie alle Produktkategorien in unserem Geschäft. Finden Sie Frischprodukte, Milchprodukte, Backwaren, Getränke und mehr.</value></data>
 </root>

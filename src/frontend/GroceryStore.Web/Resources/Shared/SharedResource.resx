@@ -336,4 +336,8 @@
   <data name="Page_Error" xml:space="preserve"><value>Error</value></data>
   <data name="Error_Oops" xml:space="preserve"><value>Oops!</value></data>
   <data name="Error_GenericMessage" xml:space="preserve"><value>Something went wrong. Please try again later.</value></data>
+
+  <!-- SEO meta descriptions -->
+  <data name="Products_MetaDescription" xml:space="preserve"><value>Browse our full selection of fresh and packaged grocery products. Filter by category, price and more.</value></data>
+  <data name="Categories_MetaDescription" xml:space="preserve"><value>Explore all product categories at our store. Find fresh produce, dairy, bakery, beverages and more.</value></data>
 </root>
