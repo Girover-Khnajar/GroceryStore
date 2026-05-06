@@ -15,7 +15,6 @@ namespace GroceryStore.Web.Controllers;
 /// Generates an XML sitemap with hreflang alternate links for all supported cultures.
 /// Accessible at /sitemap.xml
 /// </summary>
-[Route("sitemap.xml")]
 public class SitemapController : Controller
 {
     private readonly IMessageDispatcher _dispatcher;
@@ -23,23 +22,22 @@ public class SitemapController : Controller
     public SitemapController(IMessageDispatcher dispatcher)
         => _dispatcher = dispatcher;
 
-    [HttpGet("")]
+    [HttpGet]
     [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Any)]
     public async Task<IActionResult> Index(CancellationToken ct)
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}";
         var cultures = CultureHelper.SupportedCultureCodes;
 
-        // Fetch products and categories in parallel
-        var productsTask = _dispatcher.QueryAsync<GetProductsQuery, PagedResult<ProductListItemDto>>(
+        // IMPORTANT: These queries typically share the same scoped DbContext under the hood.
+        // Running them concurrently can trigger EF Core's concurrency detector.
+        var productsResult = await _dispatcher.QueryAsync<GetProductsQuery, PagedResult<ProductListItemDto>>(
             new GetProductsQuery(null, null, null, null, true, null, null, null, 1, 5000), ct);
-        var categoriesTask = _dispatcher.QueryAsync<GetAllActiveCategoriesQuery, IReadOnlyList<CategoryDto>>(
+        var categoriesResult = await _dispatcher.QueryAsync<GetAllActiveCategoriesQuery, IReadOnlyList<CategoryDto>>(
             new GetAllActiveCategoriesQuery(), ct);
 
-        await Task.WhenAll(productsTask, categoriesTask);
-
-        var products   = (await productsTask).IsSuccess   ? (await productsTask).Value!.Items   : [];
-        var categories = (await categoriesTask).IsSuccess ? (await categoriesTask).Value!        : [];
+        var products = productsResult.IsSuccess ? productsResult.Value!.Items : [];
+        var categories = categoriesResult.IsSuccess ? categoriesResult.Value! : [];
 
         var settings = new XmlWriterSettings
         {
