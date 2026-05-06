@@ -40,4 +40,7 @@
   <data name="Card_OpeningHours" xml:space="preserve">
     <value>Opening Hours</value>
   </data>
+  <data name="Contact_MetaDescription" xml:space="preserve">
+    <value>Get in touch with us. Find our store address, phone number, WhatsApp contact, email and opening hours.</value>
+  </data>
 </root>

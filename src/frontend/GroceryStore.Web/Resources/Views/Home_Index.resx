@@ -85,4 +85,7 @@
   <data name="Newsletter_Btn" xml:space="preserve">
     <value>Subscribe</value>
   </data>
+  <data name="Home_MetaDescription" xml:space="preserve">
+    <value>Shop fresh groceries, organic produce, and quality packaged products at competitive prices. Experience the freshest selection every day.</value>
+  </data>
 </root>

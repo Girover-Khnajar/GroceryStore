@@ -5,6 +5,8 @@
     var viewResourceManager = new ResourceManager("GroceryStore.Web.Resources.Views.Home_Contact", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
     string T(string key) => viewResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
     ViewData["Title"] = T("PageTitle");
+    ViewData["MetaDescription"] = T("Contact_MetaDescription");
+    var seoBaseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
 }
 
 <section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
@@ -78,3 +80,19 @@
 
     </div>
 </section>
+
+@section JsonLd {
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "LocalBusiness",
+  "name": @Json.Serialize(Model.StoreName),
+  "url": @Json.Serialize(seoBaseUrl),
+  "logo": @Json.Serialize(seoBaseUrl + "/images/logo-2.png")@if (!string.IsNullOrWhiteSpace(Model.Phone)){<text>,
+  "telephone": @Json.Serialize(Model.Phone)</text>}@if (!string.IsNullOrWhiteSpace(Model.Email)){<text>,
+  "email": @Json.Serialize(Model.Email)</text>}@if (!string.IsNullOrWhiteSpace(Model.Address)){<text>,
+  "address": { "@@type": "PostalAddress", "streetAddress": @Json.Serialize(Model.Address) }</text>}@if (!string.IsNullOrWhiteSpace(Model.OpeningHours)){<text>,
+  "openingHours": @Json.Serialize(Model.OpeningHours)</text>}
+}
+</script>
+}

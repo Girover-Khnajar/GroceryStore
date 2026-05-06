@@ -25,6 +25,78 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - @footerSettings.StoreName</title>
+    @{
+        // ── SEO helpers ──────────────────────────────────────────────────────
+        var seoBaseUrl  = $"{Context.Request.Scheme}://{Context.Request.Host}";
+        var seoPath     = Context.Request.Path.Value ?? "/";
+        // Rebuild query string without culture params (for canonical)
+        var seoCleanQ   = string.Join("&", Context.Request.Query
+            .Where(q => q.Key != "culture" && q.Key != "ui-culture")
+            .Select(q => $"{Uri.EscapeDataString(q.Key)}={Uri.EscapeDataString(q.Value.ToString())}"));
+        var seoCanonical = seoBaseUrl + seoPath + (seoCleanQ.Length > 0 ? "?" + seoCleanQ : "");
+        var seoDesc     = ViewData["MetaDescription"] as string
+            ?? $"Shop fresh groceries, organic produce and more at {footerSettings.StoreName}. Quality products at great prices.";
+        var seoImage    = ViewData["OgImage"] as string;
+        if (string.IsNullOrEmpty(seoImage))
+            seoImage = seoBaseUrl + "/images/logo-2.png";
+        else if (!seoImage.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            seoImage = seoBaseUrl + seoImage;
+        var seoOgType   = ViewData["OgType"] as string ?? "website";
+        var seoOgLocale = currentCulture switch { "ar" => "ar_SA", "fr" => "fr_FR", "de" => "de_DE", _ => "en_US" };
+        Func<string, string> hreflangUrl = code => {
+            var sep = seoCleanQ.Length > 0 ? "&" : "?";
+            return seoCanonical + sep + $"culture={code}";
+        };
+    }
+    @* SEO: description & robots *@
+    <meta name="description" content="@seoDesc" />
+    <meta name="robots" content="@(ViewData["Robots"] as string ?? "index, follow")" />
+
+    @* SEO: Open Graph *@
+    <meta property="og:title"       content="@ViewData["Title"] - @footerSettings.StoreName" />
+    <meta property="og:description" content="@seoDesc" />
+    <meta property="og:type"        content="@seoOgType" />
+    <meta property="og:url"         content="@seoCanonical" />
+    <meta property="og:image"       content="@seoImage" />
+    <meta property="og:site_name"   content="@footerSettings.StoreName" />
+    <meta property="og:locale"      content="@seoOgLocale" />
+    @foreach (var (altCode, _, _) in GroceryStore.Web.Services.Localization.CultureHelper.GetAvailableCultures()
+        .Where(c => c.Code != currentCulture))
+    {
+        var altLocale = altCode switch { "ar" => "ar_SA", "fr" => "fr_FR", "de" => "de_DE", _ => "en_US" };
+        <meta property="og:locale:alternate" content="@altLocale" />
+    }
+
+    @* SEO: Twitter Card *@
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="@ViewData["Title"] - @footerSettings.StoreName" />
+    <meta name="twitter:description" content="@seoDesc" />
+    <meta name="twitter:image"       content="@seoImage" />
+
+    @* SEO: Canonical + hreflang alternates *@
+    <link rel="canonical" href="@seoCanonical" />
+    @foreach (var (hCode, _, _) in GroceryStore.Web.Services.Localization.CultureHelper.GetAvailableCultures())
+    {
+        <link rel="alternate" hreflang="@hCode" href="@hreflangUrl(hCode)" />
+    }
+    <link rel="alternate" hreflang="x-default" href="@hreflangUrl("en")" />
+
+    @* SEO: Organization JSON-LD (base schema on every page) *@
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "Organization",
+      "name": @Json.Serialize(footerSettings.StoreName ?? ""),
+      "url": @Json.Serialize(seoBaseUrl),
+      "logo": @Json.Serialize(seoBaseUrl + "/images/logo-2.png")@if (!string.IsNullOrWhiteSpace(footerSettings.Phone)){<text>,
+      "telephone": @Json.Serialize(footerSettings.Phone)</text>}@if (!string.IsNullOrWhiteSpace(footerSettings.Email)){<text>,
+      "email": @Json.Serialize(footerSettings.Email)</text>}@if (!string.IsNullOrWhiteSpace(footerSettings.Address)){<text>,
+      "address": { "@@type": "PostalAddress", "streetAddress": @Json.Serialize(footerSettings.Address) }</text>}
+    }
+    </script>
+
+    @* Page-specific structured data *@
+    @RenderSection("JsonLd", required: false)
 
     @* Prevent theme flash *@
     <script>

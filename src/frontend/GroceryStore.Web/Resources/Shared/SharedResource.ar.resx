@@ -329,4 +329,8 @@
   <data name="Page_Error" xml:space="preserve"><value>خطأ</value></data>
   <data name="Error_Oops" xml:space="preserve"><value>عذراً!</value></data>
   <data name="Error_GenericMessage" xml:space="preserve"><value>حدث خطأ ما. يرجى المحاولة لاحقاً.</value></data>
+
+  <!-- SEO meta descriptions -->
+  <data name="Products_MetaDescription" xml:space="preserve"><value>تصفّح تشكيلتنا الكاملة من المنتجات الطازجة والمعلبة. فلتر حسب الفئة والسعر وأكثر.</value></data>
+  <data name="Categories_MetaDescription" xml:space="preserve"><value>استعرض جميع فئات المنتجات في متجرنا. اكتشف الخضار الطازجة ومنتجات الألبان والمخبوزات والمشروبات وأكثر.</value></data>
 </root>

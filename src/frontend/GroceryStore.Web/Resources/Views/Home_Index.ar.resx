@@ -85,4 +85,7 @@
   <data name="Btn_AllProducts" xml:space="preserve">
     <value>كل المنتجات</value>
   </data>
+  <data name="Home_MetaDescription" xml:space="preserve">
+    <value>تسوّق البقالة الطازجة والمنتجات العضوية والمنتجات المعلبة عالية الجودة بأسعار تنافسية. اكتشف أفضل التشكيلة الطازجة يومياً.</value>
+  </data>
 </root>

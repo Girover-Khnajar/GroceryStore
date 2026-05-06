@@ -85,4 +85,7 @@
   <data name="Btn_AllProducts" xml:space="preserve">
     <value>Alle Produkte</value>
   </data>
+  <data name="Home_MetaDescription" xml:space="preserve">
+    <value>Kaufen Sie frische Lebensmittel, Bio-Produkte und hochwertige verpackte Waren zu wettbewerbsfähigen Preisen. Täglich frische Auswahl.</value>
+  </data>
 </root>

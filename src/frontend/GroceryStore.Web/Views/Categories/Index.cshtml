@@ -6,6 +6,7 @@
     var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
     string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
     ViewData["Title"] = T("Categories_All");
+    ViewData["MetaDescription"] = T("Categories_MetaDescription");
 }
 
 <section class="section" style="padding-top: calc(var(--nav-height) + 2rem);">
