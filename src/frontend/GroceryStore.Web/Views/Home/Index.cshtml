@@ -6,85 +6,137 @@
     var viewResourceManager = new ResourceManager("GroceryStore.Web.Resources.Views.Home_Index", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
     string T(string key) => viewResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
     ViewData["Title"] = T("PageTitle");
+
+    // Hero carousel slides — swap src for your 3 real images when ready
+    var heroSlides = new[]
+    {
+        new { Src = Url.Content("~/images/ui/hero-1.jpeg"), Alt = "Fresh grocery store interior" },
+        new { Src = Url.Content("~/images/ui/hero-2.jpeg"), Alt = "Fresh fruits and vegetables" },
+        new { Src = Url.Content("~/images/ui/hero-3.jpeg"), Alt = "Quality grocery products" },
+    };
+
+    // Features strip
+    var features = new[]
+    {
+        new { Icon = "fas fa-leaf",          Title = T("Feature_Fresh"),    Desc = T("Feature_FreshDesc")   },
+        new { Icon = "fas fa-shield-alt",    Title = T("Feature_Quality"),  Desc = T("Feature_QualityDesc") },
+        new { Icon = "fas fa-tag",           Title = T("Feature_Prices"),   Desc = T("Feature_PricesDesc")  },
+        new { Icon = "fas fa-shipping-fast", Title = T("Feature_Delivery"), Desc = T("Feature_DeliveryDesc")},
+    };
 }
 
-@* ═══ Hero Section ═══ *@
-<section class="hero">
-    <div class="container">
-        <div class="hero-content">
-            <h1 class="hero-title">@T("HeroTitlePrefix") <span class="highlight">@T("HeroTitleHighlight")</span></h1>
-            <p class="hero-subtitle">@T("HeroSubtitle")</p>
-            <div class="hero-actions">
-                <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
-                    <i class="fas fa-shopping-cart"></i> @T("Btn_ShopNow")
-                </a>
-                <a asp-controller="Categories" asp-action="Index" class="btn btn-outline">
-                    <i class="fas fa-th-large"></i> @T("Btn_BrowseCategories")
-                </a>
+@* ═══ Hero Carousel ═══ *@
+<section class="hero-carousel" id="heroCarousel">
+    @for (int i = 0; i < heroSlides.Length; i++)
+    {
+        <div class="hero-slide @(i == 0 ? "active" : "")" style="background-image:url(@heroSlides[i].Src)" aria-label="@heroSlides[i].Alt">
+            <div class="hero-overlay"></div>
+        </div>
+    }
+
+    @* Text content on top *@
+    <div class="hero-body">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    @T("HeroTitlePrefix")
+                    <span class="hero-highlight">@T("HeroTitleHighlight")</span>
+                </h1>
+                <p class="hero-subtitle">@T("HeroSubtitle")</p>
+                <div class="hero-actions">
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-hero-primary">
+                        <i class="fas fa-shopping-cart"></i> @T("Btn_ShopNow")
+                    </a>
+                    <a asp-controller="Categories" asp-action="Index" class="btn btn-hero-outline">
+                        <i class="fas fa-th-large"></i> @T("Btn_BrowseCategories")
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+
+    @* Dot indicators *@
+    <div class="hero-dots">
+        @for (int i = 0; i < heroSlides.Length; i++)
+        {
+            <button class="hero-dot @(i == 0 ? "active" : "")" data-slide="@i" onclick="HeroCarousel.goTo(@i)" aria-label="Slide @(i+1)"></button>
+        }
+    </div>
 </section>
 
-@* ═══ Categories ═══ *@
+@* ═══ Shop by Category ═══ *@
 @if (Model.Categories.Count > 0)
 {
-    <section class="section">
+    <section class="section home-categories">
         <div class="container">
             <h2 class="section-title">@T("Section_ShopByCategory")</h2>
-            <div class="categories-grid">
-                @foreach (var cat in Model.Categories.Take(5))
+            <div class="home-categories-grid">
+                @foreach (var cat in Model.Categories.Take(6))
                 {
-                    var thumbnailUrl = ImageHelper.GetThumbnailUrl(cat.ImageUrl);
-                    <a asp-controller="Categories" asp-action="Details" asp-route-slug="@cat.Slug"
-                       class="category-card">
+                    var thumbUrl = ImageHelper.GetThumbnailUrl(cat.ImageUrl);
+                    <a asp-controller="Categories" asp-action="Details" asp-route-slug="@cat.Slug" class="home-cat-card">
                         @await Html.PartialAsync("_OptimizedImage", new OptimizedImageModel {
                             Src = cat.ImageUrl,
-                            ThumbnailSrc = thumbnailUrl,
+                            ThumbnailSrc = thumbUrl,
                             Alt = cat.Name,
-                            ContainerClass = "category-image",
+                            ContainerClass = "home-cat-img",
                             AspectRatio = "4/3",
                             Eager = false,
-                            Fallback = "/images/ui/category-placeholder.svg"
+                            Fallback = "/images/ui/no-thumbnail.svg"
                         })
-                        <div class="category-info">
-                            <h3>@cat.Name</h3>
+                        <div class="home-cat-body">
+                            <span class="home-cat-name">@cat.Name</span>
+                            <span class="home-cat-arrow"><i class="fas fa-arrow-right"></i></span>
                         </div>
                     </a>
                 }
-            </div>
-            <div style="text-align:center; margin-top:2rem;">
-                <a asp-controller="Categories" asp-action="Index" class="btn btn-outline">
-                    @T("Btn_AllCategories") <i class="fas fa-arrow-right"></i>
-                </a>
             </div>
         </div>
     </section>
 }
 
+@* ═══ Features Strip ═══ *@
+<section class="home-features">
+    <div class="container">
+        <div class="home-features-grid">
+            @foreach (var f in features)
+            {
+                <div class="home-feature-item">
+                    <div class="home-feature-icon">
+                        <i class="@f.Icon"></i>
+                    </div>
+                    <div class="home-feature-text">
+                        <strong>@f.Title</strong>
+                        <span>@f.Desc</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
 @* ═══ Featured Products ═══ *@
 @if (Model.FeaturedProducts.Count > 0)
 {
-    <section class="section section-alt">
+    <section class="section home-products">
         <div class="container">
             <h2 class="section-title">@T("Section_FeaturedProducts")</h2>
             <div class="products-grid">
                 @foreach (var p in Model.FeaturedProducts.Take(6))
                 {
-                    var thumbnailUrl = ImageHelper.GetThumbnailUrl(p.PrimaryImageId);
-                    var featuredOverlay = p.IsFeatured ? $"<span class=\"badge-featured\"><i class=\"fas fa-star\"></i> {T("Badge_Featured")}</span>" : null;
-                    <a asp-controller="Products" asp-action="Details" asp-route-slug="@p.Slug"
-                       class="product-card">
+                    var thumbUrl = ImageHelper.GetThumbnailUrl(p.PrimaryImageId);
+                    var featOverlay = p.IsFeatured ? $"<span class=\"badge-featured\"><i class=\"fas fa-star\"></i> {T("Badge_Featured")}</span>" : null;
+                    <a asp-controller="Products" asp-action="Details" asp-route-slug="@p.Slug" class="product-card">
                         @await Html.PartialAsync("_OptimizedImage", new OptimizedImageModel {
                             Src = p.PrimaryImageId,
-                            ThumbnailSrc = thumbnailUrl,
+                            ThumbnailSrc = thumbUrl,
                             Alt = p.Name,
                             ContainerClass = "product-image",
                             AspectRatio = "1/1",
                             Eager = false,
-                            Fallback = "/images/ui/product-placeholder.svg",
+                            Fallback = "/images/ui/no-thumbnail.svg",
                             ShowOverlay = p.IsFeatured,
-                            OverlayContent = featuredOverlay
+                            OverlayContent = featOverlay
                         })
                         <div class="product-info">
                             <div class="product-name">@p.Name</div>
@@ -108,7 +160,7 @@
                     </a>
                 }
             </div>
-            <div style="text-align:center; margin-top:2rem;">
+            <div style="text-align:center;margin-top:2rem;">
                 <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
                     <i class="fas fa-box-open"></i> @T("Btn_AllProducts")
                 </a>
@@ -116,3 +168,57 @@
         </div>
     </section>
 }
+
+@* ═══ Newsletter ═══ *@
+<section class="home-newsletter">
+    <div class="container">
+        <div class="home-newsletter-inner">
+            <div class="home-newsletter-img">
+                <img src="/images/ui/basket.png" alt="Fresh basket"
+                     onerror="this.style.display='none'" loading="lazy" />
+            </div>
+            <div class="home-newsletter-body">
+                <h3>@T("Newsletter_Title")</h3>
+                <p>@T("Newsletter_Sub")</p>
+            </div>
+            <form class="home-newsletter-form" onsubmit="return false;">
+                <input type="email" placeholder="@T("Newsletter_Placeholder")" required />
+                <button type="submit" class="btn btn-primary">@T("Newsletter_Btn")</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+var HeroCarousel = (function () {
+    var slides = document.querySelectorAll('.hero-slide');
+    var dots   = document.querySelectorAll('.hero-dot');
+    var current = 0;
+    var timer;
+
+    function goTo(idx) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = (idx + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+        resetTimer();
+    }
+
+    function next() { goTo(current + 1); }
+
+    function resetTimer() {
+        clearInterval(timer);
+        timer = setInterval(next, 5000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (slides.length > 1) resetTimer();
+    });
+
+    return { goTo: goTo };
+})();
+</script>
+}
+

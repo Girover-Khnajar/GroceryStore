@@ -46,6 +46,42 @@
   <data name="Title_AddToCart" xml:space="preserve">
     <value>Ajouter au panier</value>
   </data>
+  <data name="Feature_Fresh" xml:space="preserve">
+    <value>100% Frais</value>
+  </data>
+  <data name="Feature_FreshDesc" xml:space="preserve">
+    <value>Produits frais chaque jour</value>
+  </data>
+  <data name="Feature_Quality" xml:space="preserve">
+    <value>Meilleure Qualité</value>
+  </data>
+  <data name="Feature_QualityDesc" xml:space="preserve">
+    <value>Produits soigneusement sélectionnés</value>
+  </data>
+  <data name="Feature_Prices" xml:space="preserve">
+    <value>Meilleurs Prix</value>
+  </data>
+  <data name="Feature_PricesDesc" xml:space="preserve">
+    <value>Prix abordables pour tous</value>
+  </data>
+  <data name="Feature_Delivery" xml:space="preserve">
+    <value>Livraison Rapide</value>
+  </data>
+  <data name="Feature_DeliveryDesc" xml:space="preserve">
+    <value>Livraison rapide et sécurisée</value>
+  </data>
+  <data name="Newsletter_Title" xml:space="preserve">
+    <value>Les meilleures offres &amp; actualités</value>
+  </data>
+  <data name="Newsletter_Sub" xml:space="preserve">
+    <value>Abonnez-vous à notre newsletter et ne manquez plus aucune offre fraîche.</value>
+  </data>
+  <data name="Newsletter_Placeholder" xml:space="preserve">
+    <value>Votre adresse e-mail</value>
+  </data>
+  <data name="Newsletter_Btn" xml:space="preserve">
+    <value>S'abonner</value>
+  </data>
   <data name="Btn_AllProducts" xml:space="preserve">
     <value>Tous les produits</value>
   </data>
