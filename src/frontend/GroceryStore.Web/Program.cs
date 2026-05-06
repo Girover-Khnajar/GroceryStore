@@ -6,6 +6,7 @@ using GroceryStore.Infrastructure.Persistence;
 using GroceryStore.Web.Services;
 using GroceryStore.Web.Services.Localization;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -62,6 +63,20 @@ builder.Services.AddScoped<ImageUrlHelper>();
 builder.Services.AddLocalization(options => 
     options.ResourcesPath = "Resources");
 
+// ── Reverse proxy / Cloudflare forwarded headers ──────────────────────
+// Ensures Request.Scheme/Host reflect the public URL (fixes canonical/og:url).
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto |
+        ForwardedHeaders.XForwardedHost;
+
+    // Cloudflare / proxies: accept forwarded headers from any proxy IP.
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 // Configure localization options: cultures, default culture, providers
 builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.ConfigureLocalization());
@@ -75,7 +90,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-//app.UseHttpsRedirection();
+app.UseForwardedHeaders();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles();
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
@@ -91,6 +111,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // ── Routes ─────────────────────────────────────────────────────────────
+app.MapControllerRoute(
+    name: "sitemap",
+    pattern: "sitemap.xml",
+    defaults: new { controller = "Sitemap", action = "Index" });
+
 app.MapControllerRoute(
     name: "admin",
     pattern: "Admin/{action=Dashboard}/{id?}",
