@@ -22,7 +22,7 @@ public class SitemapController : Controller
     public SitemapController(IMessageDispatcher dispatcher)
         => _dispatcher = dispatcher;
 
-    [HttpGet]
+    [AcceptVerbs("GET", "HEAD")]
     [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Any)]
     public async Task<IActionResult> Index(CancellationToken ct)
     {
@@ -41,7 +41,7 @@ public class SitemapController : Controller
 
         var settings = new XmlWriterSettings
         {
-            Encoding = Encoding.UTF8,
+            Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
             Indent = true,
             Async = true
         };
