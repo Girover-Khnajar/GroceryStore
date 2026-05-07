@@ -35,7 +35,6 @@ public sealed class TestimonialConfiguration : IEntityTypeConfiguration<Testimon
 
         builder.Property(t => t.TestimonialText)
             .HasColumnName("testimonial")
-            .HasColumnType("nvarchar(max)")
             .IsRequired();
 
         builder.Property(t => t.SortOrder)
