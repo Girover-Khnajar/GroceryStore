@@ -1,4 +1,5 @@
 @using GroceryStore.Web.Services.Localization
+@using GroceryStore.Web.Extensions
 @using System.Globalization
 @using System.Resources
 @inject GroceryStore.Web.Services.IStoreSettingsService StoreSettingsService
@@ -307,7 +308,7 @@
                         {
                             foreach (var line in footerHours)
                             {
-                                <li>@line</li>
+                                <li>@OpeningHoursLocalization.LocalizeDayNames(line, CultureInfo.CurrentUICulture)</li>
                             }
                         }
                     </ul>
