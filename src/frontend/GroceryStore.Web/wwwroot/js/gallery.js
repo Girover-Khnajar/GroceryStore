@@ -24,7 +24,8 @@ window.Gallery = (function () {
         draggingId:    null,
         dragTargetId:  null,
         busyAssign:    false,
-        busyGenerateThumbs: false
+        busyGenerateThumbs: false,
+        missingThumbs: null
     };
 
     // ── DOM cache ────────────────────────────────────────────────────
@@ -120,7 +121,24 @@ window.Gallery = (function () {
         populateEntitySelect();
         renderGrid();
         updateBulkBar();
+        updateGenerateThumbsButton();
         loadThumbnailStats();
+    }
+
+    function updateGenerateThumbsButton() {
+        var btn = document.getElementById('generateThumbsBtn');
+        if (!btn) return;
+
+        // If we don't know the count yet, don't block the action.
+        // If we do know, disable when there are no missing thumbnails.
+        var hasMissing = (S.missingThumbs == null) ? true : (S.missingThumbs > 0);
+        btn.disabled = S.busyGenerateThumbs || !hasMissing;
+
+        if (!hasMissing) {
+            btn.title = 'No missing thumbnails to generate.';
+        } else {
+            btn.title = 'Generate thumbnails for originals that are missing thumbnails.';
+        }
     }
 
     function bindEvents() {
@@ -518,6 +536,9 @@ window.Gallery = (function () {
     async function generateMissingThumbnails() {
         if (S.busyGenerateThumbs) return;
 
+        // If we already know there are no missing thumbnails, do nothing.
+        if (S.missingThumbs === 0) return;
+
         if (!confirm('Generate thumbnails for original images that do not have thumbnails yet?'))
             return;
 
@@ -557,9 +578,10 @@ window.Gallery = (function () {
         } finally {
             S.busyGenerateThumbs = false;
             if (btn) {
-                btn.disabled = false;
                 btn.innerHTML = previousHtml;
             }
+
+            updateGenerateThumbsButton();
         }
     }
 
@@ -570,11 +592,14 @@ window.Gallery = (function () {
             var resp = await fetch('/Admin/Gallery/ThumbnailStats');
             if (!resp.ok) {
                 $thumbStatsBadge.style.display = 'none';
+                S.missingThumbs = null;
+                updateGenerateThumbsButton();
                 return;
             }
 
             var data = await resp.json();
             var missing = data.missing || 0;
+            S.missingThumbs = missing;
 
             if (missing > 0) {
                 $thumbStatsBadge.style.display = '';
@@ -587,8 +612,12 @@ window.Gallery = (function () {
                 $thumbStatsBadge.style.background = '#dcfce7';
                 $thumbStatsBadge.style.color = '#166534';
             }
+
+            updateGenerateThumbsButton();
         } catch (_) {
             $thumbStatsBadge.style.display = 'none';
+            S.missingThumbs = null;
+            updateGenerateThumbsButton();
         }
     }
 
