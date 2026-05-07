@@ -144,13 +144,6 @@
                 <a asp-controller="Products" asp-action="Index" class="nav-link">
                     <i class="fas fa-box-open"></i> @T("Nav_Products")
                 </a>
-                <a asp-controller="Cart" asp-action="Index" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> @T("Nav_Cart")
-                    @if (cartItemCount > 0)
-                    {
-                        <span class="cart-badge">@cartItemCount</span>
-                    }
-                </a>
                 <a asp-controller="Home" asp-action="Contact" class="nav-link">
                     <i class="fas fa-envelope"></i> @T("Nav_Contact")
                 </a>
