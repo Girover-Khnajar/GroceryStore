@@ -40,6 +40,9 @@
   <data name="Section_FeaturedProducts" xml:space="preserve">
     <value>Empfohlene Produkte</value>
   </data>
+  <data name="Section_Testimonials" xml:space="preserve">
+    <value>Was unsere Kunden sagen</value>
+  </data>
   <data name="Badge_Featured" xml:space="preserve">
     <value>Empfohlen</value>
   </data>

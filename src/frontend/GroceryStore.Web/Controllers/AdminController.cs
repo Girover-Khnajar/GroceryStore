@@ -31,7 +31,9 @@ public class AdminController : Controller
 {
     private readonly IMessageDispatcher _dispatcher;
     private readonly IWebHostEnvironment _env;
+    private readonly IUnitOfWork _uow;
     private readonly IStoreSettingsService _settingsService;
+    private readonly ITestimonialRepository _testimonials;
     private readonly IUserRepository _users;
     private readonly IPasswordHasher<User> _hasher;
     private readonly IImageProcessor _imageProcessor;
@@ -39,14 +41,18 @@ public class AdminController : Controller
     public AdminController(
         IMessageDispatcher dispatcher,
         IWebHostEnvironment env,
+        IUnitOfWork uow,
         IStoreSettingsService settingsService,
+        ITestimonialRepository testimonials,
         IUserRepository users,
         IPasswordHasher<User> hasher,
         IImageProcessor imageProcessor)
     {
         _dispatcher = dispatcher;
         _env = env;
+        _uow = uow;
         _settingsService = settingsService;
+        _testimonials = testimonials;
         _users = users;
         _hasher = hasher;
         _imageProcessor = imageProcessor;
@@ -849,7 +855,206 @@ public class AdminController : Controller
             : BadRequest(new { error = "Set primary failed." });
     }
 
+    // ── Testimonials CRUD ──────────────────────────────────────────────
+
+    [HttpGet("Testimonials")]
+    public async Task<IActionResult> Testimonials(CancellationToken ct)
+    {
+        var items = await _testimonials.GetAllAsync(ct);
+        var vm = items.Select(t => new TestimonialListItemViewModel
+        {
+            Id = t.Id,
+            ClientName = t.ClientName,
+            ClientTitle = t.ClientTitle,
+            ClientCompany = t.ClientCompany,
+            ClientImage = t.ClientImage,
+            Rating = t.Rating,
+            Testimonial = t.TestimonialText,
+            SortOrder = t.SortOrder,
+            IsActive = t.IsActive
+        }).ToList();
+
+        return View(vm);
+    }
+
+    [HttpGet("Testimonials/Create")]
+    public IActionResult TestimonialCreate() => View("TestimonialForm", new TestimonialFormViewModel());
+
+    [HttpPost("Testimonials/Create")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TestimonialCreate(TestimonialFormViewModel vm, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+            return View("TestimonialForm", vm);
+
+        var imagePath = await SaveTestimonialImageAsync(vm.ClientImageFile, vm.ClientImage, ct);
+        if (imagePath is null && vm.ClientImageFile is not null)
+            return View("TestimonialForm", vm);
+
+        var testimonial = Testimonial.Create(
+            vm.ClientName,
+            vm.Testimonial,
+            vm.ClientTitle,
+            vm.ClientCompany,
+            imagePath,
+            vm.Rating,
+            vm.SortOrder,
+            vm.IsActive);
+
+        await _testimonials.AddAsync(testimonial, ct);
+        await _uow.SaveChangesAsync(ct);
+
+        TempData["Success"] = "Testimonial created successfully.";
+        return RedirectToAction(nameof(Testimonials));
+    }
+
+    [HttpGet("Testimonials/Edit/{id:guid}")]
+    public async Task<IActionResult> TestimonialEdit(Guid id, CancellationToken ct)
+    {
+        var item = await _testimonials.FindByIdAsync(id, ct);
+        if (item is null)
+            return NotFound();
+
+        var vm = new TestimonialFormViewModel
+        {
+            Id = item.Id,
+            ClientName = item.ClientName,
+            ClientTitle = item.ClientTitle,
+            ClientCompany = item.ClientCompany,
+            ClientImage = item.ClientImage,
+            Rating = item.Rating,
+            Testimonial = item.TestimonialText,
+            SortOrder = item.SortOrder,
+            IsActive = item.IsActive
+        };
+
+        return View("TestimonialForm", vm);
+    }
+
+    [HttpPost("Testimonials/Edit/{id:guid}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TestimonialEdit(Guid id, TestimonialFormViewModel vm, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+            return View("TestimonialForm", vm);
+
+        var item = await _testimonials.FindByIdAsync(id, ct);
+        if (item is null)
+            return NotFound();
+
+        var imagePath = await SaveTestimonialImageAsync(vm.ClientImageFile, vm.ClientImage, ct);
+        if (imagePath is null && vm.ClientImageFile is not null)
+            return View("TestimonialForm", vm);
+
+        item.Update(
+            vm.ClientName,
+            vm.Testimonial,
+            vm.ClientTitle,
+            vm.ClientCompany,
+            imagePath,
+            vm.Rating,
+            vm.SortOrder,
+            vm.IsActive);
+
+        _testimonials.Update(item);
+        await _uow.SaveChangesAsync(ct);
+
+        TempData["Success"] = "Testimonial updated successfully.";
+        return RedirectToAction(nameof(Testimonials));
+    }
+
+    [HttpPost("Testimonials/Delete/{id:guid}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TestimonialDelete(Guid id, CancellationToken ct)
+    {
+        var item = await _testimonials.FindByIdAsync(id, ct);
+        if (item is null)
+            return NotFound();
+
+        _testimonials.Delete(item);
+        await _uow.SaveChangesAsync(ct);
+
+        TempData["Success"] = "Testimonial deleted successfully.";
+        return RedirectToAction(nameof(Testimonials));
+    }
+
+    [HttpPost("Testimonials/ToggleActive/{id:guid}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TestimonialToggleActive(Guid id, CancellationToken ct)
+    {
+        await _testimonials.ToggleActiveAsync(id, ct);
+        TempData["Success"] = "Testimonial status updated.";
+        return RedirectToAction(nameof(Testimonials));
+    }
+
+    [HttpPost("Testimonials/SortOrder")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TestimonialUpdateSortOrder(List<TestimonialSortItemViewModel> items, CancellationToken ct)
+    {
+        if (items.Count == 0)
+            return RedirectToAction(nameof(Testimonials));
+
+        await _testimonials.UpdateSortOrderAsync(items.Select(x => (x.Id, x.SortOrder)), ct);
+        TempData["Success"] = "Testimonial order updated.";
+        return RedirectToAction(nameof(Testimonials));
+    }
+
     // ── Helpers ────────────────────────────────────────────────────────
+
+    private async Task<string?> SaveTestimonialImageAsync(
+        IFormFile? file,
+        string? existingImage,
+        CancellationToken ct)
+    {
+        if (file is null || file.Length == 0)
+            return existingImage;
+
+        if (file.Length > 5 * 1024 * 1024)
+        {
+            ModelState.AddModelError(nameof(TestimonialFormViewModel.ClientImageFile), "Image must not exceed 5 MB.");
+            return null;
+        }
+
+        var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "image/jpeg", "image/png", "image/webp", "image/gif"
+        };
+
+        if (string.IsNullOrWhiteSpace(file.ContentType) || !allowed.Contains(file.ContentType))
+        {
+            ModelState.AddModelError(nameof(TestimonialFormViewModel.ClientImageFile), "Unsupported image type.");
+            return null;
+        }
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(ext) || ext.Length > 10)
+            ext = file.ContentType.ToLowerInvariant() switch
+            {
+                "image/jpeg" => ".jpg",
+                "image/png" => ".png",
+                "image/webp" => ".webp",
+                "image/gif" => ".gif",
+                _ => string.Empty
+            };
+
+        if (string.IsNullOrWhiteSpace(ext))
+        {
+            ModelState.AddModelError(nameof(TestimonialFormViewModel.ClientImageFile), "Unsupported image extension.");
+            return null;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var safeName = $"{Guid.NewGuid():N}{ext}";
+        var relativePath = Path.Combine("images", "testimonials", now.Year.ToString(), now.Month.ToString("00"), safeName);
+        var physicalPath = Path.Combine(_env.WebRootPath, relativePath);
+
+        Directory.CreateDirectory(Path.GetDirectoryName(physicalPath)!);
+
+        await using var fs = System.IO.File.Create(physicalPath);
+        await file.CopyToAsync(fs, ct);
+
+        return "/" + relativePath.Replace('\\', '/');
+    }
 
     private async Task<IReadOnlyList<CategoryDto>> GetAllCategories(CancellationToken ct)
     {

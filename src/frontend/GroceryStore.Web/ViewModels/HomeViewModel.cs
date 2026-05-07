@@ -7,4 +7,5 @@ public sealed class HomeViewModel
 {
     public IReadOnlyList<CategoryDto> Categories { get; init; } = [];
     public IReadOnlyList<ProductListItemDto> FeaturedProducts { get; init; } = [];
+    public IReadOnlyList<TestimonialViewModel> Testimonials { get; init; } = [];
 }

@@ -172,6 +172,101 @@
     </section>
 }
 
+@* ═══ Testimonials ═══ *@
+@if (Model.Testimonials.Count > 0)
+{
+    <style>
+        #testimonialsCarousel { position:relative; padding:0 44px; box-sizing:border-box; }
+        #testimonialsCarousel .tc-btn {
+            position:absolute; top:50%; transform:translateY(-50%);
+            width:36px; height:36px; border:1px solid var(--border);
+            background:var(--surface); border-radius:50%; cursor:pointer;
+            z-index:1; display:flex; align-items:center; justify-content:center;
+            color:var(--text);
+        }
+        #testimonialsCarousel .tc-btn-prev { left:0; }
+        #testimonialsCarousel .tc-btn-next { right:0; }
+        #testimonialsCarousel .tc-btn:hover { background:var(--bg-light); }
+        #testimonialsCarousel .tc-viewport { overflow:hidden; }
+        #testimonialsCarousel .tc-track { display:flex; flex-wrap:nowrap; }
+        #testimonialsCarousel .tc-item {
+            flex:0 0 auto;
+            background:var(--surface); border:1px solid var(--border);
+            border-radius:var(--radius-lg); padding:1rem;
+            display:flex; flex-direction:column; gap:.75rem;
+            box-sizing:border-box;
+        }
+        #testimonialsCarousel .tc-dots { display:flex; justify-content:center; gap:.4rem; margin-top:1rem; }
+        #testimonialsCarousel .tc-dots button {
+            width:10px; height:10px; border-radius:50%; border:none;
+            cursor:pointer; padding:0; transition:background .25s;
+        }
+    </style>
+
+    <section class="section" style="padding-top:1rem;">
+        <div class="container">
+            <h2 class="section-title">@T("Section_Testimonials")</h2>
+
+            <div id="testimonialsCarousel">
+                <button type="button" class="tc-btn tc-btn-prev" onclick="TestimonialsCarousel.prev()" aria-label="Previous testimonials">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <div class="tc-viewport">
+                    <div class="tc-track">
+                        @foreach (var t in Model.Testimonials)
+                        {
+                            <div class="tc-item">
+                                <div style="display:flex;align-items:center;gap:.75rem;">
+                                    @if (!string.IsNullOrWhiteSpace(t.ClientImage))
+                                    {
+                                        <img src="@t.ClientImage" alt="@t.ClientName" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--border);" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div style="width:52px;height:52px;border-radius:50%;background:var(--bg-light);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);">
+                                            <i class="fas fa-user" style="color:var(--text-light);"></i>
+                                        </div>
+                                    }
+                                    <div>
+                                        <div style="font-weight:700;">@t.ClientName</div>
+                                        @if (!string.IsNullOrWhiteSpace(t.ClientTitle) || !string.IsNullOrWhiteSpace(t.ClientCompany))
+                                        {
+                                            <div style="font-size:.85rem;color:var(--text-light);">
+                                                @t.ClientTitle@if (!string.IsNullOrWhiteSpace(t.ClientTitle) && !string.IsNullOrWhiteSpace(t.ClientCompany)){<text>, </text>}@t.ClientCompany
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                @if (t.Rating.HasValue)
+                                {
+                                    <div style="color:#f59e0b;font-size:.9rem;">
+                                        @for (var i = 0; i < t.Rating.Value; i++)
+                                        {
+                                            <i class="fas fa-star"></i>
+                                        }
+                                    </div>
+                                }
+
+                                <blockquote style="margin:0;color:var(--text-light);font-style:italic;line-height:1.55;">
+                                    "@t.Testimonial"
+                                </blockquote>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <button type="button" class="tc-btn tc-btn-next" onclick="TestimonialsCarousel.next()" aria-label="Next testimonials">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+
+                <div class="tc-dots"></div>
+            </div>
+        </div>
+    </section>
+}
+
 @* ═══ Newsletter ═══ *@
 <section class="home-newsletter">
     <div class="container">
@@ -221,6 +316,113 @@ var HeroCarousel = (function () {
     });
 
     return { goTo: goTo };
+})();
+
+var TestimonialsCarousel = (function () {
+    var track, viewport, dotsEl, prevBtn, nextBtn;
+    var items = [];
+    var current = 0;
+    var ipp = 1;       // items per page
+    var pages = 0;
+    var itemWidth = 0; // stored after layout so updatePosition stays consistent
+    var gap = 0;
+    var timer;
+
+    function getIpp() { return window.innerWidth >= 768 ? 3 : 1; }
+
+    function layout() {
+        ipp = getIpp();
+        gap = ipp > 1 ? 16 : 0;
+        var vw = viewport.offsetWidth;
+        itemWidth = Math.floor((vw - gap * (ipp - 1)) / ipp);
+
+        items.forEach(function (item) {
+            item.style.width = itemWidth + 'px';
+            item.style.flexShrink = '0';
+        });
+        track.style.gap = gap + 'px';
+
+        pages = Math.ceil(items.length / ipp);
+        if (current >= pages) current = 0;
+
+        buildDots();
+
+        var show = pages > 1;
+        prevBtn.style.display = show ? '' : 'none';
+        nextBtn.style.display = show ? '' : 'none';
+
+        updatePosition(false);
+        if (show) resetTimer(); else clearInterval(timer);
+    }
+
+    function buildDots() {
+        dotsEl.innerHTML = '';
+        if (pages <= 1) return;
+        for (var i = 0; i < pages; i++) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.setAttribute('aria-label', 'Page ' + (i + 1));
+            btn.style.background = i === current ? 'var(--primary)' : 'var(--border)';
+            (function (idx) {
+                btn.addEventListener('click', function () { goTo(idx); });
+            }(i));
+            dotsEl.appendChild(btn);
+        }
+    }
+
+    function updateDots() {
+        var btns = dotsEl.querySelectorAll('button');
+        btns.forEach(function (b, i) {
+            b.style.background = i === current ? 'var(--primary)' : 'var(--border)';
+        });
+    }
+
+    function updatePosition(animate) {
+        if (!items.length || itemWidth === 0) return;
+        var offset = current * ipp * (itemWidth + gap);
+        track.style.transition = animate ? 'transform .45s cubic-bezier(.4,0,.2,1)' : 'none';
+        track.style.transform = 'translateX(-' + offset + 'px)';
+        updateDots();
+    }
+
+    function goTo(index) {
+        if (!track || pages === 0) return;
+        current = (index + pages) % pages;
+        updatePosition(true);
+        resetTimer();
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    function resetTimer() {
+        clearInterval(timer);
+        if (pages > 1) timer = setInterval(next, 7000);
+    }
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            var newIpp = getIpp();
+            if (newIpp !== ipp) current = 0;
+            layout();
+        }, 150);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var carousel = document.getElementById('testimonialsCarousel');
+        if (!carousel) return;
+        track    = carousel.querySelector('.tc-track');
+        viewport = carousel.querySelector('.tc-viewport');
+        dotsEl   = carousel.querySelector('.tc-dots');
+        prevBtn  = carousel.querySelector('.tc-btn-prev');
+        nextBtn  = carousel.querySelector('.tc-btn-next');
+        items    = Array.from(track.children);
+        layout();
+    });
+
+    return { goTo: goTo, next: next, prev: prev };
 })();
 </script>
 }
