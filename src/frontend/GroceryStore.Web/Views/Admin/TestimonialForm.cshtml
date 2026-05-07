@@ -1,0 +1,88 @@
+@model GroceryStore.Web.ViewModels.Admin.TestimonialFormViewModel
+@using System.Globalization
+@using System.Resources
+@{
+    Layout = "_AdminLayout";
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? T("Admin_TestimonialEdit") : T("Admin_TestimonialAdd");
+}
+
+<div class="form-card" style="max-width:760px;">
+    <form asp-action="@(isEdit ? "TestimonialEdit" : "TestimonialCreate")" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="validation-message" style="margin-bottom:1rem;"></div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="ClientName" class="form-label">@T("Admin_TestimonialClientName") *</label>
+                <input asp-for="ClientName" class="form-control" />
+                <span asp-validation-for="ClientName" class="validation-message"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Rating" class="form-label">@T("Admin_TestimonialRating")</label>
+                <input asp-for="Rating" type="number" min="1" max="5" class="form-control" />
+                <span asp-validation-for="Rating" class="validation-message"></span>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="ClientTitle" class="form-label">@T("Admin_TestimonialClientTitle")</label>
+                <input asp-for="ClientTitle" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ClientCompany" class="form-label">@T("Admin_TestimonialClientCompany")</label>
+                <input asp-for="ClientCompany" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Testimonial" class="form-label">@T("Admin_TestimonialText") *</label>
+            <textarea asp-for="Testimonial" class="form-control" rows="5"></textarea>
+            <span asp-validation-for="Testimonial" class="validation-message"></span>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="ClientImageFile" class="form-label">@T("Admin_TestimonialUploadImage")</label>
+                <input asp-for="ClientImageFile" type="file" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif" />
+                <span asp-validation-for="ClientImageFile" class="validation-message"></span>
+                <small style="color:var(--text-light);">@T("Admin_TestimonialImageHelp")</small>
+            </div>
+            <div class="form-group">
+                <label asp-for="ClientImage" class="form-label">@T("Admin_TestimonialExistingImage")</label>
+                <input asp-for="ClientImage" class="form-control" placeholder="@T("Admin_TestimonialImagePlaceholder")" />
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ClientImage))
+        {
+            <div class="form-group" style="margin-top:-.5rem;">
+                <img src="@Model.ClientImage" alt="@T("Admin_TestimonialCurrentImageAlt")" style="width:96px;height:96px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" />
+            </div>
+        }
+
+        <div class="form-row" style="grid-template-columns:1fr 1fr;">
+            <div class="form-group">
+                <label asp-for="SortOrder" class="form-label">@T("Admin_SortOrder")</label>
+                <input asp-for="SortOrder" type="number" class="form-control" />
+                <span asp-validation-for="SortOrder" class="validation-message"></span>
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;gap:.5rem;padding-top:1.8rem;">
+                <input asp-for="IsActive" type="checkbox" />
+                <label asp-for="IsActive" style="font-weight:500;">@T("Admin_Active")</label>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1rem;">
+            <a asp-action="Testimonials" class="btn-secondary"><i class="fas fa-times"></i> @T("Btn_Cancel")</a>
+            <button type="submit" class="btn-submit"><i class="fas fa-save"></i> @T("Btn_Save")</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

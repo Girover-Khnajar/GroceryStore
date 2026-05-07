@@ -242,6 +242,27 @@
   <data name="Admin_Icon" xml:space="preserve"><value>الأيقونة (FontAwesome)</value></data>
   <data name="Admin_StoreSettings" xml:space="preserve"><value>إعدادات المتجر</value></data>
   <data name="Admin_SaveSettings" xml:space="preserve"><value>حفظ الإعدادات</value></data>
+  <data name="Admin_TestimonialAdd" xml:space="preserve"><value>إضافة شهادة</value></data>
+  <data name="Admin_TestimonialEdit" xml:space="preserve"><value>تعديل الشهادة</value></data>
+  <data name="Admin_TestimonialClientName" xml:space="preserve"><value>اسم العميل</value></data>
+  <data name="Admin_TestimonialRating" xml:space="preserve"><value>التقييم (1-5)</value></data>
+  <data name="Admin_TestimonialClientTitle" xml:space="preserve"><value>المسمى الوظيفي للعميل</value></data>
+  <data name="Admin_TestimonialClientCompany" xml:space="preserve"><value>شركة العميل</value></data>
+  <data name="Admin_TestimonialText" xml:space="preserve"><value>الشهادة</value></data>
+  <data name="Admin_TestimonialUploadImage" xml:space="preserve"><value>رفع صورة العميل</value></data>
+  <data name="Admin_TestimonialImageHelp" xml:space="preserve"><value>اختياري. JPG، PNG، WEBP، GIF حتى 5 ميجابايت.</value></data>
+  <data name="Admin_TestimonialExistingImage" xml:space="preserve"><value>أو رابط/مسار صورة موجودة</value></data>
+  <data name="Admin_TestimonialImagePlaceholder" xml:space="preserve"><value>/images/testimonials/client.jpg</value></data>
+  <data name="Admin_TestimonialCurrentImageAlt" xml:space="preserve"><value>صورة العميل الحالية</value></data>
+  <data name="Admin_Testimonials" xml:space="preserve"><value>الشهادات</value></data>
+  <data name="Admin_NoTestimonialsYet" xml:space="preserve"><value>لا توجد شهادات بعد.</value></data>
+  <data name="Admin_Image" xml:space="preserve"><value>الصورة</value></data>
+  <data name="Admin_Client" xml:space="preserve"><value>العميل</value></data>
+  <data name="Admin_Status" xml:space="preserve"><value>الحالة</value></data>
+  <data name="Admin_Inactive" xml:space="preserve"><value>غير نشط</value></data>
+  <data name="Admin_ToggleActive" xml:space="preserve"><value>تبديل الحالة</value></data>
+  <data name="Admin_DeleteTestimonialConfirm" xml:space="preserve"><value>حذف هذه الشهادة؟</value></data>
+  <data name="Admin_SaveSortOrder" xml:space="preserve"><value>حفظ ترتيب العرض</value></data>
   <data name="Admin_Settings_StoreName" xml:space="preserve"><value>اسم المتجر</value></data>
   <data name="Admin_Settings_StoreNamePlaceholder" xml:space="preserve"><value>مثال: متجر بقالة فريش</value></data>
   <data name="Admin_Settings_Phone" xml:space="preserve"><value>الهاتف</value></data>

@@ -40,6 +40,9 @@
   <data name="Section_FeaturedProducts" xml:space="preserve">
     <value>منتجات مميزة</value>
   </data>
+  <data name="Section_Testimonials" xml:space="preserve">
+    <value>ماذا يقول عملاؤنا</value>
+  </data>
   <data name="Badge_Featured" xml:space="preserve">
     <value>مميز</value>
   </data>

@@ -1,0 +1,115 @@
+@model IReadOnlyList<GroceryStore.Web.ViewModels.Admin.TestimonialListItemViewModel>
+@using System.Globalization
+@using System.Resources
+@{
+    Layout = "_AdminLayout";
+    var sharedResourceManager = new ResourceManager("GroceryStore.Web.Shared.SharedResource", typeof(GroceryStore.Web.Controllers.HomeController).Assembly);
+    string T(string key) => sharedResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    ViewData["Title"] = T("Admin_Testimonials");
+}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap;">
+    <h2 style="font-size:1.25rem;font-weight:700;"><i class="fas fa-quote-right" style="color:var(--primary);"></i> @T("Admin_Testimonials")</h2>
+    <a asp-action="TestimonialCreate" class="btn btn-primary"><i class="fas fa-plus"></i> @T("Admin_TestimonialAdd")</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div style="text-align:center;padding:2rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);color:var(--text-light);">
+        @T("Admin_NoTestimonialsYet")
+    </div>
+}
+else
+{
+    <form asp-action="TestimonialUpdateSortOrder" method="post">
+        @Html.AntiForgeryToken()
+        <div class="table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width:70px;">@T("Admin_Image")</th>
+                        <th>@T("Admin_Client")</th>
+                        <th>@T("Admin_TestimonialRating")</th>
+                        <th>@T("Admin_TestimonialText")</th>
+                        <th style="width:120px;">@T("Admin_SortOrder")</th>
+                        <th style="text-align:center;">@T("Admin_Status")</th>
+                        <th style="text-align:center;">@T("Admin_Actions")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < Model.Count; i++)
+                    {
+                        var t = Model[i];
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(t.ClientImage))
+                                {
+                                    <img src="@t.ClientImage" alt="@t.ClientName" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border);" />
+                                }
+                                else
+                                {
+                                    <div style="width:48px;height:48px;border-radius:6px;background:var(--bg-light);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas fa-user" style="color:var(--text-light);"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <strong>@t.ClientName</strong>
+                                @if (!string.IsNullOrWhiteSpace(t.ClientTitle) || !string.IsNullOrWhiteSpace(t.ClientCompany))
+                                {
+                                    <div style="color:var(--text-light);font-size:.85rem;">
+                                        @t.ClientTitle@if (!string.IsNullOrWhiteSpace(t.ClientTitle) && !string.IsNullOrWhiteSpace(t.ClientCompany)){<text>, </text>}@t.ClientCompany
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @if (t.Rating.HasValue)
+                                {
+                                    @for (int s = 0; s < t.Rating.Value; s++)
+                                    {
+                                        <i class="fas fa-star" style="color:#f59e0b;"></i>
+                                    }
+                                }
+                            </td>
+                            <td style="max-width:420px;">
+                                <span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+                                    @t.Testimonial
+                                </span>
+                            </td>
+                            <td>
+                                <input type="hidden" name="[@i].Id" value="@t.Id" />
+                                <input name="[@i].SortOrder" type="number" value="@t.SortOrder" class="form-control" style="max-width:90px;" />
+                            </td>
+                            <td style="text-align:center;">
+                                <span style="font-weight:600;color:@(t.IsActive ? "#059669" : "#dc2626")">
+                                    @(t.IsActive ? T("Admin_Active") : T("Admin_Inactive"))
+                                </span>
+                            </td>
+                            <td style="text-align:center;white-space:nowrap;">
+                                <a asp-action="TestimonialEdit" asp-route-id="@t.Id" class="btn-edit" title="@T("Btn_Edit")">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form asp-action="TestimonialToggleActive" asp-route-id="@t.Id" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-edit" title="@T("Admin_ToggleActive")">
+                                        <i class="fas @(t.IsActive ? "fa-eye-slash" : "fa-eye")"></i>
+                                    </button>
+                                </form>
+                                <form asp-action="TestimonialDelete" asp-route-id="@t.Id" method="post" style="display:inline;" onsubmit="return confirm('@T("Admin_DeleteTestimonialConfirm")');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-delete" title="@T("Btn_Delete")">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-sort"></i> @T("Admin_SaveSortOrder")</button>
+        </div>
+    </form>
+}

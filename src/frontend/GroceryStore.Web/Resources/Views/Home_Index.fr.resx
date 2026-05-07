@@ -40,6 +40,9 @@
   <data name="Section_FeaturedProducts" xml:space="preserve">
     <value>Produits en vedette</value>
   </data>
+  <data name="Section_Testimonials" xml:space="preserve">
+    <value>Ce que disent nos clients</value>
+  </data>
   <data name="Badge_Featured" xml:space="preserve">
     <value>En vedette</value>
   </data>

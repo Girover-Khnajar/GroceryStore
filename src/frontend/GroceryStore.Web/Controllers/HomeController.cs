@@ -4,6 +4,7 @@ using GroceryStore.Application.Categories.Queries;
 using GroceryStore.Application.Common;
 using GroceryStore.Application.Products.Dtos;
 using GroceryStore.Application.Products.Queries.GetProducts;
+using GroceryStore.Domain.Interfaces;
 using GroceryStore.Web.Services;
 using GroceryStore.Web.ViewModels;
 using Microsoft.AspNetCore.Diagnostics;
@@ -15,13 +16,16 @@ public class HomeController : Controller
 {
     private readonly IMessageDispatcher _dispatcher;
     private readonly IStoreSettingsService _settingsService;
+    private readonly ITestimonialRepository _testimonialRepository;
 
     public HomeController(
         IMessageDispatcher dispatcher,
-        IStoreSettingsService settingsService)
+        IStoreSettingsService settingsService,
+        ITestimonialRepository testimonialRepository)
     {
         _dispatcher = dispatcher;
         _settingsService = settingsService;
+        _testimonialRepository = testimonialRepository;
     }
 
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -44,12 +48,25 @@ public class HomeController : Controller
                     Page: 1,
                     PageSize: 6), ct);
 
+        var testimonials = await _testimonialRepository.GetActiveAsync(ct);
+
         var vm = new HomeViewModel
         {
             Categories = categoriesResult.IsSuccess
                 ? categoriesResult.Value! : [],
             FeaturedProducts = productsResult.IsSuccess
-                ? productsResult.Value!.Items : []
+                ? productsResult.Value!.Items : [],
+            Testimonials = testimonials
+                .Select(t => new TestimonialViewModel
+                {
+                    ClientName = t.ClientName,
+                    ClientTitle = t.ClientTitle,
+                    ClientCompany = t.ClientCompany,
+                    ClientImage = t.ClientImage,
+                    Rating = t.Rating,
+                    Testimonial = t.TestimonialText,
+                })
+                .ToList()
         };
 
         return View(vm);
